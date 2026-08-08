@@ -280,11 +280,10 @@ export default function Lease360LandingPage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                  selectedCategory === cat.id
+                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${selectedCategory === cat.id
                     ? 'bg-[#F26522] text-white shadow-md shadow-[#F26522]/20'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200/60'
-                }`}
+                  }`}
               >
                 {cat.label}
               </button>
@@ -325,11 +324,10 @@ export default function Lease360LandingPage() {
                         <span className="text-gray-400 text-[11px] font-medium block">/day</span>
                       </div>
 
-                      <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-md border ${
-                        p.availableStock > 0
+                      <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-md border ${p.availableStock > 0
                           ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
                           : 'text-red-700 bg-red-50 border-red-200'
-                      }`}>
+                        }`}>
                         {p.availableStock > 0 ? `${p.availableStock} in stock` : 'Rented out'}
                       </span>
                     </div>

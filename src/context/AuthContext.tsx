@@ -30,11 +30,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refresh = async () => {
     try {
-      const res = await fetch('/api/auth/me')
+      const headers: Record<string, string> = {}
+      if (typeof window !== 'undefined') {
+        const storedToken = localStorage.getItem('auth-token') || localStorage.getItem('token')
+        if (storedToken) {
+          headers['Authorization'] = `Bearer ${storedToken}`
+        }
+      }
+
+      const res = await fetch('/api/auth/me', { headers })
       if (res.ok) {
         const data = await res.json()
-        setUser(data.user)
+        const fetchedUser = data.user
+        setUser({
+          id: fetchedUser._id || fetchedUser.id,
+          name: fetchedUser.name,
+          email: fetchedUser.email,
+          role: fetchedUser.role,
+        })
       } else {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth-token')
+          localStorage.removeItem('token')
+        }
         setUser(null)
       }
     } catch {
@@ -56,6 +74,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
     const data = await res.json()
     if (res.ok) {
+      const token = data.localStorage || data.token
+      if (token && typeof window !== 'undefined') {
+        localStorage.setItem('auth-token', token)
+        localStorage.setItem('token', token)
+      }
       setUser(data.user)
       return {}
     }
@@ -63,6 +86,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = async () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth-token')
+      localStorage.removeItem('token')
+    }
     await fetch('/api/auth/logout', { method: 'POST' })
     setUser(null)
   }
@@ -75,3 +102,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useAuth = () => useContext(AuthContext)
+

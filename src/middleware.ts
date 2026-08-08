@@ -15,7 +15,23 @@ const PUBLIC_PATHS = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-// Allow public paths & static assets (images, favicons, next assets)
+  let token = request.cookies.get('auth-token')?.value
+  if (!token) {
+    const authHeader = request.headers.get('authorization')
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7)
+    }
+  }
+
+  // If user is already authenticated and attempts to visit login/register, redirect to dashboard
+  if ((pathname === '/login' || pathname === '/register') && token) {
+    const payload = await verifyToken(token)
+    if (payload) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  // Allow public paths & static assets (images, favicons, next assets)
   if (
     PUBLIC_PATHS.some((p) => pathname === p) ||
     pathname.startsWith('/_next') ||
@@ -24,8 +40,6 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.next()
   }
-
-  const token = request.cookies.get('auth-token')?.value
 
   // Not logged in
   if (!token) {

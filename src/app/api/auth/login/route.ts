@@ -32,6 +32,9 @@ export async function POST(req: NextRequest) {
 
     const res = NextResponse.json({
       success: true,
+      redirect: "/",
+      localStorage: token,
+      token: token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
     })
     res.cookies.set('auth-token', token, {
@@ -47,3 +50,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+

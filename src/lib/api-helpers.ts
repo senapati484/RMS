@@ -5,7 +5,13 @@ import { verifyToken, JWTPayload } from '@/lib/auth'
 export async function getUserFromRequest(
   req: NextRequest
 ): Promise<JWTPayload | null> {
-  const token = req.cookies.get('auth-token')?.value
+  let token = req.cookies.get('auth-token')?.value
+  if (!token) {
+    const authHeader = req.headers.get('authorization')
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7)
+    }
+  }
   if (!token) return null
   return await verifyToken(token)
 }

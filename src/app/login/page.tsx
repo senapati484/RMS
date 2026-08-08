@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 function LoginForm() {
-  const { login } = useAuth()
+  const { user, loading: authLoading, login } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -15,6 +15,12 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace(searchParams.get('redirect') || '/dashboard')
+    }
+  }, [user, authLoading, router, searchParams])
 
   useEffect(() => {
     const qEmail = searchParams.get('email')

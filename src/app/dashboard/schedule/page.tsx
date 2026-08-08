@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/context'
 import {
   Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus,
-  Edit2, Clock, CheckCircle2, AlertTriangle, Package, Loader2
+  Edit2, Clock, CheckCircle2, AlertTriangle, Package, Loader2,
+  User as UserIcon, Filter, ExternalLink
 } from 'lucide-react'
 
 interface ScheduleOrder {
@@ -25,19 +26,22 @@ const MONTH_NAMES = [
 
 export default function RentalSchedulePage() {
   const { user } = useAuth()
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'STAFF'
+
   const [orders, setOrders] = useState<ScheduleOrder[]>([])
   const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState<string>('ALL')
 
   // Current calendar month view state
   const today = new Date()
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
 
-  // Selected Date / Date Range
+  // Selected Date
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate())
-  const [selectedDateRange, setSelectedDateRange] = useState<number[] | null>([today.getDate()])
 
   useEffect(() => {
+    setLoading(true)
     fetch('/api/orders?limit=100')
       .then(res => res.json())
       .then(data => {
@@ -56,6 +60,11 @@ export default function RentalSchedulePage() {
     const map: Record<number, Array<{ order: ScheduleOrder; eventType: 'BOOKED' | 'PICKUP' | 'LATE_PICKUP' | 'LATE_DELIVERY' }>> = {}
 
     orders.forEach(order => {
+      if (statusFilter !== 'ALL') {
+        if (statusFilter === 'PICKUP' && order.status !== 'CONFIRMED') return
+        if (statusFilter === 'LATE_DELIVERY' && order.status !== 'RETURNED_LATE') return
+      }
+
       const start = new Date(order.rentalStart)
       const end = new Date(order.rentalEnd)
 
@@ -84,13 +93,12 @@ export default function RentalSchedulePage() {
     })
 
     return map
-  }, [orders, currentYear, currentMonth])
+  }, [orders, currentYear, currentMonth, statusFilter])
 
-  // Get events for selected day or date range
+  // Get events for selected day
   const selectedEvents = useMemo(() => {
     if (!selectedDay) return []
-    const eventsForDay = dayEventsMap[selectedDay] || []
-    return eventsForDay
+    return dayEventsMap[selectedDay] || []
   }, [selectedDay, dayEventsMap])
 
   const handlePrevMonth = () => {
@@ -126,9 +134,13 @@ export default function RentalSchedulePage() {
         <div>
           <h1 className="text-white text-2xl font-bold tracking-tight flex items-center gap-2.5">
             <CalendarIcon className="text-[#F26522]" />
-            Rental Scheduler
+            {isAdmin ? 'Fleet Rental Dispatch Board (Admin View)' : 'My Rental Schedule & Booking Calendar'}
           </h1>
-          <p className="text-white/40 text-xs mt-1">Calendar dispatch board, reservation timelines & product availability</p>
+          <p className="text-white/40 text-xs mt-1">
+            {isAdmin
+              ? 'Centralized dispatch calendar monitoring all customer orders, fleet availability & return deadlines'
+              : 'Track your active rental reservations, pickup schedules, and return due dates'}
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -145,13 +157,13 @@ export default function RentalSchedulePage() {
             </button>
           </div>
 
-          {user?.role !== 'PORTAL_USER' && (
+          {isAdmin && (
             <Link
               href="/dashboard/orders/new"
               className="flex items-center gap-1.5 bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#F26522]/20 cursor-pointer"
             >
               <Plus size={15} />
-              <span>New</span>
+              <span>Create Order</span>
             </Link>
           )}
         </div>
@@ -161,8 +173,13 @@ export default function RentalSchedulePage() {
         {/* Left Status Legend Panel */}
         <div className="lg:col-span-3 space-y-4">
           <div className="liquid-glass border border-white/10 rounded-2xl p-5 space-y-4">
-            <h2 className="text-white text-xs font-bold uppercase tracking-wider border-b border-white/10 pb-3">
-              Status Legend
+            <h2 className="text-white text-xs font-bold uppercase tracking-wider border-b border-white/10 pb-3 flex items-center justify-between">
+              <span>Status Legend</span>
+              {isAdmin && (
+                <span className="text-[10px] bg-[#F26522]/20 text-[#F26522] px-2 py-0.5 rounded font-mono font-bold">
+                  All Fleet
+                </span>
+              )}
             </h2>
 
             <div className="space-y-3 text-xs">
@@ -186,6 +203,21 @@ export default function RentalSchedulePage() {
                 <span className="text-white font-medium">Late Delivery</span>
               </div>
             </div>
+
+            {isAdmin && (
+              <div className="pt-3 border-t border-white/10 space-y-2">
+                <label className="block text-white/50 text-[10px] font-bold uppercase">Filter Events</label>
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  className="w-full bg-[#151515] border border-white/10 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-[#F26522] cursor-pointer"
+                >
+                  <option value="ALL">All Dispatch Events</option>
+                  <option value="PICKUP">Pending Pickups</option>
+                  <option value="LATE_DELIVERY">Late Returns Only</option>
+                </select>
+              </div>
+            )}
           </div>
         </div>
 
@@ -221,10 +253,7 @@ export default function RentalSchedulePage() {
                 <button
                   key={day}
                   type="button"
-                  onClick={() => {
-                    setSelectedDay(day)
-                    setSelectedDateRange([day])
-                  }}
+                  onClick={() => setSelectedDay(day)}
                   className={`h-14 rounded-xl p-1.5 flex flex-col items-center justify-between transition-all cursor-pointer border ${
                     isSelected
                       ? 'bg-[#F26522]/20 border-[#F26522] text-white shadow-lg shadow-[#F26522]/20'
@@ -267,13 +296,13 @@ export default function RentalSchedulePage() {
                 : 'Selected Schedule Details'}
             </h2>
             <span className="text-white/40 text-xs font-mono">
-              {selectedEvents.length} Events
+              {selectedEvents.length} {isAdmin ? 'Fleet Events' : 'My Rentals'}
             </span>
           </div>
 
           <div className="space-y-3">
             {selectedEvents.map(({ order, eventType }, idx) => {
-              const mainItem = order.items[0] || { productName: 'Rental Item', quantity: 1 }
+              const mainItem = order.items[0] || { productName: 'Rental Equipment', quantity: 1 }
               const customerName = order.userId?.name || 'Customer'
               const availStatus = order.status === 'CONFIRMED' ? 'Available' : order.status === 'PICKED_UP' ? 'Booked' : 'In Transit'
               const statusColor = availStatus === 'Available' ? 'text-emerald-400 font-bold' : 'text-purple-400 font-bold'
@@ -281,16 +310,19 @@ export default function RentalSchedulePage() {
               return (
                 <div
                   key={order._id || idx}
-                  className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 flex items-center justify-between transition-all group"
+                  className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3.5 flex items-center justify-between transition-all group"
                 >
                   <div className="space-y-1">
                     <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                      <span className="font-mono text-[#F26522]">{idx + 1}. {order.orderNumber}:</span>
+                      <span className="font-mono text-[#F26522]">{order.orderNumber}:</span>
                       <span className="text-white font-semibold">{mainItem.productName}</span>
                     </div>
 
                     <div className="text-[11px] text-white/60">
-                      Customer: <strong className="text-white">{customerName}</strong>, {mainItem.quantity} Unit{' '}
+                      {isAdmin && (
+                        <span>Customer: <strong className="text-white">{customerName}</strong>, </span>
+                      )}
+                      <span>Qty: {mainItem.quantity} </span>
                       <span className={statusColor}>({availStatus})</span>
                     </div>
                   </div>
@@ -298,8 +330,9 @@ export default function RentalSchedulePage() {
                   <Link
                     href={`/dashboard/orders/${order._id}`}
                     className="p-2 text-white/40 hover:text-white transition-colors cursor-pointer"
+                    title="View Order Details"
                   >
-                    <Edit2 size={14} />
+                    <ExternalLink size={15} />
                   </Link>
                 </div>
               )
@@ -308,7 +341,11 @@ export default function RentalSchedulePage() {
             {selectedEvents.length === 0 && (
               <div className="text-center py-16 space-y-2">
                 <Package size={28} className="mx-auto text-white/20" />
-                <p className="text-white/40 text-xs">No rental dispatches scheduled on this date</p>
+                <p className="text-white/40 text-xs">
+                  {isAdmin
+                    ? 'No fleet dispatches scheduled on this date'
+                    : 'No personal rentals scheduled on this date'}
+                </p>
               </div>
             )}
           </div>

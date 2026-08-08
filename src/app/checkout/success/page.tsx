@@ -4,8 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import {
-  Printer, CheckCircle2, ShoppingBag, ArrowRight, FileText,
-  Calendar as CalendarIcon, MapPin, Building, Heart, ShoppingCart,
+  Printer, CheckCircle2, Heart, ShoppingCart,
   User as UserCheckIcon, LogOut as LogoutIcon
 } from 'lucide-react'
 

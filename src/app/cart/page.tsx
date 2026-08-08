@@ -3,10 +3,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { useCart, CartItem } from '@/context/CartContext'
+import { useCart, type CartItem } from '@/context/CartContext'
 import {
-  ShoppingBag, Trash2, Bookmark, ArrowRight, Tag,
-  Calendar as CalendarIcon, Clock, CreditCard, ShieldCheck, X, Check
+  ShoppingBag, Trash2, Bookmark, ArrowRight,
+  Calendar as CalendarIcon, CreditCard, X
 } from 'lucide-react'
 
 export default function CartPage() {

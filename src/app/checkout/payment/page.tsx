@@ -6,8 +6,8 @@ import { toast } from 'sonner'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
 import {
-  CreditCard, ShieldCheck, CheckCircle2, Lock, ArrowLeft, Loader2,
-  MapPin, Building, User as UserCheckIcon, LogOut as LogoutIcon
+  CreditCard, Loader2, MapPin, Building,
+  User as UserCheckIcon, LogOut as LogoutIcon
 } from 'lucide-react'
 
 export default function CheckoutPaymentPage() {

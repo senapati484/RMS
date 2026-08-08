@@ -6,7 +6,7 @@ import { useCart } from '@/context/CartContext'
 import {
   Search as SearchIcon, Heart as HeartIcon, ShoppingCart as CartIcon,
   User as UserCheckIcon, LogOut as LogoutIcon, SlidersHorizontal,
-  ChevronLeft as PrevIcon, ChevronRight as NextIcon, Check as CheckIcon
+  ChevronLeft as PrevIcon, ChevronRight as NextIcon
 } from 'lucide-react'
 
 interface Product {

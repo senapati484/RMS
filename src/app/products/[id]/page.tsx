@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { useCart } from '@/context/CartContext'
 import {
   ArrowLeft, Heart, Scale, ShoppingBag, Calendar as CalendarIcon,
-  Clock, CheckCircle2, Sliders, X, Loader2, Package, ShieldCheck
+  Sliders, X
 } from 'lucide-react'
 
 interface ProductDetail {

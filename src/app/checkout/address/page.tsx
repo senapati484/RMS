@@ -6,8 +6,8 @@ import { toast } from 'sonner'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
 import {
-  Truck, Store, MapPin, Edit2, ShieldCheck, ArrowRight, ArrowLeft,
-  User as UserCheckIcon, LogOut as LogoutIcon, Building
+  Truck, Store, MapPin, Edit2, Building,
+  User as UserCheckIcon, LogOut as LogoutIcon
 } from 'lucide-react'
 
 export default function CheckoutAddressPage() {

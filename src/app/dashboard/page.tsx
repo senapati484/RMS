@@ -77,17 +77,30 @@ function StatCard({ label, value, sub, icon: Icon, color = 'text-white', href }:
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [data, setData] = useState<DashboardData | null>(null)
   const [userOrders, setUserOrders] = useState<UserOrder[]>([])
   const [userQuotes, setUserQuotes] = useState<UserQuotation[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user?.role === 'PORTAL_USER') {
+    if (authLoading) return
+
+    const headers: Record<string, string> = {}
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth-token') || localStorage.getItem('token')
+      if (token) headers['Authorization'] = `Bearer ${token}`
+    }
+
+    if (!user) {
+      setLoading(false)
+      return
+    }
+
+    if (user.role === 'PORTAL_USER') {
       Promise.all([
-        fetch('/api/orders').then(r => r.json()),
-        fetch('/api/quotations').then(r => r.json()),
+        fetch('/api/orders', { headers }).then(r => r.json()),
+        fetch('/api/quotations', { headers }).then(r => r.json()),
       ])
         .then(([ordData, qData]) => {
           setUserOrders(ordData.orders || [])
@@ -98,12 +111,21 @@ export default function DashboardPage() {
       return
     }
 
-    fetch('/api/admin/dashboard')
+    fetch('/api/admin/dashboard', { headers })
       .then(r => r.json())
       .then(setData)
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [user])
+  }, [user, authLoading])
+
+  if (authLoading || loading) {
+    return (
+      <div role="status" aria-label="Loading dashboard" className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+        <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" aria-hidden="true" />
+        <span className="text-white/40 text-xs font-medium">Loading workspace dashboard...</span>
+      </div>
+    )
+  }
 
   if (user?.role === 'PORTAL_USER') {
     const activeOrders = userOrders.filter(o => o.status === 'CONFIRMED' || o.status === 'PICKED_UP')
@@ -254,11 +276,19 @@ export default function DashboardPage() {
     )
   }
 
-  if (loading) {
+  if (!user) {
     return (
-      <div role="status" aria-label="Loading dashboard" className="flex items-center justify-center min-h-64">
-        <div className="w-8 h-8 border-2 border-brand-orange/30 border-t-brand-orange rounded-full animate-spin" aria-hidden="true" />
-        <span className="sr-only">Loading dashboard</span>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-md mx-auto space-y-4">
+        <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50">
+          <ShieldCheck size={24} />
+        </div>
+        <h2 className="text-white font-bold text-xl">Sign in to Access Dashboard</h2>
+        <p className="text-white/40 text-xs leading-relaxed">
+          Please sign in with your credentials to access rental equipment, order management, and operations analytics.
+        </p>
+        <Link href="/login" className="bg-[#F26522] text-white text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-[#e05510] transition-colors shadow-lg shadow-[#F26522]/20">
+          Sign In Now →
+        </Link>
       </div>
     )
   }

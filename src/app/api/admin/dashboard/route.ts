@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
   const revenue = revenueAgg[0] || { totalRevenue: 0, totalDeposits: 0 }
 
-  return apiOk({
+  const response = apiOk({
     orders: { total: totalOrders, active: activeRentals, overdue: overdueOrders, pendingReturns },
     products: { total: totalProducts, lowStock: lowStockProducts },
     maintenance: { open: openTickets },
@@ -56,4 +56,6 @@ export async function GET(req: NextRequest) {
     deposits: revenue.totalDeposits,
     recentOrders,
   })
+  response.headers.set('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=29')
+  return response
 }

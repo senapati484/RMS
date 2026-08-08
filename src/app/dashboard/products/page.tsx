@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth, useCart } from '@/context'
 import {
   Search, Plus, Package, Camera, Mic, Lightbulb, Monitor, Car,
   Armchair, Tent, Box, CheckCircle2, AlertCircle, XCircle, Eye, EyeOff,
+  ShoppingCart, SlidersHorizontal, ArrowUpDown
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -67,12 +68,16 @@ function StockBadge({ available, total }: { available: number; total: number }) 
 
 export default function ProductsPage() {
   const { user } = useAuth()
+  const { addToCart } = useCart()
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'STAFF'
 
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [q, setQ] = useState('')
   const [productType, setProductType] = useState('all')
+  const [sortBy, setSortBy] = useState<'NEWEST' | 'PRICE_LOW' | 'PRICE_HIGH' | 'AVAILABILITY'>('NEWEST')
+  const [inStockOnly, setInStockOnly] = useState(false)
+  const [brandFilter, setBrandFilter] = useState('ALL')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
@@ -108,6 +113,23 @@ export default function ProductsPage() {
       toast.error('Failed to update product')
     }
   }
+
+  const availableBrands = Array.from(
+    new Set(products.map(p => p.brand).filter((b): b is string => Boolean(b)))
+  )
+
+  const displayedProducts = products
+    .filter(p => {
+      if (inStockOnly && p.availableStock <= 0) return false
+      if (brandFilter !== 'ALL' && p.brand !== brandFilter) return false
+      return true
+    })
+    .sort((a, b) => {
+      if (sortBy === 'PRICE_LOW') return a.dailyRate - b.dailyRate
+      if (sortBy === 'PRICE_HIGH') return b.dailyRate - a.dailyRate
+      if (sortBy === 'AVAILABILITY') return b.availableStock - a.availableStock
+      return 0
+    })
 
   return (
     <div className="space-y-6">
@@ -162,15 +184,65 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-        <input
-          value={q}
-          onChange={e => { setQ(e.target.value); setPage(1) }}
-          placeholder="Search by name, brand, tag…"
-          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-[#F26522] text-sm transition-colors"
-        />
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <input
+            value={q}
+            onChange={e => { setQ(e.target.value); setPage(1) }}
+            placeholder="Search equipment by name, brand, SKU..."
+            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-[#F26522] text-sm transition-colors"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto">
+          {/* In-Stock Filter Chip */}
+          <button
+            type="button"
+            onClick={() => setInStockOnly(!inStockOnly)}
+            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+              inStockOnly
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-md'
+                : 'bg-white/5 border-white/10 text-white/60 hover:text-white'
+            }`}
+          >
+            <CheckCircle2 size={13} />
+            <span>In Stock Only</span>
+          </button>
+
+          {/* Brand Filter */}
+          {availableBrands.length > 0 && (
+            <div className="relative flex items-center">
+              <select
+                value={brandFilter}
+                onChange={e => setBrandFilter(e.target.value)}
+                className="bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-[#F26522] cursor-pointer appearance-none pr-7"
+              >
+                <option value="ALL" className="bg-[#151515] text-white">All Brands</option>
+                {availableBrands.map(b => (
+                  <option key={b} value={b} className="bg-[#151515] text-white">{b}</option>
+                ))}
+              </select>
+              <SlidersHorizontal size={12} className="absolute right-2.5 pointer-events-none text-white/40" />
+            </div>
+          )}
+
+          {/* Sort By Dropdown */}
+          <div className="relative flex items-center">
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as any)}
+              className="bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-[#F26522] cursor-pointer appearance-none pr-7"
+            >
+              <option value="NEWEST" className="bg-[#151515] text-white">Sort: Newest First</option>
+              <option value="PRICE_LOW" className="bg-[#151515] text-white">Sort: Price Low to High</option>
+              <option value="PRICE_HIGH" className="bg-[#151515] text-white">Sort: Price High to Low</option>
+              <option value="AVAILABILITY" className="bg-[#151515] text-white">Sort: Availability</option>
+            </select>
+            <ArrowUpDown size={12} className="absolute right-2.5 pointer-events-none text-white/40" />
+          </div>
+        </div>
       </div>
 
       {/* Type Tabs */}
@@ -196,19 +268,20 @@ export default function ProductsPage() {
         <div className="flex items-center justify-center min-h-48">
           <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
         </div>
-      ) : products.length === 0 ? (
+      ) : displayedProducts.length === 0 ? (
         <div className="text-center py-24 space-y-3">
           <Package size={40} className="text-white/15 mx-auto" />
-          <p className="text-white/40 text-sm">No items found</p>
-          {isAdmin && (
-            <Link href="/dashboard/products/new" className="inline-flex items-center gap-2 text-[#F26522] text-sm hover:underline mt-2">
-              <Plus size={14} /> Add the first item
-            </Link>
-          )}
+          <p className="text-white/40 text-sm">No items match your search or filter criteria</p>
+          <button
+            onClick={() => { setQ(''); setProductType('all'); setInStockOnly(false); setBrandFilter('ALL'); setSortBy('NEWEST'); }}
+            className="text-[#F26522] text-xs hover:underline mt-1 font-semibold"
+          >
+            Reset All Filters
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {products.map(product => {
+          {displayedProducts.map(product => {
             const stockPct = product.totalStock > 0
               ? (product.availableStock / product.totalStock) * 100
               : 0
@@ -319,20 +392,34 @@ export default function ProductsPage() {
                       <>
                         <Link
                           href={`/dashboard/products/${product._id}`}
-                          className="flex-1 text-center text-xs py-2.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-lg transition-colors font-medium"
+                          className="px-3 py-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-xl transition-colors text-xs font-medium text-center flex items-center justify-center"
                         >
-                          View Details
+                          Details
                         </Link>
-                        <Link
-                          href={`/dashboard/orders/new?product=${product._id}`}
-                          className={`flex-1 text-center text-xs py-2.5 rounded-lg transition-colors font-medium ${
+                        <button
+                          type="button"
+                          onClick={() => {
+                            addToCart({
+                              productId: product._id,
+                              productName: product.name,
+                              productImage: product.imageUrl,
+                              dailyRate: product.dailyRate,
+                              quantity: 1,
+                              rentalStart: new Date().toISOString().slice(0, 10),
+                              rentalEnd: new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10),
+                            })
+                            toast.success(`${product.name} added to cart! Check top header cart icon 🛒.`)
+                          }}
+                          disabled={product.availableStock === 0}
+                          className={`flex-1 text-center text-xs py-2 rounded-xl transition-all font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-md ${
                             product.availableStock === 0
-                              ? 'bg-white/5 text-white/20 cursor-not-allowed pointer-events-none'
-                              : 'bg-[#F26522]/20 hover:bg-[#F26522]/30 text-[#F26522] border border-[#F26522]/20'
+                              ? 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5'
+                              : 'bg-[#F26522] hover:bg-[#e05510] text-white shadow-[#F26522]/20'
                           }`}
                         >
-                          {product.availableStock === 0 ? 'Unavailable' : 'Rent Now'}
-                        </Link>
+                          <ShoppingCart size={13} />
+                          <span>{product.availableStock === 0 ? 'Out of Stock' : '+ Add to Cart'}</span>
+                        </button>
                       </>
                     )}
                   </div>

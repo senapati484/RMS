@@ -18,6 +18,7 @@ import {
   LogOut,
   ChevronRight,
   Menu,
+  X,
 } from 'lucide-react'
 import { NotificationBell } from '@/components'
 
@@ -50,7 +51,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-brand-orange/30 border-t-brand-orange rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
       </div>
     )
   }
@@ -65,23 +66,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/login')
   }
 
-  const Sidebar = () => (
-    <aside className="flex flex-col h-full bg-[#111] border-r border-white/5 w-64">
-      {/* Logo */}
-      <div className="p-6 border-b border-white/5">
+  const sidebarContent = (
+    <aside className="flex flex-col h-full bg-[#111111] border-r border-white/10 w-64 select-none">
+      {/* Logo & Brand Header */}
+      <div className="p-5 border-b border-white/10 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <img src="/logo.png" alt="" className="w-9 h-9 object-contain p-0.5 bg-white/10 ring-1 ring-white/10 rounded-xl shrink-0 shadow-md" />
+          <img
+            src="/logo.png"
+            alt="Lease360 Logo"
+            className="w-9 h-9 object-contain p-0.5 bg-white/10 ring-1 ring-white/20 rounded-xl shrink-0 shadow-md"
+          />
           <div>
-            <div className="text-white font-semibold text-sm">Lease360</div>
-            <div className="text-brand-orange text-[10px] font-semibold uppercase tracking-wider">
+            <div className="text-white font-bold text-base tracking-tight">Lease360</div>
+            <div className="text-[#F26522] text-[10px] font-bold uppercase tracking-wider">
               {user.role.replace('_', ' ')}
             </div>
           </div>
         </Link>
+        {sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-white/40 hover:text-white p-1"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      {/* Nav Menu */}
+      <nav className="flex-1 p-3.5 space-y-1.5 overflow-y-auto scrollbar-none">
         {visibleNav.map((item) => {
           const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
           return (
@@ -89,37 +102,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-[background,color,border-color,transform] ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
                 active
-                  ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20 font-semibold'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
+                  ? 'bg-[#F26522] text-white shadow-lg shadow-[#F26522]/20 font-bold'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
               }`}
             >
-              <item.icon size={16} />
-              {item.label}
-              {active && <ChevronRight size={12} className="ml-auto" />}
+              <item.icon size={17} className={active ? 'text-white' : 'text-white/50'} />
+              <span>{item.label}</span>
+              {active && <ChevronRight size={14} className="ml-auto text-white/80" />}
             </Link>
           )
         })}
       </nav>
 
-      {/* User footer */}
-      <div className="p-4 border-t border-white/5">
+      {/* User Footer Account Box */}
+      <div className="p-4 border-t border-white/10 bg-white/[0.02]">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-brand-orange/20 rounded-full flex items-center justify-center">
-            <span className="text-brand-orange text-xs font-bold">{user.name[0].toUpperCase()}</span>
+          <div className="w-8 h-8 bg-[#F26522]/20 border border-[#F26522]/30 rounded-full flex items-center justify-center">
+            <span className="text-[#F26522] text-xs font-bold">{user.name[0].toUpperCase()}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-white text-sm font-medium truncate">{user.name}</div>
-            <div className="text-white/30 text-xs truncate">{user.email}</div>
+            <div className="text-white text-xs font-bold truncate">{user.name}</div>
+            <div className="text-white/40 text-[11px] truncate">{user.email}</div>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-[background,color,border-color,transform] text-sm"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all text-xs font-medium cursor-pointer"
         >
           <LogOut size={14} />
-          Sign out
+          <span>Sign out</span>
         </button>
       </div>
     </aside>
@@ -129,63 +142,70 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col lg:flex-row pb-20 lg:pb-0">
       {/* Desktop sidebar */}
       <div className="hidden lg:flex fixed inset-y-0 left-0 z-30">
-        <Sidebar />
+        {sidebarContent}
       </div>
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+          className="lg:hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-sm transition-opacity"
           onClick={() => setSidebarOpen(false)}
         />
       )}
       <div
-        className={`lg:hidden fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] ${
+        className={`lg:hidden fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <Sidebar />
+        {sidebarContent}
       </div>
 
-      {/* Main content */}
+      {/* Main content area */}
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
-        {/* Top bar */}
-        <header className="sticky top-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 h-16 flex items-center gap-4">
+        {/* Top Header bar */}
+        <header className="sticky top-0 z-20 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 h-16 flex items-center gap-4">
           <button
             type="button"
             aria-label="Open menu"
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-white/40 hover:text-white transition-colors"
+            className="lg:hidden text-white/60 hover:text-white transition-colors cursor-pointer p-1"
           >
-            <Menu size={20} />
+            <Menu size={22} />
           </button>
+
           <div className="flex items-center gap-2 lg:hidden">
-            <img src="/logo.png" alt="" className="w-8 h-8 object-contain p-0.5 bg-white/10 ring-1 ring-white/10 rounded-xl shrink-0 shadow-sm" />
+            <img
+              src="/logo.png"
+              alt="Lease360"
+              className="w-7 h-7 object-contain p-0.5 bg-white/10 ring-1 ring-white/10 rounded-lg shrink-0 shadow-sm"
+            />
             <span className="text-white font-bold text-sm tracking-tight">Lease360</span>
           </div>
+
           <div className="flex-1" />
           <NotificationBell />
-          <div className="w-8 h-8 bg-brand-orange/20 rounded-full flex items-center justify-center">
-            <span className="text-brand-orange text-xs font-bold">{user.name[0].toUpperCase()}</span>
+
+          <div className="w-8 h-8 bg-[#F26522]/20 border border-[#F26522]/30 rounded-full flex items-center justify-center">
+            <span className="text-[#F26522] text-xs font-bold">{user.name[0].toUpperCase()}</span>
           </div>
         </header>
 
-        {/* Page content */}
+        {/* Page children content */}
         <main className="flex-1 p-4 sm:p-6">{children}</main>
 
         {/* Mobile PWA Bottom Navigation Bar */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#111111]/90 backdrop-blur-xl border-t border-white/10 px-3 py-2 safe-area-bottom flex items-center justify-around shadow-2xl">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#111111]/95 backdrop-blur-xl border-t border-white/10 px-3 py-2 safe-area-bottom flex items-center justify-around shadow-2xl">
           {mobileNavItems.map((item) => {
             const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-[color,background,transform] active:scale-[0.96] ${
-                  active ? 'text-brand-orange font-semibold' : 'text-white/40 hover:text-white/70'
+                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all ${
+                  active ? 'text-[#F26522] font-bold' : 'text-white/40 hover:text-white/70'
                 }`}
               >
-                <item.icon size={18} className={active ? 'text-brand-orange scale-110 transition-transform will-change-transform' : ''} />
+                <item.icon size={18} className={active ? 'text-[#F26522] scale-110' : ''} />
                 <span className="text-[10px]">{item.label}</span>
               </Link>
             )

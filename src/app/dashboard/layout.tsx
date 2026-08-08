@@ -62,15 +62,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [user, loading, router, pathname])
 
-  if (loading) {
+  if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center select-none">
+        <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-[#F26522] shadow-xl shadow-[#F26522]/10">
+          <div className="w-6 h-6 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
+        </div>
+        <h2 className="text-white font-bold text-lg tracking-tight">Authenticating Session...</h2>
+        <p className="text-white/40 text-xs mt-1 max-w-sm">
+          Verifying your Lease360 enterprise security credentials. Please wait...
+        </p>
+        <div className="mt-6 flex items-center gap-3">
+          <Link
+            href="/login"
+            className="bg-[#F26522] hover:bg-[#e05510] active:scale-[0.96] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-[#F26522]/20"
+          >
+            Sign In Now →
+          </Link>
+          <Link
+            href="/"
+            className="bg-white/5 hover:bg-white/10 active:scale-[0.96] text-white/70 border border-white/10 text-xs font-medium px-4 py-2.5 rounded-xl transition-all"
+          >
+            Return to Home
+          </Link>
+        </div>
       </div>
     )
   }
-
-  if (!user) return null
 
   const visibleNav = navItems.filter((item) => item.roles.includes(user.role))
   const mobileNavItems = visibleNav.slice(0, 5) // Top 5 items for mobile bottom bar

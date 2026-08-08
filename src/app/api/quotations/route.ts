@@ -14,6 +14,8 @@ export async function GET(req: NextRequest) {
   const authErr = requireAuth(user)
   if (authErr) return authErr
 
+  await connectDB()
+
   const userIdFilter: unknown[] = [user!.userId]
   if (mongoose.Types.ObjectId.isValid(user!.userId)) {
     userIdFilter.push(new mongoose.Types.ObjectId(user!.userId))

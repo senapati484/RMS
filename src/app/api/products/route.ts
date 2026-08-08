@@ -6,19 +6,43 @@ import { getUserFromRequest, requireAdmin, apiOk, apiError } from '@/lib/api-hel
 
 export async function GET(req: NextRequest) {
   await connectDB()
-  const { searchParams } = new URL(req.url)
-  const category = searchParams.get('category')
-  const q = searchParams.get('q')
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
-  const limit = Math.min(50, parseInt(searchParams.get('limit') || '20'))
 
-  const filter: Record<string, unknown> = { isPublished: true }
-  if (category) filter.category = category
-  if (q) filter.$text = { $search: q }
+  const user = await getUserFromRequest(req)
+  const isAdminOrStaff = user && (user.role === 'ADMIN' || user.role === 'STAFF')
+
+  const { searchParams } = new URL(req.url)
+  const category      = searchParams.get('category')
+  const productType   = searchParams.get('productType')
+  const q             = searchParams.get('q')
+  const showAll       = searchParams.get('showAll') === '1' && isAdminOrStaff
+  const page          = Math.max(1, parseInt(searchParams.get('page') || '1'))
+  const limit         = Math.min(50, parseInt(searchParams.get('limit') || '20'))
+
+  const filter: Record<string, unknown> = {}
+
+  // Admins/Staff see drafts when showAll=1 or by default; clients only see published
+  if (!isAdminOrStaff) {
+    filter.isPublished = true
+  } else if (!showAll) {
+    // Admin default: show published + out-of-stock (but not hidden drafts unless showAll)
+    filter.isPublished = true
+  }
+
+  if (category && category !== 'All') filter.category = category
+  if (productType && productType !== 'all') filter.productType = productType
+  if (q) {
+    // Try text search first; fall back to regex if no text index
+    filter.$or = [
+      { name: { $regex: q, $options: 'i' } },
+      { description: { $regex: q, $options: 'i' } },
+      { tags: { $regex: q, $options: 'i' } },
+      { brand: { $regex: q, $options: 'i' } },
+    ]
+  }
 
   const [products, total] = await Promise.all([
     Product.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ isPublished: -1, availableStock: -1, createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean(),
@@ -36,10 +60,21 @@ export async function POST(req: NextRequest) {
   await connectDB()
   try {
     const body = await req.json()
-    // auto-generate slug if not provided
+
+    // Auto-generate slug if not provided
     if (!body.slug && body.name) {
-      body.slug = body.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+      body.slug = body.name
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        + '-' + Date.now().toString(36)
     }
+
+    // Derive category from productType if not set
+    if (!body.category && body.productType) {
+      body.category = body.productType.charAt(0).toUpperCase() + body.productType.slice(1)
+    }
+
     const product = await Product.create(body)
     return apiOk(product, 201)
   } catch (err: unknown) {

@@ -221,7 +221,11 @@ export default function DashboardPage() {
 
           <div className="divide-y divide-white/5">
             {userQuotes.slice(0, 5).map(q => (
-              <div key={q._id} className="flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-white/5 transition-colors">
+              <Link
+                key={q._id}
+                href={`/dashboard/quotations`}
+                className="flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-white/5 transition-colors"
+              >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-white text-sm font-semibold">{q.quoteNumber}</span>
@@ -236,10 +240,10 @@ export default function DashboardPage() {
                 <div className="text-right">
                   <div className="text-white text-sm font-bold">₹{q.totalAmount.toLocaleString()}</div>
                   <div className="text-white/30 text-[10px]">
-                    Valid until: {new Date(q.validUntil).toLocaleDateString()}
+                    {q.validUntil ? `Valid until: ${new Date(q.validUntil).toLocaleDateString()}` : 'No expiry'}
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
             {userQuotes.length === 0 && (
               <div className="px-6 py-8 text-center text-white/30 text-sm">No quotations created yet</div>

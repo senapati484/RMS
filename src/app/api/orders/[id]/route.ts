@@ -1,8 +1,16 @@
 // api/orders/[id]/route.ts
 import { NextRequest } from 'next/server'
 import { Order } from '@/models/Order'
+import { Product } from '@/models/Product'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
+
+// Statuses that release stock back to inventory
+const STOCK_RELEASING_STATUSES = new Set([
+  'RETURNED_ON_TIME',
+  'RETURNED_LATE',
+  'CANCELLED',
+])
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUserFromRequest(req)
@@ -14,12 +22,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const order = await Order.findById(id).populate('userId', 'name email phone').lean()
   if (!order) return apiError('Order not found', 404)
 
-  // Extract user ID correctly whether populated or unpopulated
   const orderUserId = (order.userId && typeof order.userId === 'object' && '_id' in order.userId)
     ? String(order.userId._id)
     : String(order.userId)
 
-  // Portal users can only see their own orders
   if (user!.role === 'PORTAL_USER' && orderUserId !== user!.userId) {
     return apiError('Forbidden', 403)
   }
@@ -47,12 +53,35 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return apiError('Forbidden', 403)
   }
 
-  // Only allow admin/staff to change status fields beyond cancel
+  // Portal users can only cancel their own confirmed orders
   if (body.status && user!.role === 'PORTAL_USER' && body.status !== 'CANCELLED') {
     return apiError('Forbidden: cannot set this status', 403)
   }
 
+  const prevStatus = order.status
+  const nextStatus = body.status
+
+  // ── Stock Restoration Engine ─────────────────────────────────────────────
+  // When order transitions INTO a stock-releasing terminal state FROM a
+  // non-terminal state (i.e., was previously CONFIRMED or PICKED_UP),
+  // restore availableStock for every item atomically.
+  const wasActive = prevStatus === 'CONFIRMED' || prevStatus === 'PICKED_UP' || prevStatus === 'RETURN_PENDING'
+  const isNowReleasing = nextStatus && STOCK_RELEASING_STATUSES.has(nextStatus)
+
+  if (wasActive && isNowReleasing) {
+    const restoreOps = (order.items as Array<{ productId: unknown; quantity: number }>).map(item =>
+      Product.findByIdAndUpdate(
+        item.productId,
+        { $inc: { availableStock: item.quantity } },
+        { new: true }
+      )
+    )
+    await Promise.all(restoreOps)
+  }
+
+  // Apply changes
   Object.assign(order, body)
   await order.save()
+
   return apiOk(order)
 }

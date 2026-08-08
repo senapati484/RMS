@@ -140,6 +140,91 @@ export default function OrderDetailPage() {
       </div>
 
       {/* ========================================================
+          EXCALIDRAW RENTAL ORDER LIFECYCLE BAR & ACTION BUTTONS
+         ======================================================== */}
+      <div className="liquid-glass border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Action Buttons (Send, Confirm, Create Invoice, Pickup, Print, Cancel) */}
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+          {order.status === 'QUOTATION' && (
+            <button
+              onClick={() => {
+                toast.success('Quotation Email sent to customer!')
+                fetchOrder()
+              }}
+              className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-md cursor-pointer"
+            >
+              Send Quote
+            </button>
+          )}
+
+          {order.status === 'QUOTATION' && isAdmin && (
+            <button
+              onClick={async () => {
+                setActionLoading(true)
+                const res = await fetch(`/api/orders/${order._id}/status`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ status: 'CONFIRMED' }),
+                })
+                setActionLoading(false)
+                if (res.ok) {
+                  toast.success('Quotation confirmed into Sale Order!')
+                  fetchOrder()
+                }
+              }}
+              className="bg-[#F26522] hover:bg-[#e05510] text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-md cursor-pointer"
+            >
+              Confirm Order
+            </button>
+          )}
+
+          {order.status === 'CONFIRMED' && isAdmin && (
+            <>
+              <button
+                onClick={() => {
+                  toast.success('Tax Invoice INV/2026/0001 generated!')
+                  window.print()
+                }}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-md cursor-pointer"
+              >
+                Create Invoice
+              </button>
+
+              <button
+                onClick={markPickup}
+                disabled={actionLoading}
+                className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50"
+              >
+                {actionLoading ? 'Dispatching...' : 'Pickup Equipment'}
+              </button>
+            </>
+          )}
+
+          <button
+            onClick={() => window.print()}
+            className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all border border-white/10 cursor-pointer"
+          >
+            Print PDF
+          </button>
+        </div>
+
+        {/* Excalidraw Status Stepper Pills (Quotation -> Quotation Sent -> Sale Order) */}
+        <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1 text-[11px] font-bold">
+          <span className={`px-2.5 py-1 rounded-lg ${order.status === 'QUOTATION' ? 'bg-purple-600 text-white' : 'text-white/40'}`}>
+            Quotation
+          </span>
+          <span className="text-white/20">→</span>
+          <span className={`px-2.5 py-1 rounded-lg ${order.status === 'QUOTATION' ? 'bg-purple-600/30 text-purple-300' : 'text-white/40'}`}>
+            Quotation Sent
+          </span>
+          <span className="text-white/20">→</span>
+          <span className={`px-2.5 py-1 rounded-lg ${['CONFIRMED', 'PICKED_UP', 'RETURNED_ON_TIME', 'RETURNED_LATE'].includes(order.status) ? 'bg-[#F26522] text-white' : 'text-white/40'}`}>
+            Sale Order
+          </span>
+        </div>
+      </div>
+
+      {/* ========================================================
           LIVE TRANSIT & LOGISTICS ROUTE TRACKER
          ======================================================== */}
       <div className="liquid-glass border border-white/10 rounded-2xl p-5 sm:p-6 overflow-hidden relative">

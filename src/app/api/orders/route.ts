@@ -11,6 +11,7 @@ import { generateOrderNumber } from '@/lib/order-number'
 import { calculateRentalDays, calculateItemRentalPrice } from '@/lib/rental-pricing'
 import { requirePlatformAccess } from '@/lib/subscription'
 import { sendOrderConfirmationEmail } from '@/lib/mailer'
+import { paginateWithCursor } from '@/lib/pagination'
 
 export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req)
@@ -19,33 +20,84 @@ export async function GET(req: NextRequest) {
 
   await connectDB()
   const { searchParams } = new URL(req.url)
+  const useCursor = searchParams.get('cursor') !== null
   const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')))
   const status = searchParams.get('status')
+  const cursor = searchParams.get('cursor') || undefined
 
   const userIdFilter: unknown[] = [user!.userId]
   if (mongoose.Types.ObjectId.isValid(user!.userId)) {
     userIdFilter.push(new mongoose.Types.ObjectId(user!.userId))
   }
 
-  const filter: Record<string, unknown> =
+  const baseFilter: Record<string, unknown> =
     user!.role === 'PORTAL_USER'
       ? { userId: { $in: userIdFilter } }
       : {}
 
-  if (status) filter.status = status
+  if (status) baseFilter.status = status
 
-  const [orders, total] = await Promise.all([
-    Order.find(filter)
-      .populate('userId', 'name email')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean(),
-    Order.countDocuments(filter),
-  ])
+  let orders, total, pages, nextCursor
 
-  return apiOk({ orders, total, page, limit, pages: Math.ceil(total / limit) })
+  if (useCursor) {
+    // Cursor-based pagination for large datasets
+    const result = await paginateWithCursor(Order, {
+      limit,
+      cursor,
+      sortField: 'createdAt',
+      sortOrder: 'desc',
+    })
+
+    // Apply filter to cursor-based results
+    const filteredOrders = result.data.filter((order: any) => {
+      if (user!.role === 'PORTAL_USER') {
+        const userIdStr = user!.userId.toString()
+        const orderUserIdStr = order.userId?.toString() || ''
+        if (userIdStr !== orderUserIdStr) return false
+      }
+      if (status && order.status !== status) return false
+      return true
+    })
+
+    // Populate user data for filtered results
+    const populatedOrders = await Order.populate(filteredOrders, { path: 'userId', select: 'name email' })
+
+    orders = populatedOrders
+    nextCursor = result.nextCursor
+    total = undefined
+    pages = undefined
+  } else {
+    // Traditional offset-based pagination
+    const [ordersData, totalCount] = await Promise.all([
+      Order.find(baseFilter)
+        .populate('userId', 'name email')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      Order.countDocuments(baseFilter),
+    ])
+
+    orders = ordersData
+    total = totalCount
+    pages = Math.ceil(total / limit)
+    nextCursor = null
+  }
+
+  const res = apiOk({
+    orders,
+    total,
+    page,
+    limit,
+    pages,
+    nextCursor,
+    paginationType: useCursor ? 'cursor' : 'offset'
+  })
+  // Per-user list — never share across users (security), but cache for the
+  // same user for 5s so back-to-back navigation re-uses one fetch.
+  res.headers.set('Cache-Control', 'private, max-age=5, stale-while-revalidate=20')
+  return res
 }
 
 export async function POST(req: NextRequest) {

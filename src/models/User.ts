@@ -103,6 +103,13 @@ UserSchema.methods.comparePassword = async function (candidate: string): Promise
 }
 
 UserSchema.index({ role: 1 })
+UserSchema.index({ createdAt: -1 })
+// Optimized indexes for large dataset queries
+UserSchema.index({ email: 1 }, { unique: true, name: 'email_unique_idx' })
+UserSchema.index({ role: 1, createdAt: -1 }, { name: 'role_created_idx' })
+UserSchema.index({ role: 1, isGovIdVerified: 1 }, { name: 'role_verification_idx' })
+UserSchema.index({ 'drivingLicense.status': 1 }, { name: 'dl_status_idx' })
+UserSchema.index({ city: 1, state: 1 }, { name: 'location_idx' })
 
 export const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>('User', UserSchema)

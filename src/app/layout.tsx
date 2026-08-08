@@ -4,6 +4,7 @@ import './globals.css'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/context/AuthContext'
 import { CartProvider } from '@/context/CartContext'
+import { SWRProvider } from '@/context/SWRProvider'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -55,25 +56,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className="antialiased selection:bg-[#F26522] selection:text-white" suppressHydrationWarning>
-        <AuthProvider>
-          <CartProvider>
-            {children}
-            <PWAInstallPrompt />
-          </CartProvider>
-          <Toaster
-            theme="dark"
-            position="top-center"
-            toastOptions={{
-              style: {
-                background: 'rgba(17,17,17,0.95)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                color: '#FAFAFA',
-                backdropFilter: 'blur(16px)',
-                borderRadius: '16px',
-              },
-            }}
-          />
-        </AuthProvider>
+        <SWRProvider>
+          <AuthProvider>
+            <CartProvider>
+              {children}
+              <PWAInstallPrompt />
+            </CartProvider>
+            <Toaster
+              theme="dark"
+              position="top-center"
+              toastOptions={{
+                style: {
+                  background: 'rgba(17,17,17,0.95)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  color: '#FAFAFA',
+                  backdropFilter: 'blur(16px)',
+                  borderRadius: '16px',
+                },
+              }}
+            />
+          </AuthProvider>
+        </SWRProvider>
       </body>
     </html>
   )

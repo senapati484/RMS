@@ -10,14 +10,19 @@ export async function GET(req: NextRequest) {
   if (authErr) return authErr
 
   await connectDB()
+  const { searchParams } = new URL(req.url)
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '30')))
+
   const notifications = await Notification.find({ userId: user!.userId })
     .sort({ createdAt: -1 })
-    .limit(50)
+    .limit(limit)
     .lean()
 
   const unreadCount = notifications.filter((n) => !n.isRead).length
 
-  return apiOk({ notifications, unreadCount })
+  const res = apiOk({ notifications, unreadCount })
+  res.headers.set('Cache-Control', 'private, max-age=5, stale-while-revalidate=15')
+  return res
 }
 
 // Mark all as read

@@ -23,11 +23,15 @@ export async function connectDB(): Promise<mongoose.Connection> {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      maxPoolSize: 50,
-      minPoolSize: 5,
+      maxPoolSize: 100, // Increased for handling large dataset operations
+      minPoolSize: 10,  // Increased minimum pool size
+      maxIdleTimeMS: 30000, // Close idle connections after 30 seconds
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       family: 4,
+      // Enable connection monitoring and retry logic
+      retryWrites: true,
+      retryReads: true,
     }
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => m.connection)
   }

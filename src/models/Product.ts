@@ -105,7 +105,15 @@ ProductSchema.index({ isPublished: 1, isArchived: 1, productType: 1, createdAt: 
 ProductSchema.index({ isPublished: 1, isArchived: 1, category: 1 })
 ProductSchema.index({ isPublished: 1, isArchived: 1, availableStock: -1 })
 ProductSchema.index({ tags: 1 })
+ProductSchema.index({ createdAt: -1 })
 ProductSchema.index({ name: 'text', description: 'text', tags: 'text', brand: 'text', sku: 'text' })
+// Optimized indexes for large dataset queries
+ProductSchema.index({ isPublished: 1, isArchived: 1, createdAt: -1 }, { name: 'published_created_idx' })
+ProductSchema.index({ isPublished: 1, isArchived: 1, availableStock: -1, createdAt: -1 }, { name: 'stock_created_idx' })
+ProductSchema.index({ productType: 1, isPublished: 1, isArchived: 1, createdAt: -1 }, { name: 'type_published_idx' })
+ProductSchema.index({ category: 1, isPublished: 1, isArchived: 1, createdAt: -1 }, { name: 'category_published_idx' })
+ProductSchema.index({ sku: 1 }, { unique: true, name: 'sku_unique_idx' })
+ProductSchema.index({ slug: 1 }, { unique: true, name: 'slug_unique_idx' })
 
 export const Product: Model<IProduct> =
   mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema)

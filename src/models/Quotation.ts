@@ -84,6 +84,12 @@ const QuotationSchema = new Schema<IQuotation>(
 QuotationSchema.index({ userId: 1 })
 QuotationSchema.index({ status: 1 })
 QuotationSchema.index({ validUntil: 1 })
+// Optimized indexes for large dataset queries
+QuotationSchema.index({ userId: 1, status: 1, createdAt: -1 }, { name: 'user_status_created_idx' })
+QuotationSchema.index({ status: 1, validUntil: 1, createdAt: -1 }, { name: 'status_valid_created_idx' })
+QuotationSchema.index({ userId: 1, validUntil: 1 }, { name: 'user_valid_idx' })
+QuotationSchema.index({ createdAt: -1, status: 1 }, { name: 'created_status_idx' })
+QuotationSchema.index({ quoteNumber: 1 }, { unique: true, name: 'quote_number_unique_idx' })
 
 export const Quotation: Model<IQuotation> =
   mongoose.models.Quotation || mongoose.model<IQuotation>('Quotation', QuotationSchema)

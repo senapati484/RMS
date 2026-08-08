@@ -28,14 +28,24 @@ export async function GET(req: NextRequest) {
   if (priority) filter.priority = priority
   if (productId) filter.productId = productId
 
-  const tickets = await MaintenanceTicket.find(filter)
-    .populate('productId', 'name imageUrl sku')
-    .populate('reportedById', 'name email')
-    .populate('assignedToId', 'name email')
-    .sort({ createdAt: -1 })
-    .lean()
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')))
 
-  return apiOk(tickets)
+  const [tickets, total] = await Promise.all([
+    MaintenanceTicket.find(filter)
+      .populate('productId', 'name imageUrl sku')
+      .populate('reportedById', 'name email')
+      .populate('assignedToId', 'name email')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean(),
+    MaintenanceTicket.countDocuments(filter),
+  ])
+
+  const res = apiOk({ tickets, total, page, limit, pages: Math.ceil(total / limit) })
+  res.headers.set('Cache-Control', 'private, max-age=5, stale-while-revalidate=20')
+  return res
 }
 
 export async function POST(req: NextRequest) {

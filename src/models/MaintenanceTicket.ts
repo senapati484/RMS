@@ -80,6 +80,13 @@ const MaintenanceTicketSchema = new Schema<IMaintenanceTicket>(
 MaintenanceTicketSchema.index({ productId: 1, status: 1 })
 MaintenanceTicketSchema.index({ status: 1, priority: 1 })
 MaintenanceTicketSchema.index({ assignedToId: 1 })
+// Optimized indexes for large dataset queries
+MaintenanceTicketSchema.index({ productId: 1, status: 1, createdAt: -1 }, { name: 'product_status_created_idx' })
+MaintenanceTicketSchema.index({ status: 1, priority: 1, createdAt: -1 }, { name: 'status_priority_created_idx' })
+MaintenanceTicketSchema.index({ assignedToId: 1, status: 1, createdAt: -1 }, { name: 'assigned_status_created_idx' })
+MaintenanceTicketSchema.index({ reportedById: 1, status: 1, createdAt: -1 }, { name: 'reported_status_created_idx' })
+MaintenanceTicketSchema.index({ category: 1, status: 1 }, { name: 'category_status_idx' })
+MaintenanceTicketSchema.index({ ticketNumber: 1 }, { unique: true, name: 'ticket_number_unique_idx' })
 
 export const MaintenanceTicket: Model<IMaintenanceTicket> =
   mongoose.models.MaintenanceTicket ||

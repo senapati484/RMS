@@ -184,6 +184,16 @@ const OrderSchema = new Schema<IOrder>(
 OrderSchema.index({ userId: 1 })
 OrderSchema.index({ status: 1 })
 OrderSchema.index({ rentalEnd: 1 })
+OrderSchema.index({ userId: 1, status: 1, createdAt: -1 })
+OrderSchema.index({ status: 1, rentalEnd: 1 })
+OrderSchema.index({ createdAt: -1 })
+OrderSchema.index({ orderNumber: 1 }, { unique: true })
+// Optimized indexes for large dataset queries
+OrderSchema.index({ userId: 1, createdAt: -1 }, { name: 'user_created_idx' })
+OrderSchema.index({ status: 1, createdAt: -1 }, { name: 'status_created_idx' })
+OrderSchema.index({ status: 1, rentalEnd: 1, createdAt: -1 }, { name: 'status_rental_created_idx' })
+OrderSchema.index({ userId: 1, status: 1, rentalEnd: 1, createdAt: -1 }, { name: 'user_status_rental_idx' })
+OrderSchema.index({ createdAt: -1, status: 1 }, { name: 'created_status_idx' })
 
 export const Order: Model<IOrder> =
   mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema)

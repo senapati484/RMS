@@ -29,7 +29,7 @@ const MS_PER_DAY = 86400000
 /** Resolve (and lazily create) the subscription record for a user. */
 export async function getSubscriptionFor(userId: string): Promise<ISubscription | null> {
   await connectDB()
-  let sub = await Subscription.findOne({ userId })
+  let sub = await Subscription.findOne({ userId }).lean() as ISubscription | null
   if (!sub) {
     const user = await User.findById(userId).select('createdAt').lean()
     if (!user) return null
@@ -42,19 +42,22 @@ export async function getSubscriptionFor(userId: string): Promise<ISubscription 
       trialEndsAt: new Date((user.createdAt || now).getTime() + TRIAL_DAYS * MS_PER_DAY),
       aiEnabled: true,
     })
-  }
-  // Roll TRIAL → EXPIRED once the 90 days are over
-  if (sub.status === 'TRIAL' && new Date(sub.trialEndsAt) < new Date()) {
+    sub = sub.toObject() as ISubscription
+  } else if (sub.status === 'TRIAL' && new Date(sub.trialEndsAt) < new Date()) {
+    // Roll TRIAL → EXPIRED once the 90 days are over (fire-and-forget; readers
+    // can rely on the rolled status returned below without waiting for the write).
+    Subscription.updateOne({ _id: sub._id }, { $set: { status: 'EXPIRED', aiEnabled: false } }).exec()
     sub.status = 'EXPIRED'
     sub.aiEnabled = false
-    await sub.save()
   }
   return sub
 }
 
 /** Current access summary for the logged-in user. */
 export async function getSubscriptionSummary(userId: string): Promise<SubscriptionSummary | null> {
-  const sub = await getSubscriptionFor(userId)
+  // Subscription fetch is lean & uses the unique userId index; if the caller
+  // already called connectDB() we don't redo it (mongoose caches the connection).
+  const sub = await Subscription.findOne({ userId }).lean() as ISubscription | null
   if (!sub) return null
 
   const inTrial = sub.status === 'TRIAL' && new Date(sub.trialEndsAt) >= new Date()

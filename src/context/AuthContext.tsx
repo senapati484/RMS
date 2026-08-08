@@ -1,5 +1,7 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import useSWR from 'swr'
+import { jsonFetcher } from '@/lib/fetcher'
 
 interface User {
   id: string
@@ -25,46 +27,47 @@ const AuthContext = createContext<AuthCtx>({
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // SWR dedupes this across every component that calls useAuth() — only one
+  // network request flies per 10s window even if 20 components mount at once.
+  // revalidateOnFocus: true so a returning user sees fresh subscription state.
+  const { data, error, isLoading, mutate } = useSWR<{ user: { _id: string; id?: string; name: string; email: string; role: User['role'] } }>(
+    '/api/auth/me',
+    jsonFetcher,
+    { revalidateOnMount: true, dedupingInterval: 10_000 }
+  )
+
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  const refresh = async () => {
-    try {
-      const headers: Record<string, string> = {}
-      if (typeof window !== 'undefined') {
-        const storedToken = localStorage.getItem('auth-token') || localStorage.getItem('token')
-        if (storedToken) {
-          headers['Authorization'] = `Bearer ${storedToken}`
-        }
-      }
-
-      const res = await fetch('/api/auth/me', { headers })
-      if (res.ok) {
-        const data = await res.json()
-        const fetchedUser = data.user
-        setUser({
-          id: fetchedUser._id || fetchedUser.id,
-          name: fetchedUser.name,
-          email: fetchedUser.email,
-          role: fetchedUser.role,
-        })
-      } else {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('auth-token')
-          localStorage.removeItem('token')
-        }
-        setUser(null)
-      }
-    } catch {
-      setUser(null)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
-    refresh()
-  }, [])
+    if (error) {
+      // 401 (or any auth failure) means "no authenticated user" — clear local
+      // tokens and surface a logged-out state. The /dashboard layout will then
+      // redirect to /login.
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth-token')
+        localStorage.removeItem('token')
+      }
+      setUser(null)
+    } else if (data?.user) {
+      const u = data.user
+      setUser({
+        id: u._id || u.id || '',
+        name: u.name,
+        email: u.email,
+        role: u.role,
+      })
+    }
+    // Don't touch user on initial undefined — preserve the spinner state.
+  }, [data, error])
+
+  // Only flip loading=false once SWR has settled (or definitively errored).
+  // isLoading is true while the request is in-flight; !isLoading && !error
+  // means we have a successful response (or a fresh revalidation).
+  const loading = isLoading && !data && !error
+
+  const refresh = async () => {
+    await mutate()
+  }
 
   const login = async (email: string, password: string) => {
     const res = await fetch('/api/auth/login', {
@@ -80,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('token', token)
       }
       setUser(data.user)
+      await mutate()
       return {}
     }
     return { error: data.error || 'Login failed' }
@@ -92,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     await fetch('/api/auth/logout', { method: 'POST' })
     setUser(null)
+    await mutate(undefined, false)
   }
 
   return (

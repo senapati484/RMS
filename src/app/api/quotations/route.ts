@@ -26,12 +26,22 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get('status')
   if (status) Object.assign(filter, { status })
 
-  const quotes = await Quotation.find(filter)
-    .populate('userId', 'name email')
-    .sort({ createdAt: -1 })
-    .lean()
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')))
 
-  return apiOk(quotes)
+  const [quotes, total] = await Promise.all([
+    Quotation.find(filter)
+      .populate('userId', 'name email')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean(),
+    Quotation.countDocuments(filter),
+  ])
+
+  const res = apiOk({ quotes, total, page, limit, pages: Math.ceil(total / limit) })
+  res.headers.set('Cache-Control', 'private, max-age=5, stale-while-revalidate=20')
+  return res
 }
 
 export async function POST(req: NextRequest) {

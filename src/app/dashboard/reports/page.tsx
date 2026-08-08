@@ -153,24 +153,52 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        {/* Visual Bar Chart Mock matching Excalidraw diagram */}
-        <div className="h-64 flex items-end justify-between gap-3 px-4 pt-6 border-b border-l border-white/20 pb-2">
-          {orders.slice(0, 8).map((o, idx) => {
-            const heightPercent = Math.max(15, Math.min(100, Math.round(((o.totalAmount || 1000) / (grandTotal || 10000)) * 400)))
-            return (
-              <div key={o._id || idx} className="flex-1 flex flex-col items-center gap-2 group">
-                <div
-                  className="w-full bg-gradient-to-t from-[#F26522]/40 to-[#F26522] rounded-t-xl transition-all group-hover:from-blue-500 group-hover:to-cyan-400 relative"
-                  style={{ height: `${heightPercent}%` }}
-                >
-                  <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] text-white font-mono font-bold opacity-0 group-hover:opacity-100 transition-opacity bg-black px-1.5 py-0.5 rounded whitespace-nowrap z-10">
-                    ₹{o.totalAmount}
-                  </div>
-                </div>
-                <span className="text-[10px] text-white/40 font-mono truncate max-w-[50px]">{o.orderNumber}</span>
+        {/* Dynamic Interactive Revenue & Performance Analytics Bar Chart */}
+        <div className="relative">
+          {/* Y-Axis Guidelines */}
+          <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-15 text-[10px] font-mono text-white">
+            <div className="border-b border-white border-dashed pb-0.5">₹{Math.max(...orders.map(o => o.totalAmount || 0), 100).toLocaleString('en-IN')}</div>
+            <div className="border-b border-white border-dashed pb-0.5">₹{Math.round(Math.max(...orders.map(o => o.totalAmount || 0), 100) / 2).toLocaleString('en-IN')}</div>
+            <div className="border-b border-white border-dashed pb-0.5">₹0</div>
+          </div>
+
+          <div className="h-64 flex items-end justify-between gap-2 sm:gap-4 px-2 sm:px-6 pt-8 border-b border-l border-white/20 pb-2 relative z-10">
+            {orders.length === 0 ? (
+              <div className="w-full h-full flex items-center justify-center text-white/30 text-xs">
+                No order analytics data available
               </div>
-            )
-          })}
+            ) : (
+              orders.slice(0, 10).map((o, idx) => {
+                const maxVal = Math.max(...orders.map(item => item.totalAmount || 0), 1)
+                const heightPercent = Math.max(12, Math.min(100, Math.round(((o.totalAmount || 0) / maxVal) * 100)))
+
+                return (
+                  <div key={o._id || idx} className="flex-1 h-full flex flex-col justify-end items-center gap-2 group cursor-pointer">
+                    {/* Value Badge */}
+                    <div className="text-[10px] text-emerald-400 font-mono font-bold transition-all group-hover:scale-110 group-hover:text-white bg-black/60 px-1.5 py-0.5 rounded border border-white/10 shadow-md">
+                      ₹{(o.totalAmount || 0).toLocaleString('en-IN')}
+                    </div>
+
+                    {/* Bar Container */}
+                    <div className="w-full h-full flex items-end justify-center px-1">
+                      <div
+                        className="w-full max-w-[42px] bg-gradient-to-t from-[#F26522] via-[#ff7a3d] to-amber-400 rounded-t-xl transition-all duration-500 group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-300 shadow-lg shadow-[#F26522]/20 group-hover:shadow-cyan-500/30 relative"
+                        style={{ height: `${heightPercent}%` }}
+                      >
+                        {/* Glow Overlay */}
+                        <div className="absolute inset-0 bg-white/20 rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </div>
+
+                    {/* Order Reference Label */}
+                    <span className="text-[10px] text-white/50 group-hover:text-white font-mono truncate max-w-[65px] transition-colors">
+                      {o.orderNumber || `ORD-${idx + 1}`}
+                    </span>
+                  </div>
+                )
+              })
+            )}
+          </div>
         </div>
       </div>
 

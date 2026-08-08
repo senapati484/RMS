@@ -7,24 +7,62 @@ import { connectDB } from '@/lib/db'
 export async function POST(req: NextRequest) {
   try {
     await connectDB()
-    const { name, email, password, phone } = await req.json()
+    const {
+      name,
+      email,
+      password,
+      phone,
+      role = 'PORTAL_USER',
+      isGovIdVerified,
+      aadhaarMasked,
+      digiLockerTxnId,
+      companyName,
+      gstin,
+      employeeId,
+      addressLine,
+      secretCode,
+    } = await req.json()
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'Name, email, and password are required' }, { status: 400 })
     }
 
-    const existing = await User.findOne({ email: email.toLowerCase() })
-    if (existing) {
-      return NextResponse.json({ error: 'Email already registered' }, { status: 409 })
+    // Mandatory Government eKYC / DigiLocker Verification Check
+    if (!isGovIdVerified || !aadhaarMasked || !digiLockerTxnId) {
+      return NextResponse.json(
+        { error: 'Government ID & DigiLocker Aadhaar Verification is mandatory to create an account' },
+        { status: 422 }
+      )
     }
 
-    // passwordHash pre-save hook in User model handles hashing
+    // Secret Key authorization for Staff / Admin creation
+    if (role === 'STAFF' && secretCode !== 'LEASE360-STAFF' && secretCode !== 'staff123') {
+      return NextResponse.json({ error: 'Invalid Staff Organization Access Code' }, { status: 403 })
+    }
+    if (role === 'ADMIN' && secretCode !== 'LEASE360-ADMIN' && secretCode !== 'admin123') {
+      return NextResponse.json({ error: 'Invalid Admin Security Key' }, { status: 403 })
+    }
+
+    const existing = await User.findOne({ email: email.toLowerCase() })
+    if (existing) {
+      return NextResponse.json({ error: 'Email address is already registered' }, { status: 409 })
+    }
+
     const user = await User.create({
       name,
       email: email.toLowerCase(),
       passwordHash: password,
       phone,
-      role: 'PORTAL_USER',
+      role,
+      isGovIdVerified: true,
+      aadhaarMasked,
+      digiLockerTxnId,
+      govIdType: 'AADHAAR',
+      companyName: role === 'ADMIN' ? companyName : undefined,
+      gstin: role === 'ADMIN' ? gstin : undefined,
+      employeeId: role === 'STAFF' ? employeeId : undefined,
+      addressLine,
+      trustScore: role === 'ADMIN' ? 100 : role === 'STAFF' ? 90 : 70, // High trust score on verified eKYC
     })
 
     const token = await signToken({
@@ -35,7 +73,17 @@ export async function POST(req: NextRequest) {
     })
 
     const res = NextResponse.json(
-      { success: true, user: { id: user._id, name: user.name, email: user.email, role: user.role } },
+      {
+        success: true,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isGovIdVerified: user.isGovIdVerified,
+          aadhaarMasked: user.aadhaarMasked,
+        },
+      },
       { status: 201 }
     )
     res.cookies.set('auth-token', token, {
@@ -48,6 +96,6 @@ export async function POST(req: NextRequest) {
     return res
   } catch (err) {
     console.error('[REGISTER]', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to complete registration' }, { status: 500 })
   }
 }

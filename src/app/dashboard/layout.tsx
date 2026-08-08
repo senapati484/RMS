@@ -24,7 +24,7 @@ const navItems = [
   { href: '/dashboard/quotations', label: 'Quotations', icon: FileText, roles: ['ADMIN', 'STAFF', 'PORTAL_USER'] },
   { href: '/dashboard/maintenance', label: 'Maintenance', icon: Wrench, roles: ['ADMIN', 'STAFF'] },
   { href: '/dashboard/ai', label: 'AI Assistant', icon: Bot, roles: ['ADMIN', 'STAFF'] },
-  { href: '/dashboard/users', label: 'Users', icon: Users, roles: ['ADMIN'] },
+  { href: '/dashboard/users', label: 'Users & eKYC', icon: Users, roles: ['ADMIN', 'STAFF'] },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

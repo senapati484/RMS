@@ -42,9 +42,9 @@ const FEATURED_GEAR = [
 ]
 
 const DEMO_ACCOUNTS = [
-  { role: 'Admin', email: 'admin@lease360.dev', pass: 'admin123', desc: 'Full system control, revenue analytics & maintenance' },
-  { role: 'Staff', email: 'staff@lease360.dev', pass: 'staff123', desc: 'Manage pickups, inspections & return processing' },
-  { role: 'Customer', email: 'user@lease360.dev', pass: 'user123', desc: 'Browse catalog, create rental orders & view invoices' },
+  { role: 'Admin', email: 'admin@lease360.ai', pass: 'admin123', desc: 'Full system control, revenue analytics & maintenance' },
+  { role: 'Staff', email: 'staff@lease360.ai', pass: 'staff123', desc: 'Manage pickups, inspections & return processing' },
+  { role: 'Customer', email: 'user@lease360.ai', pass: 'user123', desc: 'Browse catalog, create rental orders & view invoices' },
 ]
 
 export default function Lease360LandingPage() {

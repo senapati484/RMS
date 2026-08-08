@@ -97,10 +97,10 @@ const PRODUCTS = [
 ]
 
 const USERS = [
-  { name: 'Admin User', email: 'admin@lease360.dev', password: 'admin123', role: 'ADMIN', phone: '+91-9876543210' },
-  { name: 'Staff Member', email: 'staff@lease360.dev', password: 'staff123', role: 'STAFF', phone: '+91-9876543211' },
-  { name: 'Aryan Sharma', email: 'user@lease360.dev', password: 'user123', role: 'PORTAL_USER', phone: '+91-9876543212' },
-  { name: 'Priya Nair', email: 'priya@lease360.dev', password: 'user123', role: 'PORTAL_USER', phone: '+91-9876543213' },
+  { name: 'Admin User', email: 'admin@lease360.ai', password: 'admin123', role: 'ADMIN', phone: '+91-9876543210' },
+  { name: 'Staff Member', email: 'staff@lease360.ai', password: 'staff123', role: 'STAFF', phone: '+91-9876543211' },
+  { name: 'Aryan Sharma', email: 'user@lease360.ai', password: 'user123', role: 'PORTAL_USER', phone: '+91-9876543212' },
+  { name: 'Priya Nair', email: 'priya@lease360.ai', password: 'user123', role: 'PORTAL_USER', phone: '+91-9876543213' },
 ]
 
 async function seed() {
@@ -128,9 +128,9 @@ async function seed() {
 
   console.log('\n✅ Seed complete!')
   console.log('\n🔑 Login credentials:')
-  console.log('  Admin:  admin@lease360.dev / admin123')
-  console.log('  Staff:  staff@lease360.dev / staff123')
-  console.log('  Portal: user@lease360.dev  / user123')
+  console.log('  Admin:  admin@lease360.ai / admin123')
+  console.log('  Staff:  staff@lease360.ai / staff123')
+  console.log('  Portal: user@lease360.ai  / user123')
   console.log('\n🚀 Start the app: npm run dev')
 
   await mongoose.disconnect()

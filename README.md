@@ -260,9 +260,9 @@ Use these seeded accounts to test different roles and permissions:
 
 | Role | Email | Password | Scope & Description |
 |---|---|---|---|
-| **Admin** | `admin@lease360.dev` | `admin123` | Full system control, revenue analytics, return inspection & maintenance |
-| **Staff** | `staff@lease360.dev` | `staff123` | Pickup dispatch, return processing & maintenance tickets |
-| **Customer** | `user@lease360.dev` | `user123` | Catalog browsing, rental order creation & deposit tracking |
+| **Admin** | `admin@lease360.ai` | `admin123` | Full system control, revenue analytics, return inspection & maintenance |
+| **Staff** | `staff@lease360.ai` | `staff123` | Pickup dispatch, return processing & maintenance tickets |
+| **Customer** | `user@lease360.ai` | `user123` | Catalog browsing, rental order creation & deposit tracking |
 
 ---
 

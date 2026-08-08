@@ -114,19 +114,19 @@ function LoginForm() {
         <p className="text-white/30 text-xs text-center mb-3">1-Click Demo Logins</p>
         <div className="grid grid-cols-3 gap-2">
           <button
-            onClick={() => { setEmail('admin@lease360.dev'); setPassword('admin123') }}
+            onClick={() => { setEmail('admin@lease360.ai'); setPassword('admin123') }}
             className="text-xs bg-white/5 hover:bg-white/10 text-white/60 rounded-lg py-2 px-2 transition-colors text-center font-medium"
           >
             Admin
           </button>
           <button
-            onClick={() => { setEmail('staff@lease360.dev'); setPassword('staff123') }}
+            onClick={() => { setEmail('staff@lease360.ai'); setPassword('staff123') }}
             className="text-xs bg-white/5 hover:bg-white/10 text-white/60 rounded-lg py-2 px-2 transition-colors text-center font-medium"
           >
             Staff
           </button>
           <button
-            onClick={() => { setEmail('user@lease360.dev'); setPassword('user123') }}
+            onClick={() => { setEmail('user@lease360.ai'); setPassword('user123') }}
             className="text-xs bg-white/5 hover:bg-white/10 text-white/60 rounded-lg py-2 px-2 transition-colors text-center font-medium"
           >
             Customer

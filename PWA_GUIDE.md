@@ -22,7 +22,7 @@ Lease360 is engineered touch-first with PWA capabilities built directly into Nex
 ## 📲 2. How to Install Lease360 as an App
 
 ### iOS (iPhone & iPad Safari)
-1. Open **Safari** on your iPhone/iPad and navigate to your deployed URL (e.g. `https://your-domain.vercel.app` or `http://localhost:3000`).
+1. Open **Safari** on your iPhone/iPad and navigate to your deployed URL (e.g. `https://lease360.ai` or `http://localhost:3000`).
 2. Tap the **Share** button (the square icon with an up arrow at the bottom of the screen).
 3. Scroll down and tap **"Add to Home Screen"**.
 4. Tap **Add** in the top-right corner.

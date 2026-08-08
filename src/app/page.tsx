@@ -10,6 +10,8 @@ import {
 import LondonClock from '@/components/LondonClock'
 import { useCart } from '@/context/CartContext'
 
+import { getProductsAction } from '@/actions/product-actions'
+
 const HeroShader = dynamic(() => import('@/components/HeroShader'), { ssr: false })
 
 interface ProductItem {
@@ -67,24 +69,29 @@ export default function Lease360LandingPage() {
   }
 
   useEffect(() => {
+    let isMounted = true
     setLoading(true)
-    const params = new URLSearchParams({ page: String(page), limit: String(pageSize) })
-    if (selectedCategory && selectedCategory !== 'all') {
-      params.set('productType', selectedCategory)
-    }
-    if (searchQuery.trim()) {
-      params.set('q', searchQuery.trim())
-    }
 
-    fetch(`/api/products?${params.toString()}`)
-      .then((res) => res.json())
+    getProductsAction({
+      page,
+      limit: pageSize,
+      productType: selectedCategory !== 'all' ? selectedCategory : undefined,
+      q: searchQuery.trim() || undefined,
+    })
       .then((data) => {
-        setProducts(data.products || [])
+        if (!isMounted) return
+        setProducts((data.products as ProductItem[]) || [])
         setTotalPages(data.pages || 1)
         setTotalProducts(data.total || 0)
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        if (isMounted) setLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
   }, [selectedCategory, searchQuery, page])
 
   const displayProducts = products.slice(0, 6)

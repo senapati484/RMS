@@ -8,6 +8,7 @@ import {
   ShoppingCart, SlidersHorizontal, ArrowUpDown
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { getProductsAction } from '@/actions/product-actions'
 
 interface Product {
   _id: string
@@ -97,17 +98,22 @@ export default function ProductsPage() {
 
   const fetchProducts = useCallback(async () => {
     setLoading(true)
-    const params = new URLSearchParams({ page: String(page), limit: String(limit) })
-    if (q) params.set('q', q)
-    if (productType !== 'all') params.set('productType', productType)
-    if (showDrafts && isAdmin) params.set('showAll', '1')
-
-    const res = await fetch(`/api/products?${params}`)
-    const data = await res.json()
-    setProducts(data.products || [])
-    setTotalPages(data.pages || 1)
-    setTotal(data.total || 0)
-    setLoading(false)
+    try {
+      const data = await getProductsAction({
+        page,
+        limit,
+        productType: productType !== 'all' ? productType : undefined,
+        q: q.trim() || undefined,
+        showAll: showDrafts && isAdmin,
+      })
+      setProducts((data.products as Product[]) || [])
+      setTotalPages(data.pages || 1)
+      setTotal(data.total || 0)
+    } catch (err) {
+      console.error('[FETCH PRODUCTS ACTION ERROR]', err)
+    } finally {
+      setLoading(false)
+    }
   }, [q, productType, page, limit, showDrafts, isAdmin])
 
   useEffect(() => { fetchProducts() }, [fetchProducts])

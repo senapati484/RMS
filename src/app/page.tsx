@@ -38,48 +38,6 @@ const CATEGORIES = [
   { id: 'support', label: '🎯 Support Gear' },
 ]
 
-const FALLBACK_GEAR: ProductItem[] = [
-  {
-    _id: 'fallback-1',
-    name: 'Sony A7III Mirrorless Camera Kit',
-    productType: 'camera',
-    category: 'Camera',
-    brand: 'Sony',
-    dailyRate: 1500,
-    baseDepositAmt: 5000,
-    availableStock: 5,
-    totalStock: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=600&q=80',
-    condition: 'EXCELLENT',
-  },
-  {
-    _id: 'fallback-2',
-    name: 'DJI Ronin-SC 3-Axis Gimbal',
-    productType: 'support',
-    category: 'Support',
-    brand: 'DJI',
-    dailyRate: 800,
-    baseDepositAmt: 3000,
-    availableStock: 4,
-    totalStock: 4,
-    imageUrl: 'https://images.unsplash.com/photo-1527090526205-beaac8dc3c62?w=600&q=80',
-    condition: 'NEW',
-  },
-  {
-    _id: 'fallback-3',
-    name: 'Godox SL-60W Continuous LED Light',
-    productType: 'lighting',
-    category: 'Lighting',
-    brand: 'Godox',
-    dailyRate: 500,
-    baseDepositAmt: 1500,
-    availableStock: 10,
-    totalStock: 10,
-    imageUrl: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&q=80',
-    condition: 'EXCELLENT',
-  },
-]
-
 const DEMO_ACCOUNTS = [
   { role: 'Admin', email: 'admin@lease360.ai', pass: 'admin123', desc: 'Full system control, revenue analytics & maintenance' },
   { role: 'Staff', email: 'staff@lease360.ai', pass: 'staff123', desc: 'Manage pickups, inspections & return processing' },
@@ -95,7 +53,7 @@ export default function Lease360LandingPage() {
   const { addToCart } = useCart()
 
   useEffect(() => {
-    fetch('/api/products?limit=20')
+    fetch('/api/products?limit=50')
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.products || [])
@@ -104,10 +62,8 @@ export default function Lease360LandingPage() {
       .catch(() => setLoading(false))
   }, [])
 
-  // Filter products by category & search query
-  const rawList = products.length > 0 ? products : FALLBACK_GEAR
-
-  const filteredProducts = rawList.filter((p) => {
+  // Filter products directly loaded from MongoDB backend
+  const filteredProducts = products.filter((p) => {
     const pType = (p.productType || '').toLowerCase()
     const pCat = (p.category || '').toLowerCase()
     const sCat = selectedCategory.toLowerCase()
@@ -121,7 +77,7 @@ export default function Lease360LandingPage() {
     return matchesCat && matchesSearch
   })
 
-  // Display ONLY the first 3 elements from the database matching the active filter
+  // Display first 3 elements directly from MongoDB database
   const displayProducts = filteredProducts.slice(0, 3)
 
   return (

@@ -211,7 +211,7 @@ const PRODUCTS = [
   {
     name: 'Aputure Light Storm LS 600d Pro LED', slug: 'aputure-ls-600d-pro',
     description: 'Monstrous 600W daylight COB LED fixture equivalent to 1200W HMI for professional sets.',
-    imageUrl: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&q=80',
     productType: 'lighting', category: 'Lighting', brand: 'Aputure', sku: 'LIGHT-APUT-600D', condition: 'NEW',
     totalStock: 3, availableStock: 3, dailyRate: 2200, weeklyRate: 13860, monthlyRate: 46200, baseDepositAmt: 8000, depositIsPercent: false,
     accessoryList: ['Control Box', 'Hyper Reflector', 'Weatherproof Head Cable', 'Rolling Case'],

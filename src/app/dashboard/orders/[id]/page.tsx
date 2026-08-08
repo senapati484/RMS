@@ -853,16 +853,64 @@ export default function OrderDetailPage() {
                 </div>
               </div>
 
-              {/* UPI Quick Scan Box */}
-              {selectedPayMethod === 'UPI' && (
-                <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-2xl p-4 text-center space-y-2">
-                  <div className="w-24 h-24 mx-auto bg-white p-2 rounded-xl flex items-center justify-center">
-                    <QrCode size={80} className="text-black" />
+              {/* UPI Quick Scan Box with Dynamic NPCI UPI QR Code */}
+              {selectedPayMethod === 'UPI' && (() => {
+                const upiVpa = 'lease360.pay@okicici'
+                const payeeName = 'Lease360 Equipment Rentals'
+                const amount = order.totalAmount
+                const note = `Payment for Order ${order.orderNumber}`
+                const upiIntentUri = `upi://pay?pa=${encodeURIComponent(upiVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`
+                const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiIntentUri)}`
+
+                return (
+                  <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-2xl p-4 text-center space-y-3">
+                    {/* Scannable QR Code Frame */}
+                    <div className="relative w-44 h-44 mx-auto bg-white p-2.5 rounded-2xl shadow-xl flex items-center justify-center ring-4 ring-emerald-500/30">
+                      <img
+                        src={qrCodeUrl}
+                        alt={`UPI Payment QR Code for ₹${amount}`}
+                        className="w-full h-full object-contain rounded-xl"
+                      />
+                    </div>
+
+                    {/* VPA & Amount Display */}
+                    <div className="space-y-1">
+                      <div className="text-white text-xs font-semibold">
+                        Auto-filled Amount: <span className="text-emerald-400 font-bold font-mono text-sm">₹{amount.toLocaleString()}</span>
+                      </div>
+                      <div
+                        onClick={() => {
+                          if (navigator.clipboard) {
+                            navigator.clipboard.writeText(upiVpa)
+                            toast.success('UPI ID lease360.pay@okicici copied!')
+                          }
+                        }}
+                        className="text-emerald-400 text-xs font-bold font-mono bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 inline-flex items-center gap-1.5 cursor-pointer hover:bg-emerald-500/20 transition-all"
+                        title="Click to copy UPI VPA"
+                      >
+                        <span>{upiVpa}</span>
+                        <span className="text-[10px] bg-emerald-500/30 px-1.5 py-0.5 rounded text-emerald-300">Copy</span>
+                      </div>
+                    </div>
+
+                    {/* Direct UPI App Intent Launch */}
+                    <div className="pt-1">
+                      <a
+                        href={upiIntentUri}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer"
+                      >
+                        <span>Open UPI App Directly →</span>
+                      </a>
+                    </div>
+
+                    <div className="text-white/40 text-[11px]">
+                      Scan with Google Pay, PhonePe, Paytm, BHIM or CRED
+                    </div>
                   </div>
-                  <div className="text-emerald-400 text-xs font-bold font-mono">lease360.pay@okicici</div>
-                  <div className="text-white/40 text-[11px]">Scan with Google Pay, PhonePe, or Paytm</div>
-                </div>
-              )}
+                )
+              })()}
 
               {/* Card Inputs */}
               {selectedPayMethod === 'CARD' && (

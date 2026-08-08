@@ -21,7 +21,7 @@ async function sendMail({ to, subject, html }: { to: string; subject: string; ht
 
   try {
     const info = await transporter.sendMail({
-      from: `"RentalOS Operations" <${SMTP_EMAIL}>`,
+      from: `"Lease360 Operations" <${SMTP_EMAIL}>`,
       to,
       subject,
       html,
@@ -47,7 +47,7 @@ function emailWrapper(title: string, bodyContent: string) {
       body { margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #FAFAFA; }
       .container { max-width: 600px; margin: 20px auto; background-color: #111111; border: 1px solid #222222; border-radius: 16px; overflow: hidden; }
       .header { background-color: #161616; padding: 24px; text-align: center; border-bottom: 1px solid #222222; }
-      .logo-badge { display: inline-block; width: 36px; height: 36px; background-color: #F26522; border-radius: 50%; color: #FFFFFF; font-weight: bold; font-size: 16px; line-height: 36px; text-align: center; }
+      .logo-badge { display: inline-block; padding: 0 10px; height: 36px; background-color: #F26522; border-radius: 18px; color: #FFFFFF; font-weight: bold; font-size: 14px; line-height: 36px; text-align: center; }
       .brand-title { font-size: 20px; font-weight: 700; color: #FFFFFF; vertical-align: middle; margin-left: 8px; }
       .content { padding: 32px 24px; }
       .heading { font-size: 22px; font-weight: 700; color: #FFFFFF; margin-top: 0; margin-bottom: 8px; }
@@ -68,14 +68,14 @@ function emailWrapper(title: string, bodyContent: string) {
   <body>
     <div class="container">
       <div class="header">
-        <span class="logo-badge">R</span>
-        <span class="brand-title">RentalOS</span>
+        <span class="logo-badge">L360</span>
+        <span class="brand-title">Lease360</span>
       </div>
       <div class="content">
         ${bodyContent}
       </div>
       <div class="footer">
-        RentalOS — Automated Equipment Rental & Deposit Security Engine<br>
+        Lease360 — Automated Equipment Rental & Deposit Security Engine<br>
         Odoo Hackathon 2026 Submission
       </div>
     </div>
@@ -153,7 +153,7 @@ export async function sendOrderConfirmationEmail({
 
   return sendMail({
     to: userEmail,
-    subject: `[RentalOS] Rental Order #${orderNumber} Confirmed`,
+    subject: `[Lease360] Rental Order #${orderNumber} Confirmed`,
     html: emailWrapper(`Order #${orderNumber} Confirmed`, content),
   })
 }
@@ -192,7 +192,7 @@ export async function sendPickupNotificationEmail({
 
   return sendMail({
     to: userEmail,
-    subject: `[RentalOS] Equipment Picked Up — Order #${orderNumber}`,
+    subject: `[Lease360] Equipment Picked Up — Order #${orderNumber}`,
     html: emailWrapper(`Equipment Picked Up #${orderNumber}`, content),
   })
 }
@@ -261,7 +261,7 @@ export async function sendReturnSettlementEmail({
 
   return sendMail({
     to: userEmail,
-    subject: `[RentalOS] Deposit Settlement & Inspection Completed #${orderNumber}`,
+    subject: `[Lease360] Deposit Settlement & Inspection Completed #${orderNumber}`,
     html: emailWrapper(`Deposit Settlement #${orderNumber}`, content),
   })
 }
@@ -311,7 +311,7 @@ export async function sendQuotationEmail({
 
   return sendMail({
     to: userEmail,
-    subject: `[RentalOS] Custom Rental Proposal #${quoteNumber}`,
+    subject: `[Lease360] Custom Rental Proposal #${quoteNumber}`,
     html: emailWrapper(`Rental Proposal #${quoteNumber}`, content),
   })
 }
@@ -348,7 +348,7 @@ export async function sendMaintenanceTicketEmail({
 
   return sendMail({
     to: adminEmail,
-    subject: `[RentalOS Maintenance] Ticket #${ticketNumber} (${priority}) — ${productName}`,
+    subject: `[Lease360 Maintenance] Ticket #${ticketNumber} (${priority}) — ${productName}`,
     html: emailWrapper(`Maintenance #${ticketNumber}`, content),
   })
 }

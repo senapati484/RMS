@@ -63,10 +63,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="p-6 border-b border-white/5">
         <Link href="/dashboard" className="flex items-center gap-3">
           <div className="w-8 h-8 bg-[#F26522] rounded-full flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-xs">R</span>
+            <span className="text-white font-bold text-[10px]">L360</span>
           </div>
           <div>
-            <div className="text-white font-semibold text-sm">RentalOS</div>
+            <div className="text-white font-semibold text-sm">Lease360</div>
             <div className="text-[#F26522] text-[10px] font-semibold uppercase tracking-wider">
               {user.role.replace('_', ' ')}
             </div>
@@ -153,9 +153,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
           <div className="flex items-center gap-2 lg:hidden">
             <div className="w-7 h-7 bg-[#F26522] rounded-full flex items-center justify-center shadow-xs">
-              <span className="text-white font-bold text-[10px]">R</span>
+              <span className="text-white font-bold text-[9px]">L360</span>
             </div>
-            <span className="text-white font-bold text-sm tracking-tight">RentalOS</span>
+            <span className="text-white font-bold text-sm tracking-tight">Lease360</span>
           </div>
           <div className="flex-1" />
           <NotificationBell />

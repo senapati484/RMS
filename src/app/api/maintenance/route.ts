@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     // Email admin / staff
     sendMaintenanceTicketEmail({
-      adminEmail: process.env.NEXT_PUBLIC_SMTP_EMAIL || 'admin@rentalos.dev',
+      adminEmail: process.env.NEXT_PUBLIC_SMTP_EMAIL || 'admin@lease360.dev',
       ticketNumber: ticket.ticketNumber,
       productName: product.name,
       title: ticket.title,

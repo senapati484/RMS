@@ -16,14 +16,14 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'RentalOS — Enterprise Rental Management Engine',
+  title: 'Lease360 — Enterprise Rental & Lease Management Engine',
   description:
     'Centralized equipment rental management system with AI-powered operations, real-time dashboards, and automated deposit settlement.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'RentalOS',
+    title: 'Lease360',
   },
   formatDetection: {
     telephone: true,

@@ -1,7 +1,7 @@
 {
-  "name": "RentalOS — Equipment Rental & Security Engine",
-  "short_name": "RentalOS",
-  "description": "Enterprise Equipment Rental Management System",
+  "name": "Lease360 — Equipment Rental & Security Engine",
+  "short_name": "Lease360",
+  "description": "Enterprise Equipment Rental & Lease Management System",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#0A0A0A",

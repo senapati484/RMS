@@ -42,12 +42,12 @@ const FEATURED_GEAR = [
 ]
 
 const DEMO_ACCOUNTS = [
-  { role: 'Admin', email: 'admin@rentalos.dev', pass: 'admin123', desc: 'Full system control, revenue analytics & maintenance' },
-  { role: 'Staff', email: 'staff@rentalos.dev', pass: 'staff123', desc: 'Manage pickups, inspections & return processing' },
-  { role: 'Customer', email: 'user@rentalos.dev', pass: 'user123', desc: 'Browse catalog, create rental orders & view invoices' },
+  { role: 'Admin', email: 'admin@lease360.dev', pass: 'admin123', desc: 'Full system control, revenue analytics & maintenance' },
+  { role: 'Staff', email: 'staff@lease360.dev', pass: 'staff123', desc: 'Manage pickups, inspections & return processing' },
+  { role: 'Customer', email: 'user@lease360.dev', pass: 'user123', desc: 'Browse catalog, create rental orders & view invoices' },
 ]
 
-export default function RentalOSLandingPage() {
+export default function Lease360LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
@@ -66,7 +66,7 @@ export default function RentalOSLandingPage() {
             <div className="flex items-center">
               {/* Dark circle logo */}
               <Link href="/" className="w-9 h-9 sm:w-10 sm:h-10 bg-[#F26522] rounded-full flex items-center justify-center text-white text-xs font-black tracking-tight shrink-0 shadow-md">
-                R
+                L360
               </Link>
               {/* Nav links */}
               <div className="hidden md:flex items-center gap-6 ml-6 text-[14px] font-medium text-gray-900">
@@ -163,11 +163,11 @@ export default function RentalOSLandingPage() {
         <div className="relative z-20 flex-1 flex flex-col justify-end max-w-[1440px] mx-auto w-full px-5 sm:px-8 lg:px-12 pb-14 sm:pb-16 lg:pb-20">
           <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md border border-gray-200 rounded-full px-3 py-1 text-[13px] text-gray-900 font-medium mb-5 sm:mb-8 w-fit shadow-xs">
             <span className="w-2 h-2 rounded-full bg-[#F26522] animate-pulse" />
-            RentalOS — Equipment Rental & Security Engine
+            Lease360 — Equipment Rental & Lease Security Engine
           </div>
 
           <h1 className="text-[clamp(2rem,6.5vw,4.2rem)] font-medium leading-[1.08] tracking-[-0.03em] text-gray-900">
-            Automate rental workflows,
+            Automate lease workflows,
             <br className="hidden sm:block" />
             deposit holds & late fees
             <br className="hidden sm:block" />
@@ -270,7 +270,7 @@ export default function RentalOSLandingPage() {
           </div>
 
           <h2 className="text-[clamp(1.75rem,5vw,4.2rem)] font-medium leading-[1.08] tracking-[-0.03em] text-gray-900 mb-12">
-            Built for total rental lifecycle control.
+            Built for 360° rental lifecycle control.
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -318,7 +318,7 @@ export default function RentalOSLandingPage() {
                 <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4">
                   <Bot size={20} />
                 </div>
-                <h3 className="text-gray-900 font-semibold text-base mb-2">RentalMind AI</h3>
+                <h3 className="text-gray-900 font-semibold text-base mb-2">LeaseMind AI</h3>
                 <p className="text-gray-600 text-xs leading-relaxed">
                   Natural language operations query engine backed by Groq LLM with Gemini fallback on live DB state.
                 </p>
@@ -369,7 +369,7 @@ export default function RentalOSLandingPage() {
           </div>
 
           <div className="text-center pt-6 border-t border-gray-800 text-gray-400 text-xs">
-            RentalOS — Odoo Hackathon 2026 Submission · Built with Next.js 14, Tailwind CSS & MongoDB
+            Lease360 — Odoo Hackathon 2026 Submission · Built with Next.js 14, Tailwind CSS & MongoDB
           </div>
         </div>
       </section>

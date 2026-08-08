@@ -44,12 +44,12 @@ export default function RegisterPage() {
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 mb-4">
             <div className="w-10 h-10 bg-[#F26522] rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">R</span>
+              <span className="text-white font-bold text-xs">L360</span>
             </div>
-            <span className="text-white text-xl font-semibold tracking-tight">RentalOS</span>
+            <span className="text-white text-xl font-semibold tracking-tight">Lease360</span>
           </div>
           <h1 className="text-white text-2xl font-bold">Create your account</h1>
-          <p className="text-white/40 text-sm mt-2">Start managing your rentals</p>
+          <p className="text-white/40 text-sm mt-2">Start managing your equipment & leases</p>
         </div>
 
         <div className="liquid-glass rounded-2xl p-8 border border-white/10">

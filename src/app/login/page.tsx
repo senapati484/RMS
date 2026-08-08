@@ -45,12 +45,12 @@ function LoginForm() {
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 mb-4">
           <div className="w-10 h-10 bg-[#F26522] rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-sm">R</span>
+            <span className="text-white font-bold text-xs">L360</span>
           </div>
-          <span className="text-white text-xl font-semibold tracking-tight">RentalOS</span>
+          <span className="text-white text-xl font-semibold tracking-tight">Lease360</span>
         </div>
         <h1 className="text-white text-2xl font-bold">Sign in to your account</h1>
-        <p className="text-white/40 text-sm mt-2">Enterprise Rental Management Platform</p>
+        <p className="text-white/40 text-sm mt-2">Enterprise Lease & Rental Management Platform</p>
       </div>
 
       {/* Card */}
@@ -101,7 +101,7 @@ function LoginForm() {
 
         <div className="mt-6 pt-6 border-t border-white/10 text-center">
           <p className="text-white/40 text-sm">
-            New to RentalOS?{' '}
+            New to Lease360?{' '}
             <Link href="/register" className="text-[#F26522] hover:text-[#ff7733] transition-colors">
               Create account
             </Link>
@@ -114,19 +114,19 @@ function LoginForm() {
         <p className="text-white/30 text-xs text-center mb-3">1-Click Demo Logins</p>
         <div className="grid grid-cols-3 gap-2">
           <button
-            onClick={() => { setEmail('admin@rentalos.dev'); setPassword('admin123') }}
+            onClick={() => { setEmail('admin@lease360.dev'); setPassword('admin123') }}
             className="text-xs bg-white/5 hover:bg-white/10 text-white/60 rounded-lg py-2 px-2 transition-colors text-center font-medium"
           >
             Admin
           </button>
           <button
-            onClick={() => { setEmail('staff@rentalos.dev'); setPassword('staff123') }}
+            onClick={() => { setEmail('staff@lease360.dev'); setPassword('staff123') }}
             className="text-xs bg-white/5 hover:bg-white/10 text-white/60 rounded-lg py-2 px-2 transition-colors text-center font-medium"
           >
             Staff
           </button>
           <button
-            onClick={() => { setEmail('user@rentalos.dev'); setPassword('user123') }}
+            onClick={() => { setEmail('user@lease360.dev'); setPassword('user123') }}
             className="text-xs bg-white/5 hover:bg-white/10 text-white/60 rounded-lg py-2 px-2 transition-colors text-center font-medium"
           >
             Customer

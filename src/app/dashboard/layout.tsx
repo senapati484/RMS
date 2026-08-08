@@ -15,7 +15,7 @@ import {
   ChevronRight,
   Menu,
 } from 'lucide-react'
-import NotificationBell from '@/components/NotificationBell'
+import { NotificationBell } from '@/components'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['ADMIN', 'STAFF', 'PORTAL_USER'] },

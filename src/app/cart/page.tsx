@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useAuth, useCart, type CartItem } from '@/context'
 import { buildUpiUri, UPI_ID } from '@/lib/upi'
+import { RentalCalendarPicker } from '@/components'
 import QRCode from 'qrcode'
 import {
   ShoppingBag, Trash2, Bookmark, QrCode, Smartphone, Copy, CheckCircle2, ShieldCheck,
@@ -40,6 +41,9 @@ export default function CartPage() {
   const [driverOption, setDriverOption] = useState<'SELF_DRIVE' | 'CHAUFFEUR'>('SELF_DRIVE')
   const [drivingLicenseNo, setDrivingLicenseNo] = useState('MH02-20240091823')
   const [dlVerified, setDlVerified] = useState(true)
+
+  // Calendar Picker Modal / Expandable State
+  const [showSummaryCalendar, setShowSummaryCalendar] = useState(false)
 
   // Inline Date Edit State
   const [editingLineId, setEditingLineId] = useState<string | null>(null)
@@ -253,33 +257,19 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  {/* Inline Date Picker Drawer */}
+                  {/* Inline Visual Calendar Picker */}
                   {isEditingThis && (
-                    <div className="pt-3 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white/5 p-3 rounded-xl">
-                      <div>
-                        <label className="block text-white/60 text-[10px] font-bold uppercase mb-1">Start Date</label>
-                        <input
-                          type="date"
-                          value={editStartInput}
-                          onChange={e => {
-                            setEditStartInput(e.target.value)
-                            if (editEndInput) updateItemDates(targetId, e.target.value, editEndInput)
-                          }}
-                          className="w-full bg-[#111] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#F26522]"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-white/60 text-[10px] font-bold uppercase mb-1">Return Due Date</label>
-                        <input
-                          type="date"
-                          value={editEndInput}
-                          onChange={e => {
-                            setEditEndInput(e.target.value)
-                            if (editStartInput) updateItemDates(targetId, editStartInput, e.target.value)
-                          }}
-                          className="w-full bg-[#111] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#F26522]"
-                        />
-                      </div>
+                    <div className="pt-3 border-t border-white/10 flex justify-center">
+                      <RentalCalendarPicker
+                        startDate={editStartInput}
+                        endDate={editEndInput}
+                        onDatesChange={(start, end) => {
+                          setEditStartInput(start)
+                          setEditEndInput(end)
+                          updateItemDates(targetId, start, end)
+                        }}
+                        onClose={() => setEditingLineId(null)}
+                      />
                     </div>
                   )}
                 </div>
@@ -396,10 +386,31 @@ export default function CartPage() {
         {/* Right Column: Rental Period Summary & Checkout Actions */}
         <div className="lg:col-span-5 space-y-6">
           <div className="liquid-glass border border-white/10 rounded-3xl p-6 space-y-6">
-            <h3 className="text-white text-base font-bold flex items-center gap-2 border-b border-white/10 pb-3">
-              <CalendarIcon size={18} className="text-[#F26522]" />
-              Rental Period Summary
-            </h3>
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-white text-base font-bold flex items-center gap-2">
+                <CalendarIcon size={18} className="text-[#F26522]" />
+                Rental Period Summary
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowSummaryCalendar(!showSummaryCalendar)}
+                className="text-[#F26522] hover:underline text-xs font-bold flex items-center gap-1 cursor-pointer"
+              >
+                <Edit3 size={12} />
+                {showSummaryCalendar ? 'Close Calendar' : 'Visual Calendar'}
+              </button>
+            </div>
+
+            {showSummaryCalendar && (
+              <div className="flex justify-center py-2 border-b border-white/10">
+                <RentalCalendarPicker
+                  startDate={rentalStart.slice(0, 10)}
+                  endDate={rentalEnd.slice(0, 10)}
+                  onDatesChange={(start, end) => updateGlobalDates(start, end)}
+                  onClose={() => setShowSummaryCalendar(false)}
+                />
+              </div>
+            )}
 
             <div className="space-y-3 text-xs">
               <div className="flex justify-between items-center text-white/60">

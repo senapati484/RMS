@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import { ArrowLeft, Wrench, Loader2, CheckCircle2, User, CalendarClock, IndianRupee } from 'lucide-react'
+import { ArrowLeft, Wrench, Loader2, CheckCircle2, User, CalendarClock, IndianRupee, Sparkles, Zap, Bot } from 'lucide-react'
 
 interface Ticket {
   _id: string
@@ -52,6 +52,35 @@ export default function MaintenanceDetailPage() {
   const [actualCost, setActualCost] = useState<number | undefined>(undefined)
   const [note, setNote] = useState('')
   const [releaseStock, setReleaseStock] = useState(false)
+  const [aiTriageLoading, setAiTriageLoading] = useState(false)
+
+  const runAiTriage = async () => {
+    if (!ticket) return
+    setAiTriageLoading(true)
+    try {
+      const res = await fetch('/api/ai/triage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketTitle: ticket.title,
+          ticketDescription: ticket.description,
+          productCategory: typeof ticket.productId === 'object' ? ticket.productId?.category : 'equipment',
+        }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        if (data.triage?.suggestedPriority) setPriority(data.triage.suggestedPriority)
+        if (data.triage?.estimatedCost) setEstimatedCost(data.triage.estimatedCost)
+        setNote(`AI Triage Assessment: ${data.triage?.recommendedAction || 'Inspected by AI'}`)
+        toast.success(`AI Triage complete! Priority set to ${data.triage?.suggestedPriority || 'HIGH'}`)
+      } else {
+        toast.error(data.error || 'AI Triage failed')
+      }
+    } catch {
+      toast.error('Network error during AI Triage')
+    }
+    setAiTriageLoading(false)
+  }
 
   const fetchTicket = async () => {
     const res = await fetch(`/api/maintenance/${params.id}`)
@@ -117,6 +146,14 @@ export default function MaintenanceDetailPage() {
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={runAiTriage}
+            disabled={aiTriageLoading}
+            className="bg-[#F26522] hover:bg-[#e05510] text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+          >
+            {aiTriageLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+            <span>AI Auto-Triage Ticket</span>
+          </button>
           <span className={`text-xs px-3 py-1.5 rounded-xl font-medium ${PRIORITY_COLORS[ticket.priority]}`}>{ticket.priority}</span>
           <span className={`text-xs px-3 py-1.5 rounded-xl font-medium ${STATUS_COLORS[ticket.status]}`}>{ticket.status.replace('_', ' ')}</span>
         </div>

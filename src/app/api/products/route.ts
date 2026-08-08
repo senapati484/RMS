@@ -22,10 +22,9 @@ export async function GET(req: NextRequest) {
 
   // Admins/Staff see drafts when showAll=1 or by default; clients only see published
   if (!isAdminOrStaff) {
-    filter.isPublished = true
+    filter.isPublished = { $ne: false }
   } else if (!showAll) {
-    // Admin default: show published + out-of-stock (but not hidden drafts unless showAll)
-    filter.isPublished = true
+    filter.isPublished = { $ne: false }
   }
 
   if (category && category !== 'All') filter.category = category

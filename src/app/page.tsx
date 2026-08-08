@@ -38,6 +38,48 @@ const CATEGORIES = [
   { id: 'support', label: '🎯 Support Gear' },
 ]
 
+const FALLBACK_GEAR: ProductItem[] = [
+  {
+    _id: 'fallback-1',
+    name: 'Sony A7III Mirrorless Camera Kit',
+    productType: 'camera',
+    category: 'Camera',
+    brand: 'Sony',
+    dailyRate: 1500,
+    baseDepositAmt: 5000,
+    availableStock: 5,
+    totalStock: 5,
+    imageUrl: 'https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=600&q=80',
+    condition: 'EXCELLENT',
+  },
+  {
+    _id: 'fallback-2',
+    name: 'DJI Ronin-SC 3-Axis Gimbal',
+    productType: 'support',
+    category: 'Support',
+    brand: 'DJI',
+    dailyRate: 800,
+    baseDepositAmt: 3000,
+    availableStock: 4,
+    totalStock: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1527090526205-beaac8dc3c62?w=600&q=80',
+    condition: 'NEW',
+  },
+  {
+    _id: 'fallback-3',
+    name: 'Godox SL-60W Continuous LED Light',
+    productType: 'lighting',
+    category: 'Lighting',
+    brand: 'Godox',
+    dailyRate: 500,
+    baseDepositAmt: 1500,
+    availableStock: 10,
+    totalStock: 10,
+    imageUrl: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&q=80',
+    condition: 'EXCELLENT',
+  },
+]
+
 const DEMO_ACCOUNTS = [
   { role: 'Admin', email: 'admin@lease360.ai', pass: 'admin123', desc: 'Full system control, revenue analytics & maintenance' },
   { role: 'Staff', email: 'staff@lease360.ai', pass: 'staff123', desc: 'Manage pickups, inspections & return processing' },
@@ -53,7 +95,7 @@ export default function Lease360LandingPage() {
   const { addToCart } = useCart()
 
   useEffect(() => {
-    fetch('/api/products?isPublished=true&limit=24')
+    fetch('/api/products?limit=20')
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.products || [])
@@ -72,6 +114,9 @@ export default function Lease360LandingPage() {
       (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase()))
     return matchesCat && matchesSearch
   })
+
+  // Display ONLY the first 3 elements from the database (or fallback if empty)
+  const displayProducts = (filteredProducts.length > 0 ? filteredProducts : FALLBACK_GEAR).slice(0, 3)
 
   return (
     <div className="min-h-screen bg-[#EFEFEF] font-sans antialiased text-gray-900 selection:bg-[#F26522] selection:text-white">
@@ -226,7 +271,7 @@ export default function Lease360LandingPage() {
       </section>
 
       {/* ==========================================
-          SECTION 2: DYNAMIC EQUIPMENT CATALOG & FILTERS
+          SECTION 2: DYNAMIC EQUIPMENT CATALOG & FILTERS (3 ITEMS)
          ========================================== */}
       <section id="equipment" className="bg-white pt-16 sm:pt-20 lg:pt-28 pb-16 sm:pb-20 lg:pb-24 overflow-hidden">
         <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 space-y-8">
@@ -236,7 +281,7 @@ export default function Lease360LandingPage() {
                 1
               </div>
               <span className="text-[13px] font-medium border border-gray-200 rounded-full px-4 py-1.5 text-gray-900">
-                Live Database Inventory ({filteredProducts.length} Items)
+                Featured Gear ({displayProducts.length} Items)
               </span>
             </div>
 
@@ -284,25 +329,14 @@ export default function Lease360LandingPage() {
             ))}
           </div>
 
-          {/* Dynamic Products Grid */}
+          {/* Dynamic 3-Products Grid */}
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
             </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-12 text-center text-gray-500 space-y-3">
-              <Package size={40} className="mx-auto text-gray-300" />
-              <p className="text-sm font-medium">No rental equipment found matching your filter</p>
-              <button
-                onClick={() => { setSelectedCategory('all'); setSearchQuery('') }}
-                className="text-xs text-[#F26522] font-bold hover:underline"
-              >
-                Clear all filters
-              </button>
-            </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredProducts.map((p) => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {displayProducts.map((p) => (
                 <div key={p._id} className="bg-gray-50 border border-gray-200/80 rounded-2xl p-5 hover:border-[#F26522]/40 hover:shadow-xl transition-all duration-300 group flex flex-col justify-between">
                   <div>
                     <div className="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-gray-200 relative">
@@ -406,7 +440,7 @@ export default function Lease360LandingPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs flex flex-col justify-between">
+            <div className="bg-[#white] rounded-2xl p-6 border border-gray-200 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
                   <Shield size={20} />

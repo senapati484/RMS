@@ -1,5 +1,6 @@
 // api/quotations/route.ts
 import { NextRequest } from 'next/server'
+import mongoose from 'mongoose'
 import { Quotation } from '@/models/Quotation'
 import { Product } from '@/models/Product'
 import { Notification } from '@/models/Notification'
@@ -13,9 +14,12 @@ export async function GET(req: NextRequest) {
   const authErr = requireAuth(user)
   if (authErr) return authErr
 
-  await connectDB()
-  const filter =
-    user!.role === 'PORTAL_USER' ? { userId: user!.userId } : {}
+  const userIdFilter: unknown[] = [user!.userId]
+  if (mongoose.Types.ObjectId.isValid(user!.userId)) {
+    userIdFilter.push(new mongoose.Types.ObjectId(user!.userId))
+  }
+  const filter: Record<string, unknown> =
+    user!.role === 'PORTAL_USER' ? { userId: { $in: userIdFilter } } : {}
   const { searchParams } = new URL(req.url)
   const status = searchParams.get('status')
   if (status) Object.assign(filter, { status })

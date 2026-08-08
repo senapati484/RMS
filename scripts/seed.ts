@@ -15,6 +15,9 @@ const UserSchema = new mongoose.Schema({
   role: { type: String, enum: ['ADMIN', 'STAFF', 'PORTAL_USER'], default: 'PORTAL_USER' },
   phone: String, isActive: { type: Boolean, default: true },
   trustScore: { type: Number, default: 50 },
+  isGovIdVerified: { type: Boolean, default: true },
+  aadhaarMasked: { type: String, default: 'XXXX-XXXX-1928' },
+  digiLockerTxnId: { type: String, default: 'DL-88492019' },
 }, { timestamps: true })
 
 const ProductSchema = new mongoose.Schema({
@@ -26,11 +29,66 @@ const ProductSchema = new mongoose.Schema({
   variants: [{ attribute: String, value: String }],
 }, { timestamps: true })
 
+const ItemSchema = new mongoose.Schema({
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  productName: String,
+  productImage: String,
+  rentalPeriodLabel: String,
+  quantity: Number,
+  unitPrice: Number,
+  lineTotal: Number,
+})
+
+const OrderSchema = new mongoose.Schema({
+  orderNumber: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  status: { type: String, default: 'CONFIRMED' },
+  deliveryMode: { type: String, default: 'STORE_PICKUP' },
+  items: [ItemSchema],
+  subTotal: Number,
+  depositAmount: Number,
+  totalAmount: Number,
+  rentalStart: Date,
+  rentalEnd: Date,
+  deposit: {
+    amount: Number,
+    status: { type: String, default: 'HELD' },
+    refundedAmount: { type: Number, default: 0 },
+    deductedAmount: { type: Number, default: 0 },
+    transactions: [
+      {
+        type: { type: String },
+        amount: Number,
+        note: String,
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+  },
+}, { timestamps: true })
+
+const QuotationSchema = new mongoose.Schema({
+  quoteNumber: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  status: { type: String, default: 'DRAFT' },
+  deliveryMode: { type: String, default: 'STORE_PICKUP' },
+  items: [ItemSchema],
+  subTotal: Number,
+  depositAmount: Number,
+  totalAmount: Number,
+  rentalStart: Date,
+  rentalEnd: Date,
+  validUntil: Date,
+}, { timestamps: true })
+
 if (mongoose.models.Product) delete mongoose.models.Product
 if (mongoose.models.User) delete mongoose.models.User
+if (mongoose.models.Order) delete mongoose.models.Order
+if (mongoose.models.Quotation) delete mongoose.models.Quotation
 
 const User = mongoose.model('User', UserSchema)
 const Product = mongoose.model('Product', ProductSchema)
+const Order = mongoose.model('Order', OrderSchema)
+const Quotation = mongoose.model('Quotation', QuotationSchema)
 
 const PRODUCTS = [
   {
@@ -114,20 +172,104 @@ async function seed() {
   // Clear
   await User.deleteMany({})
   await Product.deleteMany({})
+  await Order.deleteMany({})
+  await Quotation.deleteMany({})
   console.log('🗑  Cleared existing data')
 
   // Users
+  const userMap: Record<string, any> = {}
   for (const u of USERS) {
     const hashed = await bcrypt.hash(u.password, 10)
-    await User.create({ ...u, password: undefined, passwordHash: hashed })
+    const doc = await User.create({ ...u, password: undefined, passwordHash: hashed })
+    userMap[u.email] = doc
     console.log(`👤 Created user: ${u.email} (${u.role})`)
   }
 
   // Products
+  const createdProducts = []
   for (const p of PRODUCTS) {
-    await Product.create(p)
+    const prod = await Product.create(p)
+    createdProducts.push(prod)
     console.log(`📦 Created product: ${p.name}`)
   }
+
+  const aryanUser = userMap['user@lease360.ai']
+  const p1 = createdProducts[0] // Sony A7III
+  const p2 = createdProducts[1] // Canon 50mm
+
+  // Seed sample Order for Aryan Sharma
+  const sampleOrder = await Order.create({
+    orderNumber: 'ORD-20260808-8829',
+    userId: aryanUser._id,
+    status: 'CONFIRMED',
+    deliveryMode: 'SHIPPING',
+    items: [
+      {
+        productId: p1._id,
+        productName: p1.name,
+        productImage: p1.imageUrl,
+        rentalPeriodLabel: '3 day(s) · 10% off',
+        quantity: 1,
+        unitPrice: 1350,
+        lineTotal: 4050,
+      },
+      {
+        productId: p2._id,
+        productName: p2.name,
+        productImage: p2.imageUrl,
+        rentalPeriodLabel: '3 day(s) · 10% off',
+        quantity: 1,
+        unitPrice: 360,
+        lineTotal: 1080,
+      },
+    ],
+    subTotal: 5130,
+    depositAmount: 6500,
+    totalAmount: 11630,
+    rentalStart: new Date(),
+    rentalEnd: new Date(Date.now() + 3 * 86400000),
+    deposit: {
+      amount: 6500,
+      status: 'HELD',
+      refundedAmount: 0,
+      deductedAmount: 0,
+      transactions: [
+        {
+          type: 'HOLD',
+          amount: 6500,
+          note: 'Deposit held on order confirmation ORD-20260808-8829',
+          createdAt: new Date(),
+        },
+      ],
+    },
+  })
+  console.log(`🛒 Created sample Order: ${sampleOrder.orderNumber} for ${aryanUser.email}`)
+
+  // Seed sample Quotation for Aryan Sharma
+  const sampleQuote = await Quotation.create({
+    quoteNumber: 'QT-20260808-4920',
+    userId: aryanUser._id,
+    status: 'DRAFT',
+    deliveryMode: 'STORE_PICKUP',
+    items: [
+      {
+        productId: createdProducts[5]._id, // DJI Ronin-SC
+        productName: createdProducts[5].name,
+        productImage: createdProducts[5].imageUrl,
+        rentalPeriodLabel: '7 day(s) · 20% off',
+        quantity: 1,
+        unitPrice: 640,
+        lineTotal: 4480,
+      },
+    ],
+    subTotal: 4480,
+    depositAmount: 3000,
+    totalAmount: 7480,
+    rentalStart: new Date(Date.now() + 2 * 86400000),
+    rentalEnd: new Date(Date.now() + 9 * 86400000),
+    validUntil: new Date(Date.now() + 7 * 86400000),
+  })
+  console.log(`📄 Created sample Quotation: ${sampleQuote.quoteNumber} for ${aryanUser.email}`)
 
   console.log('\n✅ Seed complete!')
   console.log('\n🔑 Login credentials:')

@@ -1,5 +1,6 @@
 // api/orders/route.ts
 import { NextRequest } from 'next/server'
+import mongoose from 'mongoose'
 import { Order } from '@/models/Order'
 import { Product } from '@/models/Product'
 import { Notification } from '@/models/Notification'
@@ -19,9 +20,14 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '20')
   const status = searchParams.get('status')
 
+  const userIdFilter: unknown[] = [user!.userId]
+  if (mongoose.Types.ObjectId.isValid(user!.userId)) {
+    userIdFilter.push(new mongoose.Types.ObjectId(user!.userId))
+  }
+
   const filter: Record<string, unknown> =
     user!.role === 'PORTAL_USER'
-      ? { userId: user!.userId }
+      ? { userId: { $in: userIdFilter } }
       : {}
 
   if (status) filter.status = status

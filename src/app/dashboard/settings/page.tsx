@@ -215,40 +215,55 @@ export default function SettingsPage() {
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522]"
               />
             </div>
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5 font-medium">Company Name</label>
-              <input
-                type="text"
-                value={workForm.companyName}
-                onChange={e => setWorkForm({ ...workForm, companyName: e.target.value })}
-                placeholder="e.g. Apex Cine Gear Rentals"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522]"
-              />
-            </div>
+            {isAdmin ? (
+              <div>
+                <label className="block text-white/50 text-xs mb-1.5 font-medium">Company Name</label>
+                <input
+                  type="text"
+                  value={workForm.companyName}
+                  onChange={e => setWorkForm({ ...workForm, companyName: e.target.value })}
+                  placeholder="e.g. Apex Cine Gear Rentals"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522]"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-white/50 text-xs mb-1.5 font-medium">Primary Delivery Address</label>
+                <input
+                  type="text"
+                  value={workForm.addressLine}
+                  onChange={e => setWorkForm({ ...workForm, addressLine: e.target.value })}
+                  placeholder="Building, Street, Landmark..."
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522]"
+                />
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5 font-medium">GST IN (GST Number)</label>
-              <input
-                type="text"
-                value={workForm.gstin}
-                onChange={e => setWorkForm({ ...workForm, gstin: e.target.value })}
-                placeholder="e.g. 27AAAAA0000A1Z5"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] uppercase font-mono"
-              />
+          {isAdmin && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-white/50 text-xs mb-1.5 font-medium">GST IN (GST Number)</label>
+                <input
+                  type="text"
+                  value={workForm.gstin}
+                  onChange={e => setWorkForm({ ...workForm, gstin: e.target.value })}
+                  placeholder="e.g. 27AAAAA0000A1Z5"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] uppercase font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-white/50 text-xs mb-1.5 font-medium">Vendor Warehouse HQ Address</label>
+                <input
+                  type="text"
+                  value={workForm.addressLine}
+                  onChange={e => setWorkForm({ ...workForm, addressLine: e.target.value })}
+                  placeholder="Building, Street, Landmark..."
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522]"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5 font-medium">Primary Address</label>
-              <input
-                type="text"
-                value={workForm.addressLine}
-                onChange={e => setWorkForm({ ...workForm, addressLine: e.target.value })}
-                placeholder="Building, Street, Landmark..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522]"
-              />
-            </div>
-          </div>
+          )}
 
           <div className="pt-4 border-t border-white/5 flex justify-end">
             <button

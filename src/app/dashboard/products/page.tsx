@@ -80,6 +80,7 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState<'NEWEST' | 'PRICE_LOW' | 'PRICE_HIGH' | 'AVAILABILITY'>('NEWEST')
   const [inStockOnly, setInStockOnly] = useState(false)
   const [brandFilter, setBrandFilter] = useState('ALL')
+  const [serverBrands, setServerBrands] = useState<string[]>([])
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
@@ -105,16 +106,20 @@ export default function ProductsPage() {
         productType: productType !== 'all' ? productType : undefined,
         q: q.trim() || undefined,
         showAll: showDrafts && isAdmin,
+        sortBy,
+        inStockOnly,
+        brand: brandFilter !== 'ALL' ? brandFilter : undefined,
       })
       setProducts((data.products as Product[]) || [])
       setTotalPages(data.pages || 1)
       setTotal(data.total || 0)
+      if (data.brands) setServerBrands(data.brands)
     } catch (err) {
       console.error('[FETCH PRODUCTS ACTION ERROR]', err)
     } finally {
       setLoading(false)
     }
-  }, [q, productType, page, limit, showDrafts, isAdmin])
+  }, [q, productType, page, limit, showDrafts, isAdmin, sortBy, inStockOnly, brandFilter])
 
   useEffect(() => { fetchProducts() }, [fetchProducts])
 
@@ -132,22 +137,8 @@ export default function ProductsPage() {
     }
   }
 
-  const availableBrands = Array.from(
-    new Set(products.map(p => p.brand).filter((b): b is string => Boolean(b)))
-  )
-
+  const availableBrands = serverBrands
   const displayedProducts = products
-    .filter(p => {
-      if (inStockOnly && p.availableStock <= 0) return false
-      if (brandFilter !== 'ALL' && p.brand !== brandFilter) return false
-      return true
-    })
-    .sort((a, b) => {
-      if (sortBy === 'PRICE_LOW') return a.dailyRate - b.dailyRate
-      if (sortBy === 'PRICE_HIGH') return b.dailyRate - a.dailyRate
-      if (sortBy === 'AVAILABILITY') return b.availableStock - a.availableStock
-      return 0
-    })
 
   return (
     <div className="space-y-6">

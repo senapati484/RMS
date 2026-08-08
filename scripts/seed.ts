@@ -8,8 +8,6 @@ import bcrypt from 'bcryptjs'
 const MONGODB_URI = process.env.MONGODB_URI!
 if (!MONGODB_URI) throw new Error('MONGODB_URI not set in .env.local')
 
-// ---- Inline schemas (avoids TS path alias issues in script context) ----
-
 const UserSchema = new mongoose.Schema({
   name: String, email: String, passwordHash: String,
   role: { type: String, enum: ['ADMIN', 'STAFF', 'PORTAL_USER'], default: 'PORTAL_USER' },
@@ -18,6 +16,7 @@ const UserSchema = new mongoose.Schema({
   isGovIdVerified: { type: Boolean, default: true },
   aadhaarMasked: { type: String, default: 'XXXX-XXXX-1928' },
   digiLockerTxnId: { type: String, default: 'DL-88492019' },
+  companyName: String, gstin: String,
 }, { timestamps: true })
 
 const ProductSchema = new mongoose.Schema({
@@ -27,12 +26,12 @@ const ProductSchema = new mongoose.Schema({
   category: String, brand: String, sku: String,
   condition: { type: String, default: 'EXCELLENT' },
   totalStock: Number, availableStock: Number, dailyRate: Number,
+  weeklyRate: Number, monthlyRate: Number,
   baseDepositAmt: Number, depositIsPercent: Boolean,
   accessoryList: [String],
   tags: [String],
   specifications: { type: Map, of: String, default: {} },
   isPublished: { type: Boolean, default: true },
-  variants: [{ attribute: String, value: String }],
 }, { timestamps: true })
 
 const ItemSchema = new mongoose.Schema({
@@ -77,162 +76,168 @@ const Order     = mongoose.model('Order', OrderSchema)
 const Quotation = mongoose.model('Quotation', QuotationSchema)
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MULTI-TYPE PRODUCT CATALOG
+// ADMIN & USER SEED DATA
+// ─────────────────────────────────────────────────────────────────────────────
+const USERS = [
+  // Super Admin
+  { name: 'Lease360 Super Admin', email: 'admin@lease360.ai', password: 'admin123', role: 'ADMIN', phone: '+91-9876543210', companyName: 'Lease360 HQ', gstin: '27AAAAA0000A1Z5' },
+  // Domain Specific Admins
+  { name: 'CineGear Studio Admin', email: 'admin.camera@lease360.ai', password: 'admin123', role: 'ADMIN', phone: '+91-9876543220', companyName: 'CineGear Pro Rentals', gstin: '27CINEG1234F1Z1' },
+  { name: 'LeaseFleet Logistics Admin', email: 'admin.vehicle@lease360.ai', password: 'admin123', role: 'ADMIN', phone: '+91-9876543230', companyName: 'LeaseFleet India Ltd', gstin: '27FLEET5678K1Z3' },
+  { name: 'Apex Event & Stage Admin', email: 'admin.event@lease360.ai', password: 'admin123', role: 'ADMIN', phone: '+91-9876543240', companyName: 'Apex Live Productions', gstin: '27APEXE9012M1Z9' },
+  // Staff
+  { name: 'Rajesh Kumar (Staff)', email: 'staff@lease360.ai', password: 'staff123', role: 'STAFF', phone: '+91-9876543211' },
+  // Customers
+  { name: 'Aryan Sharma', email: 'user@lease360.ai', password: 'user123', role: 'PORTAL_USER', phone: '+91-9820148291' },
+  { name: 'Priya Nair', email: 'priya@lease360.ai', password: 'user123', role: 'PORTAL_USER', phone: '+91-9833411202' },
+  { name: 'Vikram Mehta', email: 'vikram@lease360.ai', password: 'user123', role: 'PORTAL_USER', phone: '+91-9811234900' },
+]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PRODUCT DATA WITH TYPE-SPECIFIC FIELDS
 // ─────────────────────────────────────────────────────────────────────────────
 const PRODUCTS = [
-  // ── CAMERAS ──────────────────────────────────────────────────────────────
+  // ── VEHICLES ──────────────────────────────────────────────────────────────
   {
-    name: 'Sony A7III Mirrorless Camera', slug: 'sony-a7iii',
-    description: 'Full-frame mirrorless with 24.2MP sensor, 4K video, and exceptional low-light performance.',
-    imageUrl: 'https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=600&q=80',
-    productType: 'camera', category: 'Camera', brand: 'Sony', sku: 'CAM-SONY-A7III', condition: 'EXCELLENT',
-    totalStock: 5, availableStock: 5, dailyRate: 1500, baseDepositAmt: 5000, depositIsPercent: false,
-    accessoryList: ['Battery ×2', 'Charger', 'Body Cap', 'Strap'],
-    tags: ['4k', 'full-frame', 'mirrorless', 'low-light', 'sony'],
+    name: '2023 Toyota Fortuner 4WD SUV', slug: 'toyota-fortuner-2023',
+    description: '7-seater heavy-duty SUV with 4WD capability, leather seats, and high ground clearance.',
+    imageUrl: 'https://images.unsplash.com/photo-1532581291347-9c39cf10a73c?w=600&q=80',
+    productType: 'vehicle', category: 'Vehicle', brand: 'Toyota', sku: 'VEH-TOY-FOR-001', condition: 'EXCELLENT',
+    totalStock: 3, availableStock: 3, dailyRate: 4500, weeklyRate: 28350, monthlyRate: 94500, baseDepositAmt: 15000, depositIsPercent: false,
+    accessoryList: ['Full Tank Diesel', 'GPS Tracker', 'Dashcam Dual', 'Spare Wheel & Jack'],
+    tags: ['suv', 'toyota', '4wd', 'diesel', 'fortuner', 'location-vehicle'],
     specifications: {
-      sensorSize: 'Full Frame (35mm)', resolution: '24.2 MP', mountType: 'Sony E-Mount',
-      videoSpec: '4K 30fps / 1080p 120fps', afPoints: '693 Phase-Detect PDAF', isoRange: '100–51200',
+      fuelType: 'Diesel', transmission: 'Automatic', seatingCapacity: '7 Seats',
+      registrationNo: 'MH01 BX 4291', vehicleClass: 'SUV 4WD', mileage: '14.2 km/l',
+      engineCapacity: '2755 cc', insuranceValidity: '2026-12-31',
     },
   },
   {
-    name: 'Atomos Ninja V Monitor-Recorder', slug: 'atomos-ninja-v',
-    description: '5" HDR monitor-recorder for ProRes recording from camera HDMI out in the field.',
-    imageUrl: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=600&q=80',
-    productType: 'monitor', category: 'Monitor', brand: 'Atomos', sku: 'MON-ATOM-NINJAV', condition: 'EXCELLENT',
-    totalStock: 4, availableStock: 4, dailyRate: 700, baseDepositAmt: 2000, depositIsPercent: false,
-    accessoryList: ['SSD Drive', 'HDMI Cable', 'Battery', 'Mounting Arm'],
-    tags: ['4k', 'prores', 'hdr', 'recorder', 'field-monitor'],
+    name: 'Mahindra Thar 4x4 Hard Top', slug: 'mahindra-thar-4x4',
+    description: 'Iconic 4x4 off-roader with convertible hard top for rugged terrain location shoots.',
+    imageUrl: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&q=80',
+    productType: 'vehicle', category: 'Vehicle', brand: 'Mahindra', sku: 'VEH-MAH-THAR-4X4', condition: 'NEW',
+    totalStock: 4, availableStock: 4, dailyRate: 3200, weeklyRate: 20160, monthlyRate: 67200, baseDepositAmt: 10000, depositIsPercent: false,
+    accessoryList: ['Offroad Recovery Kit', 'Tow Hook', 'Roof Rack'],
+    tags: ['4x4', 'thar', 'offroad', 'mahindra', 'convertible'],
     specifications: {
-      screenSize: '5"', resolution: '4K UHD (3840×2160)', panelType: 'IPS HDR',
-      refreshRate: '60Hz', hdrin: 'HDR10 / HLG', connectivity: 'HDMI 2.0, Micro-SDI',
+      fuelType: 'Petrol', transmission: 'Manual', seatingCapacity: '4 Seats',
+      registrationNo: 'MH02 CL 8820', vehicleClass: 'Compact SUV 4x4', mileage: '12.8 km/l',
+      engineCapacity: '1997 cc mStallion', insuranceValidity: '2027-03-31',
+    },
+  },
+  {
+    name: 'Mercedes-Benz V-Class Luxury Crew Van', slug: 'mercedes-v-class-van',
+    description: 'Ultra-luxurious VIP crew transport van with executive reclining captain seats and ambient lighting.',
+    imageUrl: 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?w=600&q=80',
+    productType: 'vehicle', category: 'Vehicle', brand: 'Mercedes-Benz', sku: 'VEH-MB-VCLASS-VIP', condition: 'EXCELLENT',
+    totalStock: 2, availableStock: 2, dailyRate: 8500, weeklyRate: 53550, monthlyRate: 178500, baseDepositAmt: 25000, depositIsPercent: false,
+    accessoryList: ['Chauffeur Available', 'Wi-Fi Hotspot', 'Refreshments Bar', 'Privacy Partition'],
+    tags: ['luxury', 'van', 'vip', 'mercedes', 'v-class', 'crew-bus'],
+    specifications: {
+      fuelType: 'Diesel', transmission: '9G-TRONIC Automatic', seatingCapacity: '6 VIP Recliner Seats',
+      registrationNo: 'MH01 EC 0007', vehicleClass: 'Luxury Van MPV', mileage: '16.0 km/l',
+      engineCapacity: '1950 cc', insuranceValidity: '2026-11-15',
+    },
+  },
+
+  // ── CAMERAS ──────────────────────────────────────────────────────────────
+  {
+    name: 'Sony A7III Mirrorless Camera', slug: 'sony-a7iii',
+    description: 'Full-frame mirrorless camera with 24.2MP sensor, 4K video, and 693 AF points.',
+    imageUrl: 'https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=600&q=80',
+    productType: 'camera', category: 'Camera', brand: 'Sony', sku: 'CAM-SONY-A7III', condition: 'EXCELLENT',
+    totalStock: 5, availableStock: 5, dailyRate: 1500, weeklyRate: 9450, monthlyRate: 31500, baseDepositAmt: 5000, depositIsPercent: false,
+    accessoryList: ['NP-FZ100 Battery ×2', 'Dual Charger', 'Body Cap', '64GB SD Card'],
+    tags: ['4k', 'full-frame', 'mirrorless', 'sony', 'video'],
+    specifications: {
+      sensorType: 'Full Frame Exmor R CMOS (35mm)', resolution: '24.2 MegaPixels',
+      lensMount: 'Sony E-Mount', videoResolution: '4K UHD (3840×2160) 30fps',
+      isoRange: '100 – 51200 (Expanded 50–204800)', autofocusPoints: '693 Phase-Detection PDAF',
+      shutterSpeed: '1/8000 to 30 sec', batteryModel: 'NP-FZ100',
+    },
+  },
+  {
+    name: 'RED Komodo 6K Cinema Camera Package', slug: 'red-komodo-6k',
+    description: 'Compact 6K global shutter cinema camera with Canon RF mount and REDCODE RAW codec.',
+    imageUrl: 'https://images.unsplash.com/photo-1589872514969-95988e404b90?w=600&q=80',
+    productType: 'camera', category: 'Camera', brand: 'RED Digital Cinema', sku: 'CAM-RED-KOMODO6K', condition: 'NEW',
+    totalStock: 2, availableStock: 2, dailyRate: 5000, weeklyRate: 31500, monthlyRate: 105000, baseDepositAmt: 20000, depositIsPercent: false,
+    accessoryList: ['Outrigger Handle', '512GB CFAST Card ×2', 'V-Mount Adapter', 'Pelican Case'],
+    tags: ['6k', 'cinema', 'red', 'global-shutter', 'raw', 'feature-film'],
+    specifications: {
+      sensorType: 'Super 35mm Global Shutter CMOS', resolution: '6K (6144 × 3240) @ 40fps',
+      lensMount: 'Canon RF Mount (EF Adapter included)', videoResolution: '6K 40fps / 4K 60fps / 2K 120fps',
+      isoRange: '800 Native ISO', autofocusPoints: 'Phase-Detection Touch AF',
+      shutterSpeed: 'Global Shutter (Zero Distortion)', batteryModel: 'Canon BP-955 / V-Mount',
     },
   },
 
   // ── LENSES ───────────────────────────────────────────────────────────────
   {
-    name: 'Canon EF 50mm f/1.4 USM Lens', slug: 'canon-50mm-f14',
-    description: 'Classic nifty-fifty prime with beautiful bokeh and fast aperture for portraits.',
-    imageUrl: 'https://images.unsplash.com/photo-1617805856772-7fa2f97ed7e5?w=600&q=80',
-    productType: 'lens', category: 'Lens', brand: 'Canon', sku: 'LENS-CANON-50F14', condition: 'GOOD',
-    totalStock: 8, availableStock: 8, dailyRate: 400, baseDepositAmt: 1500, depositIsPercent: false,
-    accessoryList: ['Front Cap', 'Rear Cap', 'Lens Case'],
-    tags: ['portrait', 'bokeh', 'prime', '50mm', 'canon'],
-    specifications: {
-      focalLength: '50mm', aperture: 'f/1.4', mountType: 'Canon EF',
-      filterSize: '58mm', oisStabilizer: 'None', minFocusDist: '0.45m',
-    },
-  },
-  {
-    name: 'Sigma 24-70mm f/2.8 DG DN Art', slug: 'sigma-24-70-f28',
-    description: 'Professional zoom with constant f/2.8 aperture — the ultimate workhorse lens.',
+    name: 'Sigma 24-70mm f/2.8 DG DN Art Lens', slug: 'sigma-24-70-f28',
+    description: 'Flagship zoom lens with constant f/2.8 aperture and ultra-sharp optics.',
     imageUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80',
     productType: 'lens', category: 'Lens', brand: 'Sigma', sku: 'LENS-SIGMA-2470', condition: 'EXCELLENT',
-    totalStock: 3, availableStock: 3, dailyRate: 900, baseDepositAmt: 2500, depositIsPercent: false,
-    accessoryList: ['Front Cap', 'Rear Cap', 'UV Filter', 'Hard Case'],
-    tags: ['zoom', 'f2.8', 'art', 'sigma', 'wedding', 'event'],
+    totalStock: 6, availableStock: 6, dailyRate: 900, weeklyRate: 5670, monthlyRate: 18900, baseDepositAmt: 2500, depositIsPercent: false,
+    accessoryList: ['Front Cap', 'Rear Cap', 'Petal Hood', 'Padded Case'],
+    tags: ['zoom', 'f2.8', 'art', 'sigma', 'sony-e'],
     specifications: {
-      focalLength: '24-70mm', aperture: 'f/2.8', mountType: 'Sony E / L-Mount',
-      filterSize: '82mm', oisStabilizer: 'None', minFocusDist: '0.34m (W) / 0.38m (T)',
+      sensorType: 'Full Frame Coverage', resolution: 'Optically Rated for 60MP+',
+      lensMount: 'Sony E-Mount', focalLength: '24–70mm Zoom',
+      apertureRange: 'f/2.8 to f/22', filterThread: '82mm',
+      minFocusDistance: '0.18m (Wide) / 0.38m (Tele)', weight: '835 grams',
     },
   },
 
   // ── AUDIO ─────────────────────────────────────────────────────────────────
   {
-    name: 'Rode VideoMic Pro+ On-Camera Mic', slug: 'rode-vmicpro',
-    description: 'Directional shotgun microphone with auto power and high-pass filter for run-and-gun.',
-    imageUrl: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=600&q=80',
-    productType: 'audio', category: 'Audio', brand: 'Rode', sku: 'AUD-RODE-VMICPRO', condition: 'EXCELLENT',
-    totalStock: 6, availableStock: 6, dailyRate: 350, baseDepositAmt: 800, depositIsPercent: false,
-    accessoryList: ['Windshield', 'Dead Cat', '3.5mm TRS', 'USB-C Cable'],
-    tags: ['microphone', 'shotgun', 'video', 'rode', 'on-camera'],
+    name: 'Sennheiser MKH 416 Shotgun Microphone', slug: 'sennheiser-mkh416',
+    description: 'Industry-standard broadcast shotgun mic with exceptional directivity and moisture resistance.',
+    imageUrl: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&q=80',
+    productType: 'audio', category: 'Audio', brand: 'Sennheiser', sku: 'AUD-SENN-MKH416', condition: 'EXCELLENT',
+    totalStock: 4, availableStock: 4, dailyRate: 750, weeklyRate: 4725, monthlyRate: 15750, baseDepositAmt: 2500, depositIsPercent: false,
+    accessoryList: ['MZW415 Foam Windscreen', 'MZQ100 Stand Mount', 'Waterproof Hard Case'],
+    tags: ['shotgun', 'sennheiser', 'broadcast', 'dialogue', 'location-sound'],
     specifications: {
-      polarPattern: 'Supercardioid', freqResponse: '20Hz–20kHz',
-      connectivity: '3.5mm TRS + USB-C monitor', sensitivity: '-32 dBV/Pa',
-      powerReq: 'Internal Lithium / Phantom 48V', spl: '120 dB',
+      polarPattern: 'Supercardioid / Lobar', frequencyResponse: '40 Hz – 20,000 Hz',
+      signalToNoise: '81 dB (A-weighted)', connectorType: '3-Pin XLR Male',
+      phantomPower: '48V ± 4V Phantom Power', maxSPL: '130 dB SPL',
+      impedance: '25 Ohms Nominal', outputSensitivity: '25 mV/Pa ± 1 dB',
     },
   },
 
   // ── LIGHTING ──────────────────────────────────────────────────────────────
   {
-    name: 'Godox SL-60W LED Video Light', slug: 'godox-sl60w',
-    description: '60W daylight-balanced continuous LED light with bowens mount for photography & video.',
+    name: 'Aputure Light Storm LS 600d Pro LED', slug: 'aputure-ls-600d-pro',
+    description: 'Monstrous 600W daylight COB LED fixture equivalent to 1200W HMI for professional sets.',
     imageUrl: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&q=80',
-    productType: 'lighting', category: 'Lighting', brand: 'Godox', sku: 'LIGHT-GODOX-SL60', condition: 'GOOD',
-    totalStock: 10, availableStock: 10, dailyRate: 300, baseDepositAmt: 1000, depositIsPercent: false,
-    accessoryList: ['Power Cable', 'Barn Doors', 'Remote', 'Carry Bag'],
-    tags: ['led', 'continuous', 'daylight', 'godox', 'studio', 'bowens'],
+    productType: 'lighting', category: 'Lighting', brand: 'Aputure', sku: 'LIGHT-APUT-600D', condition: 'NEW',
+    totalStock: 3, availableStock: 3, dailyRate: 2200, weeklyRate: 13860, monthlyRate: 46200, baseDepositAmt: 8000, depositIsPercent: false,
+    accessoryList: ['Control Box', 'Hyper Reflector', 'Weatherproof Head Cable', 'Rolling Case'],
+    tags: ['aputure', '600w', 'hmi-equivalent', 'cob-led', 'daylight', 'bowens'],
     specifications: {
-      wattage: '60W', colorTemp: '5600K Daylight', cri: '95+',
-      beamAngle: '120° (with standard reflector)', mountType: 'Bowens S-Type', powerSource: 'AC 100-240V',
+      outputWattage: '600W COB LED (1200W HMI Equivalent)', colorTemperature: '5600K Daylight (±200K)',
+      criRating: 'CRI 96+ / TLCI 96+ / SSI 72', mountType: 'Bowens S-Type Mount',
+      wirelessProtocol: 'Sidus Link App / 2.4G Remote / DMX512', illuminance: '98,500+ Lux @ 1m (with Hyper Reflector)',
     },
   },
 
-  // ── SUPPORT ──────────────────────────────────────────────────────────────
+  // ── FURNITURE / EVENT ─────────────────────────────────────────────────────
   {
-    name: 'Manfrotto MT055CXPRO3 Carbon Tripod', slug: 'manfrotto-mt055',
-    description: 'Professional carbon-fibre tripod with 90° centre column tilt and fluid ball head.',
-    imageUrl: 'https://images.unsplash.com/photo-1582591539899-95878ab4e0c5?w=600&q=80',
-    productType: 'support', category: 'Support', brand: 'Manfrotto', sku: 'SUPP-MANF-MT055', condition: 'EXCELLENT',
-    totalStock: 12, availableStock: 12, dailyRate: 250, baseDepositAmt: 600, depositIsPercent: false,
-    accessoryList: ['Fluid Ball Head', 'Carry Bag', 'Quick Release Plate ×2'],
-    tags: ['tripod', 'carbon', 'manfrotto', 'fluid-head', 'stable'],
+    name: 'VIP Leather Executive Lounge Armchair Set', slug: 'vip-leather-lounge-set',
+    description: 'Set of 4 premium black Italian leather executive armchairs with chrome legs for VIP green rooms.',
+    imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80',
+    productType: 'furniture', category: 'Furniture', brand: 'LeaseStyle Studio', sku: 'FURN-VIP-ARMCHAIR-4', condition: 'EXCELLENT',
+    totalStock: 5, availableStock: 5, dailyRate: 1800, weeklyRate: 11340, monthlyRate: 37800, baseDepositAmt: 5000, depositIsPercent: false,
+    accessoryList: ['Armchair Covers ×4', 'Matching Coffee Table'],
+    tags: ['furniture', 'vip', 'lounge', 'greenroom', 'leather', 'armchair'],
     specifications: {
-      maxPayload: '8 kg', headType: 'Fluid Ball Head XPRO',
-      material: 'Carbon Fibre', maxHeight: '170cm', foldedLen: '55cm', legSections: '3',
+      dimensions: '85cm × 80cm × 75cm per chair', material: 'Top-Grain Italian Leather & Steel',
+      weightCapacity: '150 kg per seat', ratingEnv: 'Indoor Use Only',
+      seatingCount: '4 Chairs + 1 Table', colorFinish: 'Matte Obsidian Black',
     },
   },
-  {
-    name: 'DJI Ronin-SC 3-Axis Gimbal', slug: 'dji-ronin-sc',
-    description: 'Lightweight 3-axis stabilizer for mirrorless cameras up to 2kg with ActiveTrack 3.0.',
-    imageUrl: 'https://images.unsplash.com/photo-1527090526205-beaac8dc3c62?w=600&q=80',
-    productType: 'support', category: 'Support', brand: 'DJI', sku: 'SUPP-DJI-RONINSC', condition: 'EXCELLENT',
-    totalStock: 4, availableStock: 4, dailyRate: 800, baseDepositAmt: 3000, depositIsPercent: false,
-    accessoryList: ['USB-C Cable', 'Phone Holder', 'Focus Motor', 'Tripod Adapter'],
-    tags: ['gimbal', 'stabilizer', 'dji', 'mirrorless', 'video', '3-axis'],
-    specifications: {
-      maxPayload: '2 kg', headType: '3-Axis Stabilization',
-      material: 'Aluminium Alloy', maxHeight: 'N/A', foldedLen: '28cm (folded)', legSections: 'N/A',
-    },
-  },
-
-  // ── VEHICLE ───────────────────────────────────────────────────────────────
-  {
-    name: '2023 Toyota Fortuner 4WD', slug: 'toyota-fortuner-2023',
-    description: 'Premium 7-seater SUV with 4WD capability. Perfect for location shoots and equipment transport.',
-    imageUrl: 'https://images.unsplash.com/photo-1532581291347-9c39cf10a73c?w=600&q=80',
-    productType: 'vehicle', category: 'Vehicle', brand: 'Toyota', sku: 'VEH-TOY-FOR-001', condition: 'EXCELLENT',
-    totalStock: 2, availableStock: 2, dailyRate: 4500, baseDepositAmt: 15000, depositIsPercent: false,
-    accessoryList: ['Full Tank', 'GPS Navigation', 'Dashcam', 'Toolkit'],
-    tags: ['suv', 'toyota', '4wd', 'fortuner', 'crew-vehicle', 'location-shoot'],
-    specifications: {
-      make: 'Toyota', model: 'Fortuner', year: '2023',
-      fuelType: 'Diesel', seats: '7', transmission: 'Automatic',
-      registration: 'MH01 BX 4291', insuranceExp: '2026-12-31',
-    },
-  },
-
-  // ── MONITOR ───────────────────────────────────────────────────────────────
-  {
-    name: 'ASUS ProArt PA27UCX 27" 4K OLED', slug: 'asus-proart-pa27ucx',
-    description: '4K OLED reference monitor with DCI-P3 99.5% coverage for colour-critical grading work.',
-    imageUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&q=80',
-    productType: 'monitor', category: 'Monitor', brand: 'ASUS', sku: 'MON-ASUS-PA27UCX', condition: 'NEW',
-    totalStock: 3, availableStock: 3, dailyRate: 1200, baseDepositAmt: 5000, depositIsPercent: false,
-    accessoryList: ['Power Cable', 'Thunderbolt 4 Cable', 'USB-C Cable', 'Hood'],
-    tags: ['4k', 'oled', 'color-grading', 'reference-monitor', 'asus', 'hdr'],
-    specifications: {
-      screenSize: '27"', resolution: '4K UHD (3840×2160)', panelType: 'OLED',
-      refreshRate: '120Hz', hdrin: 'Dolby Vision / HDR10 / HLG',
-      connectivity: 'Thunderbolt 4, HDMI 2.1, DisplayPort 1.4, SDI',
-    },
-  },
-]
-
-const USERS = [
-  { name: 'Admin User',    email: 'admin@lease360.ai', password: 'admin123', role: 'ADMIN',       phone: '+91-9876543210' },
-  { name: 'Staff Member',  email: 'staff@lease360.ai', password: 'staff123', role: 'STAFF',       phone: '+91-9876543211' },
-  { name: 'Aryan Sharma',  email: 'user@lease360.ai',  password: 'user123',  role: 'PORTAL_USER', phone: '+91-9876543212' },
-  { name: 'Priya Nair',    email: 'priya@lease360.ai', password: 'user123',  role: 'PORTAL_USER', phone: '+91-9876543213' },
 ]
 
 async function seed() {
@@ -240,24 +245,23 @@ async function seed() {
   await mongoose.connect(MONGODB_URI)
   console.log('✅ Connected\n')
 
-  // Clear all collections
   await Promise.all([
     User.deleteMany({}), Product.deleteMany({}),
     Order.deleteMany({}), Quotation.deleteMany({}),
   ])
-  console.log('🗑  Cleared all collections\n')
+  console.log('🗑  Cleared existing data\n')
 
-  // ── Users ────────────────────────────────────────────────────────────────
+  // Create Users & Admins
   const userMap: Record<string, any> = {}
   for (const u of USERS) {
     const hashed = await bcrypt.hash(u.password, 10)
     const doc = await User.create({ ...u, password: undefined, passwordHash: hashed })
     userMap[u.email] = doc
-    console.log(`👤  ${u.role.padEnd(12)} ${u.email}`)
+    console.log(`👤  [${u.role.padEnd(11)}] ${u.email} (${u.name})`)
   }
   console.log()
 
-  // ── Products ─────────────────────────────────────────────────────────────
+  // Create Products
   const createdProducts: any[] = []
   for (const p of PRODUCTS) {
     const prod = await Product.create(p)
@@ -266,68 +270,65 @@ async function seed() {
   }
   console.log()
 
-  // ── Sample Order for Aryan ────────────────────────────────────────────────
+  // Create Seeded Orders for Customers
   const aryanUser = userMap['user@lease360.ai']
-  const sony     = createdProducts.find(p => p.sku === 'CAM-SONY-A7III')
-  const canon50  = createdProducts.find(p => p.sku === 'LENS-CANON-50F14')
+  const priyaUser = userMap['priya@lease360.ai']
+  const fortuner  = createdProducts.find(p => p.sku === 'VEH-TOY-FOR-001')
+  const sony      = createdProducts.find(p => p.sku === 'CAM-SONY-A7III')
+  const sigma     = createdProducts.find(p => p.sku === 'LENS-SIGMA-2470')
 
-  const sampleOrder = await Order.create({
+  const order1 = await Order.create({
     orderNumber: 'ORD-20260808-8829',
     userId: aryanUser._id,
     status: 'CONFIRMED',
     deliveryMode: 'SHIPPING',
     items: [
-      { productId: sony._id,    productName: sony.name,   productImage: sony.imageUrl,   rentalPeriodLabel: '3 day(s) · 10% off', quantity: 1, unitPrice: 1350, lineTotal: 4050 },
-      { productId: canon50._id, productName: canon50.name, productImage: canon50.imageUrl, rentalPeriodLabel: '3 day(s) · 10% off', quantity: 1, unitPrice: 360,  lineTotal: 1080 },
+      { productId: fortuner._id, productName: fortuner.name, productImage: fortuner.imageUrl, rentalPeriodLabel: '3 day(s)', quantity: 1, unitPrice: 4500, lineTotal: 13500 },
     ],
-    subTotal: 5130, depositAmount: 6500, totalAmount: 11630,
+    subTotal: 13500, depositAmount: 15000, totalAmount: 28500,
     rentalStart: new Date(),
     rentalEnd: new Date(Date.now() + 3 * 86400000),
     deposit: {
-      amount: 6500, status: 'HELD', refundedAmount: 0, deductedAmount: 0,
-      transactions: [{ type: 'HOLD', amount: 6500, note: 'Deposit held on confirmation ORD-20260808-8829', createdAt: new Date() }],
+      amount: 15000, status: 'HELD', refundedAmount: 0, deductedAmount: 0,
+      transactions: [{ type: 'HOLD', amount: 15000, note: 'Deposit held on order confirmation', createdAt: new Date() }],
     },
   })
-  console.log(`🛒  Order: ${sampleOrder.orderNumber} → ${aryanUser.email}`)
 
-  // Deduct stock for the seeded order
-  await Product.findByIdAndUpdate(sony._id,    { $inc: { availableStock: -1 } })
-  await Product.findByIdAndUpdate(canon50._id, { $inc: { availableStock: -1 } })
-
-  // ── Sample Quotation for Aryan ────────────────────────────────────────────
-  const ronin = createdProducts.find(p => p.sku === 'SUPP-DJI-RONINSC')
-  const sampleQuote = await Quotation.create({
-    quoteNumber: 'QT-20260808-4920',
-    userId: aryanUser._id,
-    status: 'DRAFT',
+  const order2 = await Order.create({
+    orderNumber: 'ORD-20260808-9901',
+    userId: priyaUser._id,
+    status: 'PICKED_UP',
     deliveryMode: 'STORE_PICKUP',
     items: [
-      { productId: ronin._id, productName: ronin.name, productImage: ronin.imageUrl, rentalPeriodLabel: '7 day(s) · 20% off', quantity: 1, unitPrice: 640, lineTotal: 4480 },
+      { productId: sony._id, productName: sony.name, productImage: sony.imageUrl, rentalPeriodLabel: '7 day(s) · 10% off', quantity: 1, unitPrice: 1350, lineTotal: 9450 },
+      { productId: sigma._id, productName: sigma.name, productImage: sigma.imageUrl, rentalPeriodLabel: '7 day(s) · 10% off', quantity: 1, unitPrice: 810, lineTotal: 5670 },
     ],
-    subTotal: 4480, depositAmount: 3000, totalAmount: 7480,
-    rentalStart: new Date(Date.now() + 2 * 86400000),
-    rentalEnd: new Date(Date.now() + 9 * 86400000),
-    validUntil: new Date(Date.now() + 7 * 86400000),
+    subTotal: 15120, depositAmount: 7500, totalAmount: 22620,
+    rentalStart: new Date(Date.now() - 2 * 86400000),
+    rentalEnd: new Date(Date.now() + 5 * 86400000),
+    deposit: {
+      amount: 7500, status: 'HELD', refundedAmount: 0, deductedAmount: 0,
+      transactions: [{ type: 'HOLD', amount: 7500, note: 'Deposit held on pickup', createdAt: new Date() }],
+    },
   })
-  console.log(`📄  Quotation: ${sampleQuote.quoteNumber} → ${aryanUser.email}`)
 
-  // ── Summary ───────────────────────────────────────────────────────────────
-  console.log('\n' + '─'.repeat(55))
-  console.log('✅  Seed complete!')
-  console.log('\n🔑  Login credentials:')
-  console.log('   Admin:  admin@lease360.ai / admin123')
-  console.log('   Staff:  staff@lease360.ai / staff123')
-  console.log('   Portal: user@lease360.ai  / user123')
-  console.log('   Portal: priya@lease360.ai / user123')
-  console.log('\n📦  Products seeded:')
-  console.log('   2 Cameras  ·  2 Lenses  ·  1 Audio  ·  1 Lighting')
-  console.log('   2 Support  ·  1 Vehicle ·  2 Monitors')
-  console.log('\n🚀  Start the app: npm run dev')
+  console.log(`🛒  Created Sample Orders: ${order1.orderNumber}, ${order2.orderNumber}`)
+
+  console.log('\n' + '─'.repeat(60))
+  console.log('✅  Multi-Admin & Product Domain Seed Complete!')
+  console.log('\n🔑  Admin Logins:')
+  console.log('   Super Admin:   admin@lease360.ai        / admin123')
+  console.log('   Camera Admin:  admin.camera@lease360.ai / admin123')
+  console.log('   Vehicle Admin: admin.vehicle@lease360.ai/ admin123')
+  console.log('   Event Admin:   admin.event@lease360.ai  / admin123')
+  console.log('\n👤  Customer Logins:')
+  console.log('   Aryan: user@lease360.ai  / user123')
+  console.log('   Priya: priya@lease360.ai / user123')
 
   await mongoose.disconnect()
 }
 
 seed().catch((err) => {
-  console.error('❌ Seed failed:', err)
+  console.error('❌ Seed error:', err)
   process.exit(1)
 })

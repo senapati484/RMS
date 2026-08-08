@@ -335,24 +335,108 @@ export default function ProductDetailPage() {
           </div>
         )}
 
-        {/* Specifications */}
+        {/* Type-Specific Domain Feature Cards & Specifications */}
         {specs.length > 0 && (
-          <div className="liquid-glass border border-white/10 rounded-2xl p-5">
-            <h2 className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Layers size={13} /> Technical Specifications
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 divide-y divide-white/5 sm:divide-y-0">
-              {specs.map(([key, value], i) => (
-                <div
-                  key={key}
-                  className={`flex justify-between py-3 px-1 text-sm ${
-                    i % 2 === 0 ? 'sm:pr-6 sm:border-r sm:border-white/5' : 'sm:pl-6'
-                  }`}
-                >
-                  <span className="text-white/40 capitalize">{key.replace(/_/g, ' ')}</span>
-                  <span className="text-white font-medium text-right max-w-[60%]">{value}</span>
+          <div className="space-y-4">
+            {/* 1. Vehicle Specific Custom UI */}
+            {product.productType === 'vehicle' && (
+              <div className="liquid-glass border border-amber-500/20 bg-amber-500/5 rounded-2xl p-5 space-y-4">
+                <h2 className="text-amber-400 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                  <Car size={15} /> Vehicle Technical Profile & Compliance
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Fuel Type</span>
+                    <span className="text-white font-bold text-sm mt-1 block">⛽ {product.specifications?.fuelType || 'Diesel'}</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Transmission</span>
+                    <span className="text-white font-bold text-sm mt-1 block">⚙️ {product.specifications?.transmission || 'Automatic'}</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Seating</span>
+                    <span className="text-white font-bold text-sm mt-1 block">🪑 {product.specifications?.seatingCapacity || '7 Seats'}</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Reg Number</span>
+                    <span className="text-amber-400 font-mono font-bold text-xs mt-1 block">🆔 {product.specifications?.registrationNo || 'MH01 BX 4291'}</span>
+                  </div>
                 </div>
-              ))}
+              </div>
+            )}
+
+            {/* 2. Camera & Lens Specific Custom UI */}
+            {(product.productType === 'camera' || product.productType === 'lens') && (
+              <div className="liquid-glass border border-purple-500/20 bg-purple-500/5 rounded-2xl p-5 space-y-4">
+                <h2 className="text-purple-400 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                  <Package size={15} /> Cinema & Optical Spec Matrix
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Sensor / Format</span>
+                    <span className="text-white font-bold text-xs mt-1 block">📷 {product.specifications?.sensorType || product.specifications?.sensorSize || 'Full Frame'}</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Resolution</span>
+                    <span className="text-purple-300 font-bold text-xs mt-1 block">✨ {product.specifications?.resolution || '4K UHD'}</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Lens Mount</span>
+                    <span className="text-white font-bold text-xs mt-1 block">🔭 {product.specifications?.lensMount || product.specifications?.mountType || 'E-Mount'}</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Video Standard</span>
+                    <span className="text-white font-bold text-xs mt-1 block">📹 {product.specifications?.videoResolution || '4K 30fps'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. Audio Specific Custom UI */}
+            {product.productType === 'audio' && (
+              <div className="liquid-glass border border-blue-500/20 bg-blue-500/5 rounded-2xl p-5 space-y-4">
+                <h2 className="text-blue-400 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                  <Info size={15} /> Acoustic & Signal Parameters
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Polar Pattern</span>
+                    <span className="text-white font-bold text-xs mt-1 block">🎙 {product.specifications?.polarPattern || 'Supercardioid'}</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Frequency Range</span>
+                    <span className="text-blue-300 font-bold text-xs mt-1 block">🎛 {product.specifications?.frequencyResponse || '40Hz–20kHz'}</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Connection</span>
+                    <span className="text-white font-bold text-xs mt-1 block">🔌 {product.specifications?.connectorType || '3-Pin XLR'}</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 text-center">
+                    <span className="text-white/40 text-[10px] uppercase font-medium block">Power Requirement</span>
+                    <span className="text-emerald-400 font-bold text-xs mt-1 block">⚡ {product.specifications?.phantomPower || '48V Phantom'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* General Specs Grid */}
+            <div className="liquid-glass border border-white/10 rounded-2xl p-5">
+              <h2 className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Layers size={13} /> Detailed Specifications Grid
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 divide-y divide-white/5 sm:divide-y-0">
+                {specs.map(([key, value], i) => (
+                  <div
+                    key={key}
+                    className={`flex justify-between py-3 px-1 text-sm ${
+                      i % 2 === 0 ? 'sm:pr-6 sm:border-r sm:border-white/5' : 'sm:pl-6'
+                    }`}
+                  >
+                    <span className="text-white/40 capitalize">{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}</span>
+                    <span className="text-white font-medium text-right max-w-[60%]">{value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

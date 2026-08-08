@@ -2,10 +2,12 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useAuth, useCart } from '@/context'
+import { CartHeaderIcon } from '@/components'
+import { toast } from 'sonner'
 import {
   Search as SearchIcon, Heart as HeartIcon, ShoppingCart as CartIcon,
   User as UserCheckIcon, LogOut as LogoutIcon, SlidersHorizontal,
-  ChevronLeft as PrevIcon, ChevronRight as NextIcon
+  ChevronLeft as PrevIcon, ChevronRight as NextIcon, CheckCircle2
 } from 'lucide-react'
 
 interface Product {
@@ -37,7 +39,7 @@ const DURATIONS = ['All Duration', '1 Month', '6 Month', '1 Year', '2 Years', '3
 
 export default function StorefrontCatalogPage() {
   const { user, logout } = useAuth()
-  const { cartCount } = useCart()
+  const { cartCount, addToCart } = useCart()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -116,14 +118,7 @@ export default function StorefrontCatalogPage() {
           </button>
 
           {user?.role !== 'ADMIN' && (
-            <Link href="/cart" className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white transition-colors cursor-pointer relative">
-              <CartIcon size={18} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#F26522] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
+            <CartHeaderIcon />
           )}
 
           {/* User Profile Dropdown */}
@@ -295,12 +290,39 @@ export default function StorefrontCatalogPage() {
                           <div className="text-white/30 text-[10px]">per Month / Day</div>
                         </div>
 
-                        <Link
-                          href={`/products/${p._id}`}
-                          className="bg-white/10 hover:bg-[#F26522] text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all shadow-md cursor-pointer"
-                        >
-                          View Details
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/products/${p._id}`}
+                            className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-xl transition-all cursor-pointer"
+                          >
+                            Details
+                          </Link>
+                          <button
+                            type="button"
+                            disabled={isOutOfStock}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              addToCart({
+                                productId: p._id,
+                                productName: p.name,
+                                productImage: p.imageUrl,
+                                dailyRate: p.salesPrice || p.dailyRate,
+                                quantity: 1,
+                                rentalStart: new Date().toISOString().slice(0, 10),
+                                rentalEnd: new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10),
+                              })
+                              toast.success(`${p.name} added to cart! Check top header 🛒.`)
+                            }}
+                            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer ${
+                              isOutOfStock
+                                ? 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5'
+                                : 'bg-[#F26522] hover:bg-[#e05510] text-white shadow-[#F26522]/20'
+                            }`}
+                          >
+                            <CartIcon size={12} />
+                            <span>{isOutOfStock ? 'Sold Out' : '+ Add to Cart'}</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )

@@ -46,6 +46,15 @@ export interface IPickupReturnLog {
   createdAt: Date
 }
 
+export interface IPaymentInfo {
+  method: 'UPI'
+  status: 'PENDING' | 'PAID'
+  amount: number
+  upiTxnRef?: string
+  paidAt?: Date
+  note?: string
+}
+
 export interface IOrder extends Document {
   _id: mongoose.Types.ObjectId
   orderNumber: string
@@ -67,6 +76,7 @@ export interface IOrder extends Document {
   rentalEnd: Date
   actualReturnAt?: Date
   lateFeeCharged: number
+  payment?: IPaymentInfo
   // Deposit embedded
   deposit: {
     amount: number
@@ -120,6 +130,14 @@ const OrderSchema = new Schema<IOrder>(
     rentalEnd: { type: Date, required: true },
     actualReturnAt: { type: Date },
     lateFeeCharged: { type: Number, default: 0 },
+    payment: {
+      method: { type: String, enum: ['UPI'], default: 'UPI' },
+      status: { type: String, enum: ['PENDING', 'PAID'], default: 'PENDING' },
+      amount: { type: Number, default: 0 },
+      upiTxnRef: String,
+      paidAt: Date,
+      note: String,
+    },
     deposit: {
       amount: { type: Number, default: 0 },
       status: {

@@ -18,6 +18,10 @@ export async function POST(req: NextRequest) {
   const authErr = requireAuth(user)
   if (authErr) return authErr
 
+  if (user!.role === 'ADMIN') {
+    return apiError('Admins cannot place storefront orders — create the order for your customer from the dashboard instead.', 403)
+  }
+
   const planGate = await requirePlatformAccess(user!.userId)
   if (planGate) return planGate
 
@@ -111,6 +115,8 @@ export async function POST(req: NextRequest) {
     const totalAmount = subTotal + depositAmount
     const invoiceNumber = `INV/${new Date().getFullYear()}/${String(Date.now()).slice(-6)}`
     const isStorePickup = deliveryMethod === 'store' || deliveryMethod === 'STORE_PICKUP'
+    const paymentConfirmed = body?.payment?.confirmed === true
+    const upiTxnRef = body?.payment?.upiTxnRef || ''
 
     const order = await Order.create({
       orderNumber: generateOrderNumber(),
@@ -133,6 +139,14 @@ export async function POST(req: NextRequest) {
       rentalEnd: end,
       lateFeeCharged: 0,
       invoiceRef: invoiceNumber,
+      payment: {
+        method: 'UPI',
+        status: paymentConfirmed ? 'PAID' : 'PENDING',
+        amount: totalAmount,
+        upiTxnRef: upiTxnRef || undefined,
+        paidAt: paymentConfirmed ? new Date() : undefined,
+        note: paymentConfirmed ? 'UPI payment via QR (simulated)' : 'Awaiting UPI payment',
+      },
       deposit: {
         amount: depositAmount,
         status: 'HELD',
@@ -152,7 +166,9 @@ export async function POST(req: NextRequest) {
       userId: user!.userId,
       type: 'ORDER_CONFIRMED',
       title: 'Order Confirmed!',
-      message: `Your order ${order.orderNumber} has been confirmed. Deposit of ₹${depositAmount} is held.`,
+      message: paymentConfirmed
+        ? `Payment of ₹${totalAmount} received via UPI for ${order.orderNumber}. Deposit of ₹${depositAmount} is held.`
+        : `Your order ${order.orderNumber} has been confirmed. Deposit of ₹${depositAmount} is held.`,
       linkHref: `/dashboard/orders/${order._id}`,
       relatedOrderId: order._id,
     })

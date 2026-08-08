@@ -28,6 +28,7 @@ interface Order {
     amount: number; status: string; refundedAmount: number; deductedAmount: number; deductionReason?: string
     transactions: Array<{ type: string; amount: number; note?: string; createdAt: string }>
   }
+  payment?: { method: string; status: string; amount: number; upiTxnRef?: string; paidAt?: string; note?: string }
   pickupReturnLogs: Array<{ type: string; scheduledAt: string; actualAt?: string; conditionScore?: string; conditionNote?: string; damageNoted: boolean; createdAt: string }>
   adminNotes?: string
   userId: { name: string; email: string; phone?: string }
@@ -462,6 +463,20 @@ export default function OrderDetailPage() {
                 <span className="text-white/50">Deposit</span>
                 <span className="text-white">₹{order.depositAmount.toLocaleString()}</span>
               </div>
+              {order.payment && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-white/50">Payment ({order.payment.method})</span>
+                  <span className={`font-semibold ${order.payment.status === 'PAID' ? 'text-emerald-400' : 'text-amber-400'}`}>
+                    {order.payment.status === 'PAID' ? 'Paid' : 'Pending'} · ₹{order.payment.amount.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {order.payment?.upiTxnRef && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-white/50">UPI Txn Ref</span>
+                  <span className="text-white/60 font-mono text-xs">{order.payment.upiTxnRef}</span>
+                </div>
+              )}
               {order.lateFeeCharged > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-red-400 font-medium">Late Fee Penalty</span>

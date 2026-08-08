@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useCart } from '@/context'
+import { useAuth } from '@/context/AuthContext'
 import {
   ArrowLeft, Heart, Scale, ShoppingBag, Calendar as CalendarIcon,
   Sliders, X
@@ -30,7 +31,9 @@ interface ProductDetail {
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { user } = useAuth()
   const { addToCart } = useCart()
+  const isAdmin = user?.role === 'ADMIN'
 
   const [product, setProduct] = useState<ProductDetail | null>(null)
   const [loading, setLoading] = useState(true)
@@ -187,13 +190,24 @@ export default function ProductDetailPage() {
               </div>
 
               {/* Add to Cart CTA */}
-              <button
-                onClick={handleAddToCartClick}
-                className="flex-1 bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <ShoppingBag size={16} />
-                <span>Add to Cart</span>
-              </button>
+              {isAdmin ? (
+                <button
+                  disabled
+                  className="flex-1 bg-white/10 text-white/40 font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 cursor-not-allowed"
+                  title="Admins cannot place storefront orders — use the dashboard instead"
+                >
+                  <ShoppingBag size={16} />
+                  <span>Admins can't purchase — use Dashboard</span>
+                </button>
+              ) : (
+                <button
+                  onClick={handleAddToCartClick}
+                  className="flex-1 bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <ShoppingBag size={16} />
+                  <span>Add to Cart</span>
+                </button>
+              )}
 
               <button className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 cursor-pointer">
                 <Heart size={18} />

@@ -21,7 +21,7 @@ import {
   Menu,
   X,
 } from 'lucide-react'
-import { NotificationBell } from '@/components'
+import { NotificationBell, PwaInstallButton } from '@/components'
 import SubscriptionBanner from '@/components/SubscriptionBanner'
 
 const navItems = [
@@ -220,6 +220,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Page children content */}
         <SubscriptionBanner />
         <main className="flex-1 p-4 sm:p-6">{children}</main>
+
+        <PwaInstallButton />
 
         {/* Mobile PWA Bottom Navigation Bar */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#111111]/95 backdrop-blur-xl border-t border-white/10 px-3 py-2 safe-area-bottom flex items-center justify-around shadow-2xl">

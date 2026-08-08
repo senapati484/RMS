@@ -27,6 +27,7 @@ export default function CheckoutPaymentPage() {
   const [qrDataUrl, setQrDataUrl] = useState('')
   const [depositEstimate, setDepositEstimate] = useState(0)
   const [depositLoading, setDepositLoading] = useState(true)
+  const [upiTxnRef, setUpiTxnRef] = useState('')
 
   // Read delivery/address state persisted by the address step
   const [checkoutState] = useState(() => {
@@ -106,11 +107,8 @@ export default function CheckoutPaymentPage() {
       toast.error('Your cart is empty')
       return
     }
-    if (upiUri) {
-      try { window.location.href = upiUri } catch { /* desktop fallback below */ }
-    }
     setPaid(true)
-    toast.info('Scan the QR or approve the payment in your UPI app, then confirm below.')
+    toast.info('Approve the payment in your UPI app, then paste the transaction ID (optional) and confirm your order.')
   }
 
   const copyUpiId = async () => {
@@ -127,6 +125,10 @@ export default function CheckoutPaymentPage() {
   const handleConfirmOrder = async () => {
     if (!cartItems.length) {
       toast.error('Your cart is empty')
+      return
+    }
+    if (!paid) {
+      toast.error('Complete the UPI payment first to confirm your order.')
       return
     }
     setLoading(true)
@@ -146,6 +148,11 @@ export default function CheckoutPaymentPage() {
             city: deliveryAddress.city || '',
             state: deliveryAddress.state || '',
             pincode: deliveryAddress.pincode || '',
+          },
+          payment: {
+            method: 'UPI',
+            confirmed: paid,
+            upiTxnRef: upiTxnRef.trim() || undefined,
           },
         }),
       })
@@ -285,14 +292,17 @@ export default function CheckoutPaymentPage() {
                     </p>
 
                     <div className="space-y-2.5">
-                      <button
+                      <a
+                        href={upiUri || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         onClick={payWithUpi}
-                        disabled={depositLoading}
+                        aria-disabled={depositLoading || !upiUri}
                         className="w-full py-3.5 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                       >
                         <Smartphone size={16} />
                         {depositLoading ? 'Calculating amount…' : `Pay ${inr(totalAmount)} via UPI`}
-                      </button>
+                      </a>
                       <button
                         onClick={copyUpiId}
                         className="w-full py-3 rounded-xl border border-white/15 hover:border-[#F26522]/50 hover:bg-white/5 text-white/80 text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
@@ -306,8 +316,18 @@ export default function CheckoutPaymentPage() {
                       <div className="liquid-glass border border-emerald-500/30 bg-emerald-500/5 rounded-2xl p-4 space-y-3">
                         <div className="flex items-start gap-2 text-emerald-300 text-xs font-semibold">
                           <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
-                          Payment initiated. Once you&apos;ve approved the payment in your UPI app, confirm your order:
+                          <span>
+                            Payment initiated — approve it in your UPI app (or scan the QR). Optionally paste the UPI
+                            transaction ID / UTR below so it is stored on the order, then confirm.
+                          </span>
                         </div>
+                        <input
+                          type="text"
+                          value={upiTxnRef}
+                          onChange={(e) => setUpiTxnRef(e.target.value)}
+                          placeholder="UPI Transaction ID / UTR (optional, e.g. 412378654920)"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-400 font-mono"
+                        />
                         <button
                           onClick={handleConfirmOrder}
                           disabled={loading}

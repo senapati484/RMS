@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { useCart, type CartItem } from '@/context'
+import { useAuth, useCart, type CartItem } from '@/context'
 import {
   ShoppingBag, Trash2, Bookmark,
   Calendar as CalendarIcon, CreditCard, X, Loader2
@@ -11,7 +11,9 @@ import {
 
 export default function CartPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const { cartItems, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart()
+  const isAdmin = user?.role === 'ADMIN'
   const [couponCode, setCouponCode] = useState('')
   const [discountApplied, setDiscountApplied] = useState(false)
   const [showExpressModal, setShowExpressModal] = useState(false)
@@ -239,20 +241,29 @@ export default function CartPage() {
 
             {/* Express Checkout & Checkout CTAs */}
             <div className="space-y-3 pt-2">
-              <button
-                onClick={() => setShowExpressModal(true)}
-                className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <CreditCard size={15} />
-                <span>Express Checkout (Pay with Saved Card)</span>
-              </button>
+              {isAdmin ? (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-300 font-semibold">
+                  Admin accounts cannot place storefront orders — create the order for your customer from the
+                  Dashboard instead.
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowExpressModal(true)}
+                    className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <CreditCard size={15} />
+                    <span>Express Checkout (Pay with Saved Card)</span>
+                  </button>
 
-              <button
-                onClick={() => router.push('/checkout/address')}
-                className="w-full py-3.5 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>Proceed to Address & Delivery →</span>
-              </button>
+                  <button
+                    onClick={() => router.push('/checkout/address')}
+                    className="w-full py-3.5 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>Proceed to Address & Delivery →</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -17,11 +17,15 @@ export interface IUser extends Document {
   isGovIdVerified: boolean
   aadhaarMasked?: string
   digiLockerTxnId?: string
+  digiLockerEncryptedPayload?: string
   govIdType?: string
   companyName?: string
   gstin?: string
   employeeId?: string
   addressLine?: string
+  city?: string
+  state?: string
+  pincode?: string
   // Driving License KYC (required for vehicle rentals)
   drivingLicense: {
     number?: string
@@ -49,11 +53,15 @@ const UserSchema = new Schema<IUser>(
     isGovIdVerified: { type: Boolean, default: false },
     aadhaarMasked: { type: String },
     digiLockerTxnId: { type: String },
+    digiLockerEncryptedPayload: { type: String },
     govIdType: { type: String, default: 'AADHAAR' },
     companyName: { type: String },
     gstin: { type: String },
     employeeId: { type: String },
     addressLine: { type: String },
+    city: { type: String },
+    state: { type: String },
+    pincode: { type: String },
     drivingLicense: {
       number: { type: String },
       expiry: { type: String },

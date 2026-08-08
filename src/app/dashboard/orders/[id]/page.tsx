@@ -257,16 +257,23 @@ export default function OrderDetailPage() {
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 mt-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white shrink-0">
-                {order.deliveryMode === 'SHIPPING' ? <Truck size={20} className="text-[#F26522]" /> : <QrCode size={20} className="text-blue-400" />}
+              <div className="w-10 h-10 rounded-xl bg-[#002868]/60 border border-blue-400/20 flex items-center justify-center text-white shrink-0 shadow-md">
+                {order.deliveryMode === 'SHIPPING' ? <Truck size={20} className="text-yellow-400" /> : <QrCode size={20} className="text-blue-400" />}
               </div>
               <div>
-                <div className="text-white text-sm font-semibold">
-                  {order.deliveryMode === 'SHIPPING' ? 'Express Courier Courier Partner: ExpressFleet #882' : 'Warehouse Counter Store Pickup'}
+                <div className="flex items-center gap-2">
+                  <span className="text-white text-sm font-bold">
+                    {order.deliveryMode === 'SHIPPING' ? 'Blue Dart Express Courier Air Logistics' : 'Warehouse Self Pickup Pass'}
+                  </span>
+                  {order.deliveryMode === 'SHIPPING' && (
+                    <span className="text-[10px] bg-yellow-400/10 text-yellow-400 border border-yellow-400/30 px-2 py-0.5 rounded font-mono font-bold">
+                      AWB #BD-982402-IN
+                    </span>
+                  )}
                 </div>
                 <div className="text-white/50 text-xs mt-0.5">
-                  Origin: <span className="text-white/80">Central Tech Hub, BKC Mumbai</span> → Destination:{' '}
-                  <span className="text-white/80">
+                  Hub: <span className="text-white/80 font-medium">Blue Dart Central Hub, Airport Cargo Mumbai</span> → Destination:{' '}
+                  <span className="text-white/80 font-medium">
                     {order.shippingAddress
                       ? `${order.shippingAddress.line1}, ${order.shippingAddress.city} (${order.shippingAddress.pincode})`
                       : 'Customer Self-Pickup Counter'}
@@ -277,18 +284,18 @@ export default function OrderDetailPage() {
 
             <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-white/10 pt-3 md:pt-0">
               <div>
-                <div className="text-[10px] text-white/40 uppercase tracking-wider font-medium">Estimated Arrival</div>
+                <div className="text-[10px] text-white/40 uppercase tracking-wider font-medium">Blue Dart Express Status</div>
                 <div className="text-white text-xs font-bold flex items-center gap-1">
-                  <Clock size={12} className="text-[#F26522]" />
-                  <span>{isReturned ? 'Delivered' : isPickedUp ? 'Active Rental' : 'Ready for Counter Pickup'}</span>
+                  <Clock size={12} className="text-yellow-400" />
+                  <span>{isReturned ? 'Delivered via Blue Dart' : isPickedUp ? 'In Transit / Dispatched' : 'Manifest Created'}</span>
                 </div>
               </div>
               <button
-                onClick={() => toast.info('Courier Driver: Ramesh Kumar (+91 98201 48291)')}
-                className="bg-white/10 hover:bg-white/20 text-white text-xs px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5"
+                onClick={() => toast.info('Blue Dart Courier Agent: Suresh Verma (+91 98201 88421) · AWB: BD-982402-IN')}
+                className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-400/20 text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <PhoneCall size={12} />
-                <span>Contact Dispatch</span>
+                <span>Blue Dart Hotline</span>
               </button>
             </div>
           </div>

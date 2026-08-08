@@ -22,13 +22,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { conditionNote } = (await req.json().catch(() => ({}))) as { conditionNote?: string }
 
+  const awbNumber = `BD-${Math.floor(10000000 + Math.random() * 90000000)}-IN`
   order.status = 'PICKED_UP'
   order.pickupReturnLogs.push({
     type: 'PICKUP',
     scheduledAt: order.rentalStart,
     actualAt: new Date(),
     conditionScore: 'EXCELLENT',
-    conditionNote,
+    conditionNote: conditionNote || `Dispatched via Blue Dart Express Air Logistics (AWB #${awbNumber})`,
     missingAccessories: [],
     damageNoted: false,
     handledById: user!.userId as unknown as import('mongoose').Types.ObjectId,

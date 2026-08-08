@@ -41,6 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -185,8 +186,41 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex-1" />
           <NotificationBell />
 
-          <div className="w-8 h-8 bg-[#F26522]/20 border border-[#F26522]/30 rounded-full flex items-center justify-center">
-            <span className="text-[#F26522] text-xs font-bold">{user.name[0].toUpperCase()}</span>
+          {/* Top Right Header Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="flex items-center gap-2 p-1.5 rounded-full hover:bg-white/5 transition-all cursor-pointer"
+            >
+              <div className="w-8 h-8 bg-[#F26522]/20 border border-[#F26522]/40 rounded-full flex items-center justify-center text-[#F26522] font-bold text-xs shadow-md">
+                {user.name[0].toUpperCase()}
+              </div>
+            </button>
+
+            {showProfileMenu && (
+              <div className="absolute right-0 mt-2 w-56 bg-[#151515] border border-white/10 rounded-2xl shadow-2xl p-2 space-y-1 z-50 text-xs font-semibold">
+                <div className="px-3 py-2 border-b border-white/10 mb-1">
+                  <div className="text-white font-bold">{user.name}</div>
+                  <div className="text-white/40 text-[10px] font-mono">{user.email}</div>
+                  <span className="inline-block mt-1 text-[9px] bg-[#F26522]/20 text-[#F26522] border border-[#F26522]/30 px-2 py-0.5 rounded-full font-bold uppercase">
+                    {user.role === 'ADMIN' ? 'Admin / Vendor' : 'Customer Account'}
+                  </span>
+                </div>
+                <Link href="/dashboard/profile" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                  My Profile
+                </Link>
+                <Link href="/dashboard/orders" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                  My Orders
+                </Link>
+                <Link href="/dashboard/settings" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                  Warehouse & Settings
+                </Link>
+                <button onClick={handleLogout} className="w-full text-left px-3 py-2 rounded-xl text-red-400 hover:bg-red-500/10 flex items-center gap-2 cursor-pointer">
+                  <LogOut size={14} />
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
         </header>
 

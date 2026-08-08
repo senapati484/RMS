@@ -3,16 +3,21 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
 import {
-  CreditCard, ShieldCheck, CheckCircle2, Lock, ArrowLeft, Loader2
+  CreditCard, ShieldCheck, CheckCircle2, Lock, ArrowLeft, Loader2,
+  MapPin, Building, User as UserCheckIcon, LogOut as LogoutIcon
 } from 'lucide-react'
 
 export default function CheckoutPaymentPage() {
   const router = useRouter()
+  const { user, logout } = useAuth()
   const { cartItems, cartTotal, clearCart } = useCart()
+
   const [loading, setLoading] = useState(false)
   const [saveCardDetails, setSaveCardDetails] = useState(true)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   const [paymentForm, setPaymentForm] = useState({
     cardNumber: '4532 •••• •••• 8892',
@@ -32,9 +37,16 @@ export default function CheckoutPaymentPage() {
           rentalStart: '2026-08-10T10:00',
           rentalEnd: '2026-08-15T19:00',
           deliveryMethod: 'standard',
-          address: {
-            name: 'Aryan Sharma',
+          customerAddress: {
+            name: 'Aryan Sharma (Customer)',
             line1: '102 Apex Towers, Hill Road, Bandra West',
+            city: 'Mumbai',
+            state: 'Maharashtra',
+            pincode: '400050',
+          },
+          vendorWarehouseAddress: {
+            name: 'Lease360 Central Vendor Warehouse',
+            line1: 'Gate 4, MIDC Industrial Area, Tech Park Compound',
             city: 'Mumbai',
             state: 'Maharashtra',
             pincode: '400050',
@@ -55,12 +67,46 @@ export default function CheckoutPaymentPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
-      {/* Header */}
+      {/* Top Header Bar with Profile Dropdown matching spec */}
       <header className="sticky top-0 z-40 bg-[#111111]/90 backdrop-blur-xl border-b border-white/10 px-4 sm:px-8 h-16 flex items-center justify-between">
-        <Link href="/products" className="text-[#F26522] font-bold text-lg tracking-tight">
-          Lease360 Store
+        <Link href="/products" className="text-[#F26522] font-bold text-lg tracking-tight flex items-center gap-2">
+          <img src="/logo.png" alt="Lease360" className="w-8 h-8 object-contain p-1 bg-white/10 ring-1 ring-white/20 rounded-xl" />
+          <span>Lease360 Store</span>
         </Link>
-        <span className="text-white/40 text-xs">Checkout Step 3 of 3</span>
+
+        <span className="text-white/40 text-xs hidden sm:inline">Checkout Step 3 of 3</span>
+
+        {/* User Profile Dropdown on Top Right Header Bar */}
+        <div className="relative">
+          <button
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="w-9 h-9 rounded-full bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] flex items-center justify-center font-bold text-xs cursor-pointer shadow-md"
+          >
+            {user ? user.name[0].toUpperCase() : <UserCheckIcon size={16} />}
+          </button>
+
+          {showProfileMenu && (
+            <div className="absolute right-0 mt-2 w-52 bg-[#151515] border border-white/10 rounded-2xl shadow-2xl p-2 space-y-1 z-50 text-xs font-semibold">
+              <div className="px-3 py-2 border-b border-white/10 mb-1">
+                <div className="text-white font-bold">{user?.name || 'Customer Account'}</div>
+                <div className="text-white/40 text-[10px] font-mono">{user?.email || 'user@lease360.com'}</div>
+              </div>
+              <Link href="/dashboard/profile" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                My Profile
+              </Link>
+              <Link href="/dashboard/orders" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                My Orders
+              </Link>
+              <Link href="/dashboard/settings" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                Warehouse & Settings
+              </Link>
+              <button onClick={logout} className="w-full text-left px-3 py-2 rounded-xl text-red-400 hover:bg-red-500/10 flex items-center gap-2">
+                <LogoutIcon size={14} />
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Stepper Breadcrumbs matching Excalidraw (Add to Cart > Address > Payment) */}
@@ -124,7 +170,7 @@ export default function CheckoutPaymentPage() {
                 </div>
               </div>
 
-              {/* Save Card Checkbox matching Excalidraw */}
+              {/* Save Card Checkbox */}
               <div className="flex items-center gap-2 pt-2">
                 <input
                   type="checkbox"
@@ -137,13 +183,31 @@ export default function CheckoutPaymentPage() {
             </div>
           </div>
 
-          {/* Delivery & Billing Summary Box matching Excalidraw */}
-          <div className="liquid-glass border border-white/10 rounded-3xl p-6 space-y-3">
-            <h3 className="text-white text-xs font-bold uppercase tracking-wider text-white/50">Delivery & Billing</h3>
-            <div className="text-white text-sm font-bold">Aryan Sharma</div>
-            <p className="text-white/60 text-xs font-mono">
-              102 Apex Towers, Hill Road, Bandra West, Mumbai, MH - 400050
-            </p>
+          {/* Segregated Delivery Address & Vendor Warehouse Location matching spec */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Customer Delivery Address */}
+            <div className="liquid-glass border border-white/10 rounded-2xl p-5 space-y-2">
+              <div className="flex items-center gap-2 text-white font-bold text-xs">
+                <MapPin size={15} className="text-[#F26522]" />
+                Customer Delivery Address
+              </div>
+              <p className="text-white/60 text-xs font-mono leading-relaxed pt-1">
+                Aryan Sharma<br />
+                102 Apex Towers, Hill Road, Bandra West, Mumbai, MH - 400050
+              </p>
+            </div>
+
+            {/* Vendor Warehouse Location */}
+            <div className="liquid-glass border border-white/10 rounded-2xl p-5 space-y-2">
+              <div className="flex items-center gap-2 text-white font-bold text-xs">
+                <Building size={15} className="text-blue-400" />
+                Vendor Warehouse Location
+              </div>
+              <p className="text-white/60 text-xs font-mono leading-relaxed pt-1">
+                Lease360 Central Vendor Warehouse<br />
+                Gate 4, MIDC Industrial Area, Mumbai, MH - 400050
+              </p>
+            </div>
           </div>
         </div>
 

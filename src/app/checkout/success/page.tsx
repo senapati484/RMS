@@ -1,14 +1,19 @@
 'use client'
+import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@/context/AuthContext'
 import {
   Printer, CheckCircle2, ShoppingBag, ArrowRight, FileText,
-  Calendar as CalendarIcon, MapPin, Heart, ShoppingCart
+  Calendar as CalendarIcon, MapPin, Building, Heart, ShoppingCart,
+  User as UserCheckIcon, LogOut as LogoutIcon
 } from 'lucide-react'
 
 export default function OrderSuccessPage() {
   const searchParams = useSearchParams()
   const orderNumber = searchParams.get('orderNumber') || 'SO00010'
+  const { user, logout } = useAuth()
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   const handlePrintInvoice = () => {
     if (typeof window !== 'undefined') {
@@ -25,7 +30,7 @@ export default function OrderSuccessPage() {
           <span className="text-white font-bold text-lg tracking-tight">Lease360</span>
         </Link>
 
-        {/* Action Header Icons */}
+        {/* Action Header Icons & Top Right Profile Dropdown */}
         <div className="flex items-center gap-3">
           <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/80 hover:text-white">
             <Heart size={16} />
@@ -33,6 +38,35 @@ export default function OrderSuccessPage() {
           <Link href="/cart" className="p-2 rounded-full bg-white/5 border border-white/10 text-white/80 hover:text-white">
             <ShoppingCart size={16} />
           </Link>
+
+          {/* Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="w-9 h-9 rounded-full bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] flex items-center justify-center font-bold text-xs cursor-pointer shadow-md"
+            >
+              {user ? user.name[0].toUpperCase() : <UserCheckIcon size={16} />}
+            </button>
+
+            {showProfileMenu && (
+              <div className="absolute right-0 mt-2 w-52 bg-[#151515] border border-white/10 rounded-2xl shadow-2xl p-2 space-y-1 z-50 text-xs font-semibold">
+                <div className="px-3 py-2 border-b border-white/10 mb-1">
+                  <div className="text-white font-bold">{user?.name || 'Customer Account'}</div>
+                  <div className="text-white/40 text-[10px] font-mono">{user?.email || 'user@lease360.com'}</div>
+                </div>
+                <Link href="/dashboard/profile" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                  My Profile
+                </Link>
+                <Link href="/dashboard/orders" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                  My Orders
+                </Link>
+                <button onClick={logout} className="w-full text-left px-3 py-2 rounded-xl text-red-400 hover:bg-red-500/10 flex items-center gap-2">
+                  <LogoutIcon size={14} />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -50,7 +84,7 @@ export default function OrderSuccessPage() {
               </div>
             </div>
 
-            {/* Print Invoice Button matching Excalidraw ("Clicking on it should print the invoice") */}
+            {/* Print Invoice Button */}
             <button
               onClick={handlePrintInvoice}
               className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-5 py-2.5 rounded-xl border border-white/15 transition-all flex items-center gap-2 cursor-pointer shadow-md self-start sm:self-auto print:hidden"
@@ -66,19 +100,33 @@ export default function OrderSuccessPage() {
             <span>Your Payment has been processed.</span>
           </div>
 
-          {/* Main Grid: Delivery & Billing vs Order Summary */}
+          {/* Main Grid: Segregated Delivery Address vs Vendor Warehouse Location */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-2 items-start">
-            {/* Delivery & Billing Address Card matching Excalidraw */}
+            {/* Segregated Address Cards matching spec */}
             <div className="lg:col-span-6 space-y-4">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
-                <span className="inline-block bg-white/10 border border-white/20 text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  Delivery & Billing
+              {/* Customer Delivery Address */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-2">
+                <span className="inline-block bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] text-[11px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
+                  Customer Delivery Address
                 </span>
-
                 <div className="pt-1">
-                  <h3 className="text-white font-bold text-lg">Aryan Sharma</h3>
+                  <h3 className="text-white font-bold text-base">Aryan Sharma</h3>
                   <p className="text-white/60 text-xs font-mono leading-relaxed mt-1">
                     102 Apex Towers, Hill Road, Bandra West,<br />
+                    Mumbai, Maharashtra - 400050
+                  </p>
+                </div>
+              </div>
+
+              {/* Vendor Warehouse Pickup Address */}
+              <div className="bg-blue-950/30 border border-blue-500/30 rounded-2xl p-5 space-y-2">
+                <span className="inline-block bg-blue-500/20 border border-blue-500/40 text-blue-400 text-[11px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
+                  Vendor Warehouse Location
+                </span>
+                <div className="pt-1">
+                  <h3 className="text-white font-bold text-base">Lease360 Central Vendor Warehouse</h3>
+                  <p className="text-white/60 text-xs font-mono leading-relaxed mt-1">
+                    Gate 4, MIDC Industrial Area, Tech Park Compound,<br />
                     Mumbai, Maharashtra - 400050
                   </p>
                 </div>

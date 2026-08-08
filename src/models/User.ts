@@ -28,6 +28,11 @@ export interface IUser extends Document {
   city?: string
   state?: string
   pincode?: string
+  // Vendor Warehouse Pickup Address
+  warehouseLine?: string
+  warehouseCity?: string
+  warehouseState?: string
+  warehousePincode?: string
   // Driving License KYC (required for vehicle rentals)
   drivingLicense: {
     number?: string
@@ -66,6 +71,10 @@ const UserSchema = new Schema<IUser>(
     city: { type: String },
     state: { type: String },
     pincode: { type: String },
+    warehouseLine: { type: String, default: 'Gate 4, Lease360 Central Tech Warehouse, MIDC Industrial Area' },
+    warehouseCity: { type: String, default: 'Mumbai' },
+    warehouseState: { type: String, default: 'Maharashtra' },
+    warehousePincode: { type: String, default: '400050' },
     drivingLicense: {
       number: { type: String },
       expiry: { type: String },

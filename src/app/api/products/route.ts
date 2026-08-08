@@ -31,13 +31,15 @@ export async function GET(req: NextRequest) {
   if (category && category !== 'All') filter.category = category
   if (productType && productType !== 'all') filter.productType = productType
   if (q) {
-    // Try text search first; fall back to regex if no text index
-    filter.$or = [
-      { name: { $regex: q, $options: 'i' } },
-      { description: { $regex: q, $options: 'i' } },
-      { tags: { $regex: q, $options: 'i' } },
-      { brand: { $regex: q, $options: 'i' } },
-    ]
+    const sanitized = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim()
+    if (sanitized) {
+      filter.$or = [
+        { name: { $regex: sanitized, $options: 'i' } },
+        { description: { $regex: sanitized, $options: 'i' } },
+        { tags: { $regex: sanitized, $options: 'i' } },
+        { brand: { $regex: sanitized, $options: 'i' } },
+      ]
+    }
   }
 
   const [products, total] = await Promise.all([

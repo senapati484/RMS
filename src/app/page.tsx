@@ -1,44 +1,41 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import {
   ArrowRight, Clock, Menu, X, Shield,
-  Wrench, Zap, Bot
+  Wrench, Zap, Bot, Search, ShoppingCart, CheckCircle2, AlertCircle, Package
 } from 'lucide-react'
 import LondonClock from '@/components/LondonClock'
+import { useCart } from '@/context/CartContext'
+import { toast } from 'sonner'
 
 const HeroShader = dynamic(() => import('@/components/HeroShader'), { ssr: false })
 
-const FEATURED_GEAR = [
-  {
-    name: 'Sony A7III Mirrorless Camera',
-    category: 'Camera',
-    dailyRate: '₹1,500/day',
-    deposit: '₹5,000 deposit',
-    stock: '5 Units Available',
-    image: 'https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=600&q=80',
-    tag: 'Popular',
-  },
-  {
-    name: 'DJI Ronin-SC 3-Axis Gimbal',
-    category: 'Support',
-    dailyRate: '₹800/day',
-    deposit: '₹3,000 deposit',
-    stock: '4 Units Available',
-    image: 'https://images.unsplash.com/photo-1527090526205-beaac8dc3c62?w=600&q=80',
-    tag: 'High Demand',
-  },
-  {
-    name: 'Godox SL-60W LED Light Kit',
-    category: 'Lighting',
-    dailyRate: '₹500/day',
-    deposit: '₹1,000 deposit',
-    stock: '10 Units Available',
-    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&q=80',
-    tag: 'Essential',
-  },
+interface ProductItem {
+  _id: string
+  name: string
+  productType: string
+  category: string
+  brand?: string
+  dailyRate: number
+  baseDepositAmt?: number
+  availableStock: number
+  totalStock: number
+  imageUrl?: string
+  condition?: string
+  tags?: string[]
+}
+
+const CATEGORIES = [
+  { id: 'all', label: 'All Equipment' },
+  { id: 'camera', label: '📷 Cameras' },
+  { id: 'lens', label: '🔭 Lenses' },
+  { id: 'lighting', label: '💡 Lighting' },
+  { id: 'audio', label: '🎙 Audio' },
+  { id: 'vehicle', label: '🚗 Vehicles' },
+  { id: 'support', label: '🎯 Support Gear' },
 ]
 
 const DEMO_ACCOUNTS = [
@@ -49,6 +46,32 @@ const DEMO_ACCOUNTS = [
 
 export default function Lease360LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [products, setProducts] = useState<ProductItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const { addToCart } = useCart()
+
+  useEffect(() => {
+    fetch('/api/products?isPublished=true&limit=24')
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data.products || [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  // Filter products by category & search query
+  const filteredProducts = products.filter((p) => {
+    const matchesCat = selectedCategory === 'all' || p.productType === selectedCategory || p.category.toLowerCase() === selectedCategory
+    const matchesSearch =
+      !searchQuery.trim() ||
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase()))
+    return matchesCat && matchesSearch
+  })
 
   return (
     <div className="min-h-screen bg-[#EFEFEF] font-sans antialiased text-gray-900 selection:bg-[#F26522] selection:text-white">
@@ -203,56 +226,152 @@ export default function Lease360LandingPage() {
       </section>
 
       {/* ==========================================
-          SECTION 2: FEATURED EQUIPMENT
+          SECTION 2: DYNAMIC EQUIPMENT CATALOG & FILTERS
          ========================================== */}
       <section id="equipment" className="bg-white pt-16 sm:pt-20 lg:pt-28 pb-16 sm:pb-20 lg:pb-24 overflow-hidden">
-        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-7 h-7 rounded-full bg-gray-900 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">
-              1
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 space-y-8">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full bg-gray-900 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">
+                1
+              </div>
+              <span className="text-[13px] font-medium border border-gray-200 rounded-full px-4 py-1.5 text-gray-900">
+                Live Database Inventory ({filteredProducts.length} Items)
+              </span>
             </div>
-            <span className="text-[13px] font-medium border border-gray-200 rounded-full px-4 py-1.5 text-gray-900">
-              High-Grade Inventory
-            </span>
+
+            {/* Real-time Search Box */}
+            <div className="relative min-w-[280px] sm:min-w-[340px]">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search cameras, lenses, lighting, vehicles..."
+                className="w-full bg-gray-100 border border-gray-200 rounded-full pl-10 pr-4 py-2.5 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#F26522] focus:bg-white transition-all"
+              />
+            </div>
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <h2 className="text-[clamp(1.75rem,4vw,3.2rem)] font-medium leading-[1.12] tracking-[-0.02em] text-gray-900">
               Professional gear ready
               <br className="hidden sm:block" />
               for instant rental dispatch.
             </h2>
             <Link
-              href="/dashboard/products"
-              className="bg-gray-100 hover:bg-gray-200 text-gray-900 text-xs font-semibold px-4 py-2.5 rounded-full flex items-center gap-2 w-fit transition-colors"
+              href="/products"
+              className="bg-gray-900 hover:bg-black text-white text-xs font-semibold px-5 py-3 rounded-full flex items-center gap-2 w-fit transition-colors shadow-md"
             >
-              View Full Catalog →
+              View Storefront Catalog →
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {FEATURED_GEAR.map((item, i) => (
-              <div key={i} className="bg-gray-50 border border-gray-200/80 rounded-2xl p-5 hover:border-[#F26522]/40 transition-all duration-300 group">
-                <div className="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-gray-200 relative">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <span className="absolute top-3 right-3 bg-gray-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                    {item.tag}
-                  </span>
-                </div>
-                <div className="text-xs text-[#F26522] font-semibold uppercase tracking-wider mb-1">{item.category}</div>
-                <h3 className="text-gray-900 font-semibold text-base mb-2">{item.name}</h3>
-                <div className="flex items-center justify-between text-xs border-t border-gray-200/80 pt-3 mt-3">
-                  <div>
-                    <span className="text-gray-900 font-bold text-sm">{item.dailyRate}</span>
-                    <span className="text-gray-400 block text-[11px]">{item.deposit}</span>
-                  </div>
-                  <span className="text-emerald-600 font-medium text-[11px] bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">
-                    {item.stock}
-                  </span>
-                </div>
-              </div>
+          {/* Category Filter Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                  selectedCategory === cat.id
+                    ? 'bg-[#F26522] text-white shadow-md shadow-[#F26522]/20'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200/60'
+                }`}
+              >
+                {cat.label}
+              </button>
             ))}
           </div>
+
+          {/* Dynamic Products Grid */}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-12 text-center text-gray-500 space-y-3">
+              <Package size={40} className="mx-auto text-gray-300" />
+              <p className="text-sm font-medium">No rental equipment found matching your filter</p>
+              <button
+                onClick={() => { setSelectedCategory('all'); setSearchQuery('') }}
+                className="text-xs text-[#F26522] font-bold hover:underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {filteredProducts.map((p) => (
+                <div key={p._id} className="bg-gray-50 border border-gray-200/80 rounded-2xl p-5 hover:border-[#F26522]/40 hover:shadow-xl transition-all duration-300 group flex flex-col justify-between">
+                  <div>
+                    <div className="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-gray-200 relative">
+                      {p.imageUrl ? (
+                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <Package size={48} />
+                        </div>
+                      )}
+                      <span className="absolute top-3 right-3 bg-gray-900/90 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        {p.productType}
+                      </span>
+                    </div>
+
+                    <div className="text-[11px] text-[#F26522] font-bold uppercase tracking-wider mb-1">
+                      {p.brand ? `${p.brand} · ` : ''}{p.category}
+                    </div>
+                    <h3 className="text-gray-900 font-bold text-base mb-2 line-clamp-1">{p.name}</h3>
+
+                    <div className="flex items-center justify-between text-xs border-t border-gray-200/80 pt-3 mt-3">
+                      <div>
+                        <span className="text-gray-900 font-extrabold text-base">₹{p.dailyRate.toLocaleString('en-IN')}</span>
+                        <span className="text-gray-400 text-[11px] font-medium block">/day</span>
+                      </div>
+
+                      <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-md border ${
+                        p.availableStock > 0
+                          ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                          : 'text-red-700 bg-red-50 border-red-200'
+                      }`}>
+                        {p.availableStock > 0 ? `${p.availableStock} in stock` : 'Rented out'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex gap-2">
+                    <button
+                      onClick={() => {
+                        addToCart({
+                          productId: p._id,
+                          productName: p.name,
+                          productImage: p.imageUrl,
+                          dailyRate: p.dailyRate,
+                          quantity: 1,
+                          rentalStart: new Date().toISOString().slice(0, 10),
+                          rentalEnd: new Date(Date.now() + 86400000 * 3).toISOString().slice(0, 10),
+                          productType: p.productType,
+                          category: p.category,
+                        })
+                        toast.success(`Added ${p.name} to cart!`)
+                      }}
+                      className="flex-1 bg-[#F26522] hover:bg-[#e05a1a] active:scale-95 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-[#F26522]/20 flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <ShoppingCart size={14} />
+                      <span>+ Add to Cart</span>
+                    </button>
+
+                    <Link
+                      href={`/products/${p._id}`}
+                      className="bg-white border border-gray-200 hover:border-gray-300 text-gray-700 text-xs font-bold px-3 py-2.5 rounded-xl transition-colors flex items-center justify-center"
+                    >
+                      Details
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -278,40 +397,25 @@ export default function Lease360LandingPage() {
             <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F26522] flex items-center justify-center mb-4">
-                  <Shield size={20} />
+                  <Clock size={20} />
                 </div>
-                <h3 className="text-gray-900 font-semibold text-base mb-2">Deposit Ledger & Auto Hold</h3>
+                <h3 className="text-gray-900 font-bold text-lg mb-2">Automated Late Fees</h3>
                 <p className="text-gray-600 text-xs leading-relaxed">
-                  Real-time hold balance tracking, damage deductions, late fee reconciliation and instant refund execution.
+                  Hourly & daily grace periods with automatic security deposit penalties on overdue equipment returns.
                 </p>
               </div>
-              <div className="mt-6 text-[11px] font-medium text-[#F26522]">Fully Reconciled Ledger →</div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
-                  <Zap size={20} />
-                </div>
-                <h3 className="text-gray-900 font-semibold text-base mb-2">Late-Fee Engine</h3>
-                <p className="text-gray-600 text-xs leading-relaxed">
-                  Configurable grace periods, hourly penalty calculations, and auto-generated return delay invoices.
-                </p>
-              </div>
-              <div className="mt-6 text-[11px] font-medium text-amber-600">Automated Penalties →</div>
             </div>
 
             <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
-                  <Wrench size={20} />
+                  <Shield size={20} />
                 </div>
-                <h3 className="text-gray-900 font-semibold text-base mb-2">Maintenance Tracking</h3>
+                <h3 className="text-gray-900 font-bold text-lg mb-2">Escrow Deposit Holds</h3>
                 <p className="text-gray-600 text-xs leading-relaxed">
-                  Equipment condition scoring, damage logs on return, and immediate stock isolation for repair.
+                  Lock security deposits on checkout. Auto-refund clean returns or reconcile damage deductions seamlessly.
                 </p>
               </div>
-              <div className="mt-6 text-[11px] font-medium text-blue-600">Inspection Checklists →</div>
             </div>
 
             <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs flex flex-col justify-between">
@@ -319,58 +423,71 @@ export default function Lease360LandingPage() {
                 <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4">
                   <Bot size={20} />
                 </div>
-                <h3 className="text-gray-900 font-semibold text-base mb-2">LeaseMind AI</h3>
+                <h3 className="text-gray-900 font-bold text-lg mb-2">AI Return Inspector</h3>
                 <p className="text-gray-600 text-xs leading-relaxed">
-                  Natural language operations query engine backed by Groq LLM with Gemini fallback on live DB state.
+                  Computer vision & NLP assess returned gear condition and calculate deposit deduction suggestions.
                 </p>
               </div>
-              <div className="mt-6 text-[11px] font-medium text-purple-600">Live DB Context AI →</div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+                  <Wrench size={20} />
+                </div>
+                <h3 className="text-gray-900 font-bold text-lg mb-2">Preventive Maintenance</h3>
+                <p className="text-gray-600 text-xs leading-relaxed">
+                  Track equipment operating hours, lock damaged gear out of available stock, and trigger auto-triage tickets.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ==========================================
-          SECTION 4: DEMO ACCOUNTS & QUICK START
+          SECTION 4: DEMO ACCOUNTS
          ========================================== */}
-      <section id="demo" className="bg-gray-900 text-white py-16 sm:py-20">
+      <section id="demo" className="bg-white py-16 sm:py-20 lg:py-24">
         <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-7 h-7 rounded-full bg-[#F26522] text-white text-[12px] font-semibold flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-7 h-7 rounded-full bg-gray-900 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">
               3
             </div>
-            <span className="text-[13px] font-medium border border-gray-700 rounded-full px-4 py-1.5 text-gray-300">
+            <span className="text-[13px] font-medium border border-gray-200 rounded-full px-4 py-1.5 text-gray-900">
               1-Click Demo Accounts
             </span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-bold mb-8">Test the system instantly</h2>
+          <h2 className="text-[clamp(1.75rem,4vw,3.2rem)] font-medium leading-[1.12] tracking-[-0.02em] text-gray-900 mb-8">
+            Experience Lease360 in action.
+          </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {DEMO_ACCOUNTS.map((acc) => (
-              <div key={acc.role} className="bg-gray-800/80 border border-gray-700 rounded-2xl p-6 flex flex-col justify-between">
+              <div key={acc.role} className="bg-gray-50 border border-gray-200 rounded-2xl p-6 flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[#F26522] font-bold text-sm uppercase tracking-wider">{acc.role}</span>
-                    <span className="text-[10px] bg-gray-700 text-gray-300 px-2 py-0.5 rounded font-mono">Seeded</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#F26522] bg-orange-50 px-2.5 py-1 rounded-md border border-orange-200">
+                      {acc.role} Persona
+                    </span>
                   </div>
-                  <div className="text-sm font-mono text-gray-200 mb-1">{acc.email}</div>
-                  <div className="text-xs font-mono text-gray-400 mb-4">Password: {acc.pass}</div>
-                  <p className="text-xs text-gray-400 leading-relaxed mb-6">{acc.desc}</p>
+                  <p className="text-xs text-gray-600 mb-4">{acc.desc}</p>
+                  <div className="bg-white p-3 rounded-xl border border-gray-200 text-xs font-mono space-y-1 mb-6">
+                    <div><span className="text-gray-400">Email:</span> <span className="text-gray-900 font-bold">{acc.email}</span></div>
+                    <div><span className="text-gray-400">Pass:</span> <span className="text-gray-900 font-bold">{acc.pass}</span></div>
+                  </div>
                 </div>
 
                 <Link
-                  href={`/login?email=${encodeURIComponent(acc.email)}`}
-                  className="w-full bg-[#F26522] hover:bg-[#e05a1a] text-white text-xs font-semibold py-2.5 rounded-xl text-center transition-colors block"
+                  href="/login"
+                  className="w-full bg-gray-900 hover:bg-black text-white text-xs font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md"
                 >
-                  Sign In as {acc.role} →
+                  <span>Sign in as {acc.role}</span>
+                  <ArrowRight size={14} />
                 </Link>
               </div>
             ))}
-          </div>
-
-          <div className="text-center pt-6 border-t border-gray-800 text-gray-400 text-xs">
-            Lease360 — Odoo Hackathon 2026 Submission · Built with Next.js 14, Tailwind CSS & MongoDB
           </div>
         </div>
       </section>

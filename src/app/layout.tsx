@@ -4,11 +4,12 @@ import './globals.css'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/context/AuthContext'
 import { CartProvider } from '@/context/CartContext'
+import PWAInstallPrompt from '@/components/PWAInstallPrompt'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const viewport: Viewport = {
-  themeColor: '#0A0A0A',
+  themeColor: '#F26522',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
   title: 'Lease360 — Enterprise Rental & Lease Management Engine',
   description:
     'Centralized equipment rental management system with AI-powered operations, real-time dashboards, and automated deposit settlement.',
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: [
       { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
@@ -47,10 +49,16 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body className="antialiased selection:bg-[#F26522] selection:text-white" suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>
             {children}
+            <PWAInstallPrompt />
           </CartProvider>
           <Toaster
             theme="dark"

@@ -18,6 +18,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return apiOk(product)
 }
 
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await connectDB()
+  const { id } = await params
+  const body = await req.json()
+  const updated = await Product.findByIdAndUpdate(id, body, { new: true, runValidators: true })
+  if (!updated) return apiError('Product not found', 404)
+  return apiOk(updated)
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUserFromRequest(req)
   const authErr = requireAdmin(user)

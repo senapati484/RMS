@@ -372,16 +372,6 @@ export default function Lease360LandingPage() {
                       </span>
                     </div>
                   </div>
-
-                  <div className="pt-4">
-                    <Link
-                      href={`/products/${p._id}`}
-                      className="w-full bg-gray-900 hover:bg-[#F26522] text-white text-xs font-bold py-3 rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2 group/btn cursor-pointer"
-                    >
-                      <span>View Details & Specifications</span>
-                      <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
                 </div>
               ))}
             </div>

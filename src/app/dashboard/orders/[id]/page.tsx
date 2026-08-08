@@ -7,7 +7,8 @@ import { toast } from 'sonner'
 import {
   ArrowLeft, Package, AlertTriangle,
   Truck, RefreshCw, Loader2, Navigation, MapPin,
-  PhoneCall, ShieldCheck, CheckCircle2, Clock, QrCode, Sparkles
+  PhoneCall, ShieldCheck, CheckCircle2, Clock, QrCode, Sparkles,
+  CreditCard, DollarSign, X
 } from 'lucide-react'
 
 interface Order {
@@ -60,6 +61,9 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
   const [showReturnModal, setShowReturnModal] = useState(false)
+  const [showPayModal, setShowPayModal] = useState(false)
+  const [payLoading, setPayLoading] = useState(false)
+  const [selectedPayMethod, setSelectedPayMethod] = useState<'UPI' | 'CARD' | 'NETBANKING'>('UPI')
   const [returnForm, setReturnForm] = useState({ conditionScore: 'GOOD', conditionNote: '', damageDeduction: 0, gracePeriodMins: 30 })
   const [aiSuggestion, setAiSuggestion] = useState<{ damageLevel: string; suggestedDeduction: number; reason: string } | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
@@ -68,6 +72,29 @@ export default function OrderDetailPage() {
     const res = await fetch(`/api/orders/${params.id}`)
     if (res.ok) setOrder(await res.json())
     setLoading(false)
+  }
+
+  const handlePayNow = async () => {
+    if (!order) return
+    setPayLoading(true)
+    try {
+      const res = await fetch(`/api/orders/${order._id}/pay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast.success(`Payment Verified! Tax Invoice ${data.order?.invoiceRef || 'INV/2026/0001'} & Receipt Emailed!`)
+        setShowPayModal(false)
+        fetchOrder()
+      } else {
+        toast.error(data.error || 'Payment failed. Please try again.')
+      }
+    } catch {
+      toast.error('Payment connection error. Please try again.')
+    } finally {
+      setPayLoading(false)
+    }
   }
 
   useEffect(() => { fetchOrder() }, [params.id])
@@ -181,8 +208,18 @@ export default function OrderDetailPage() {
           EXCALIDRAW RENTAL ORDER LIFECYCLE BAR & ACTION BUTTONS
          ======================================================== */}
       <div className="liquid-glass border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Action Buttons (Send, Confirm, Create Invoice, Pickup, Print, Cancel) */}
+        {/* Action Buttons (Pay Now, Send, Confirm, Create Invoice, Pickup, Print, Cancel) */}
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+          {!isAdmin && order.payment?.status !== 'PAID' && (
+            <button
+              onClick={() => setShowPayModal(true)}
+              className="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 cursor-pointer animate-pulse"
+            >
+              <CreditCard size={15} />
+              <span>Pay Now (₹{order.totalAmount.toLocaleString()})</span>
+            </button>
+          )}
+
           {order.status === 'QUOTATION' && (
             <button
               onClick={() => {
@@ -463,14 +500,29 @@ export default function OrderDetailPage() {
                 <span className="text-white/50">Deposit</span>
                 <span className="text-white">₹{order.depositAmount.toLocaleString()}</span>
               </div>
-              {order.payment && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/50">Payment ({order.payment.method})</span>
-                  <span className={`font-semibold ${order.payment.status === 'PAID' ? 'text-emerald-400' : 'text-amber-400'}`}>
-                    {order.payment.status === 'PAID' ? 'Paid' : 'Pending'} · ₹{order.payment.amount.toLocaleString()}
+              <div className="flex justify-between items-center text-sm py-1">
+                <span className="text-white/50">Payment Status</span>
+                {order.payment?.status === 'PAID' ? (
+                  <span className="font-semibold text-emerald-400 flex items-center gap-1">
+                    <CheckCircle2 size={13} /> Paid · ₹{order.payment.amount.toLocaleString()}
                   </span>
-                </div>
-              )}
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-400 font-semibold text-xs bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+                      Pending · ₹{order.totalAmount.toLocaleString()}
+                    </span>
+                    {!isAdmin && (
+                      <button
+                        onClick={() => setShowPayModal(true)}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-lg transition-all shadow-md flex items-center gap-1 cursor-pointer"
+                      >
+                        <CreditCard size={12} />
+                        <span>Pay Now</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
               {order.payment?.upiTxnRef && (
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50">UPI Txn Ref</span>
@@ -717,6 +769,147 @@ export default function OrderDetailPage() {
                 >
                   {actionLoading && <Loader2 size={14} className="animate-spin" />}
                   Confirm Return
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          PAY NOW INTERACTIVE PAYMENT MODAL
+         ======================================================== */}
+      {showPayModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="liquid-glass border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-6 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <CreditCard size={18} />
+                </div>
+                <div>
+                  <h3 className="text-white text-base font-bold">Complete Order Payment</h3>
+                  <p className="text-white/40 text-xs font-mono">{order.orderNumber}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowPayModal(false)}
+                className="text-white/40 hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-white/40 text-xs">Total Amount Due</div>
+                  <div className="text-white text-xs font-medium mt-0.5">Includes Escrow Deposit</div>
+                </div>
+                <div className="text-[#F26522] text-2xl font-bold font-mono">
+                  ₹{order.totalAmount.toLocaleString()}
+                </div>
+              </div>
+
+              {/* Payment Method Selector */}
+              <div className="space-y-2">
+                <label className="block text-white/50 text-xs font-bold uppercase tracking-wider">
+                  Select Payment Method
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPayMethod('UPI')}
+                    className={`py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      selectedPayMethod === 'UPI'
+                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                        : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                    }`}
+                  >
+                    UPI / QR
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPayMethod('CARD')}
+                    className={`py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      selectedPayMethod === 'CARD'
+                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                        : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                    }`}
+                  >
+                    Card
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPayMethod('NETBANKING')}
+                    className={`py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      selectedPayMethod === 'NETBANKING'
+                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                        : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                    }`}
+                  >
+                    Net Banking
+                  </button>
+                </div>
+              </div>
+
+              {/* UPI Quick Scan Box */}
+              {selectedPayMethod === 'UPI' && (
+                <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-2xl p-4 text-center space-y-2">
+                  <div className="w-24 h-24 mx-auto bg-white p-2 rounded-xl flex items-center justify-center">
+                    <QrCode size={80} className="text-black" />
+                  </div>
+                  <div className="text-emerald-400 text-xs font-bold font-mono">lease360.pay@okicici</div>
+                  <div className="text-white/40 text-[11px]">Scan with Google Pay, PhonePe, or Paytm</div>
+                </div>
+              )}
+
+              {/* Card Inputs */}
+              {selectedPayMethod === 'CARD' && (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    defaultValue="4532 •••• •••• 8892"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-xs font-mono"
+                    placeholder="Card Number"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      defaultValue="08/28"
+                      className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-xs font-mono"
+                      placeholder="MM/YY"
+                    />
+                    <input
+                      type="password"
+                      defaultValue="882"
+                      className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-xs font-mono"
+                      placeholder="CVV"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="text-[11px] text-white/40 text-center leading-relaxed">
+                Clicking Pay Now authorizes instant payment & triggers computer-generated Tax Invoice email receipt.
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPayModal(false)}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white/60 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePayNow}
+                  disabled={payLoading}
+                  className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                >
+                  {payLoading && <Loader2 size={14} className="animate-spin" />}
+                  <span>Pay ₹{order.totalAmount.toLocaleString()} Now</span>
                 </button>
               </div>
             </div>

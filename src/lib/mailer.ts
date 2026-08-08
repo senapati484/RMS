@@ -96,6 +96,7 @@ function emailWrapper(title: string, bodyContent: string) {
 }
 
 import { generateAmazonStyleInvoiceHtml } from './invoice-generator'
+import { generateInvoicePdfBuffer } from './pdf-generator'
 
 // ── 1. Order Confirmation Email (to Customer & Staff) ──────────
 export async function sendOrderConfirmationEmail({
@@ -128,7 +129,7 @@ export async function sendOrderConfirmationEmail({
       <td style="padding: 10px 0; border-bottom: 1px solid #1a1a1a;">
         <strong style="color: #FFFFFF;">${item.productName}</strong> ×${item.quantity}
       </td>
-      <td style="text-align: right; padding: 10px 0; border-bottom: 1px solid #1a1a1a; font-family: monospace; color: #FFFFFF;">
+      <td style="text-align: right; border-bottom: 1px solid #1a1a1a; font-family: monospace; color: #FFFFFF;">
         ₹${(item.unitPrice * item.quantity).toLocaleString()}
       </td>
     </tr>`
@@ -141,8 +142,7 @@ export async function sendOrderConfirmationEmail({
   const taxAmount = Math.round(subtotal * 0.18)
   const totalPaid = subtotal + depositAmount
 
-  // Generate Computer-Generated Tax Invoice HTML Attachment
-  const invoiceAttachmentHtml = generateAmazonStyleInvoiceHtml({
+  const pdfInvoiceOptions = {
     orderNumber,
     invoiceNumber,
     orderDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' }),
@@ -163,8 +163,11 @@ export async function sendOrderConfirmationEmail({
     depositAmount,
     taxAmount,
     totalPaid,
-    paymentMethod: 'Verified Credit / Debit Card',
-  })
+    paymentMethod: 'Verified UPI / Card Payment',
+  }
+
+  // Generate Official Computer-Generated PDF Tax Invoice Attachment
+  const pdfBuffer = generateInvoicePdfBuffer(pdfInvoiceOptions)
 
   const content = `
     <div style="background-color: #166534; color: #DCFCE7; border: 1px solid #22C55E; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; margin-bottom: 20px;">
@@ -202,8 +205,8 @@ export async function sendOrderConfirmationEmail({
     </table>
 
     <div style="background-color: rgba(255, 255, 255, 0.03); border: 1px dashed #333333; border-radius: 8px; padding: 16px; margin-top: 24px; font-size: 12px; color: #AAAAAA;">
-      <strong style="color: #FFFFFF;">📎 Attachment Included:</strong><br>
-      Your computer-generated tax invoice <code>Tax_Invoice_${orderNumber}.html</code> is attached to this email. Please keep it for your accounting and proof of equipment rental ownership.
+      <strong style="color: #FFFFFF;">📎 PDF Attachment Included:</strong><br>
+      Your computer-generated tax invoice <code>Tax_Invoice_${orderNumber}.pdf</code> is attached to this email. Please keep it for your accounting and proof of equipment rental ownership.
     </div>
 
     <div style="text-align: center; margin-top: 24px;">
@@ -217,9 +220,9 @@ export async function sendOrderConfirmationEmail({
     html: emailWrapper(`Order #${orderNumber} Confirmed`, content),
     attachments: [
       {
-        filename: `Tax_Invoice_${orderNumber}.html`,
-        content: Buffer.from(invoiceAttachmentHtml, 'utf-8'),
-        contentType: 'text/html',
+        filename: `Tax_Invoice_${orderNumber}.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
       },
     ],
   })

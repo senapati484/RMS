@@ -1,6 +1,7 @@
 // api/quotations/route.ts
 import { NextRequest } from 'next/server'
 import { Quotation } from '@/models/Quotation'
+import { Product } from '@/models/Product'
 import { Notification } from '@/models/Notification'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
@@ -35,15 +36,64 @@ export async function POST(req: NextRequest) {
   await connectDB()
   try {
     const body = await req.json()
-    const validUntil = new Date()
-    validUntil.setDate(validUntil.getDate() + 7) // 7-day validity
+    const { items, rentalStart, rentalEnd, customerEmail } = body
+
+    if (!items?.length || !rentalStart || !rentalEnd) {
+      return apiError('items, rentalStart, rentalEnd are required', 400)
+    }
+
+    // Resolve items and calculate totals server-side
+    let calculatedSubTotal = 0
+    let calculatedDeposit = 0
+    const resolvedItems = []
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId)
+      const productName = product?.name || item.productName || 'Equipment Item'
+      const unitPrice = item.unitPrice || 500
+      const quantity = item.quantity || 1
+      const lineTotal = unitPrice * quantity
+
+      calculatedSubTotal += lineTotal
+
+      const dep = product
+        ? product.depositIsPercent
+          ? (product.baseDepositAmt / 100) * lineTotal
+          : product.baseDepositAmt * quantity
+        : 500 * quantity
+
+      calculatedDeposit += dep
+
+      resolvedItems.push({
+        productId: item.productId,
+        productName,
+        productImage: product?.imageUrl || item.productImage,
+        quantity,
+        unitPrice,
+        rentalPeriodLabel: item.rentalPeriodLabel || 'Rental Period',
+        lineTotal,
+      })
+    }
+
+    const subTotal = body.subTotal ?? calculatedSubTotal
+    const depositAmount = body.depositAmount ?? calculatedDeposit
+    const totalAmount = body.totalAmount ?? (subTotal + depositAmount)
+
+    const validUntil = body.validUntil ? new Date(body.validUntil) : new Date(Date.now() + 7 * 86400000)
 
     const quote = await Quotation.create({
-      ...body,
       quoteNumber: generateQuoteNumber(),
       userId: user!.userId,
       status: 'DRAFT',
+      items: resolvedItems,
+      subTotal,
+      depositAmount,
+      totalAmount,
+      rentalStart: new Date(rentalStart),
+      rentalEnd: new Date(rentalEnd),
       validUntil,
+      deliveryMode: body.deliveryMode || 'STORE_PICKUP',
+      customerNotes: body.customerNotes,
     })
 
     await Notification.create({
@@ -57,11 +107,11 @@ export async function POST(req: NextRequest) {
     // Email customer
     if (user!.email) {
       sendQuotationEmail({
-        userEmail: body.customerEmail || user!.email,
+        userEmail: customerEmail || user!.email,
         userName: user!.name || 'Valued Customer',
         quoteNumber: quote.quoteNumber,
-        totalAmount: quote.totalAmount || 0,
-        depositAmount: quote.depositAmount || 0,
+        totalAmount: quote.totalAmount,
+        depositAmount: quote.depositAmount,
         validUntil: String(validUntil),
       }).catch((e) => console.error('[MAILER ERROR]', e))
     }

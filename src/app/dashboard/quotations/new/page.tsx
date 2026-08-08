@@ -83,6 +83,7 @@ export default function NewQuotationPage() {
     e.preventDefault()
     if (cart.length === 0) { toast.error('Add at least one product'); return }
     setLoading(true)
+    const totalAmount = subTotal + depositAmount
     const res = await fetch('/api/quotations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -95,6 +96,9 @@ export default function NewQuotationPage() {
           lineTotal: i.unitPrice * i.quantity,
           rentalPeriodLabel: i.rentalPeriodLabel,
         })),
+        subTotal,
+        depositAmount: Math.round(depositAmount),
+        totalAmount: Math.round(totalAmount),
         rentalStart,
         rentalEnd,
         validUntil,

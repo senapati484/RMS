@@ -18,7 +18,7 @@ function getNotifIcon(type: string) {
   switch (type) {
     case 'ORDER_CONFIRMED':
     case 'ORDER_STATUS':
-      return <ShoppingCart size={14} className="text-[#F26522]" />
+      return <ShoppingCart size={14} className="text-brand-orange" />
     case 'QUOTATION_READY':
     case 'QUOTATION_ACCEPTED':
       return <FileText size={14} className="text-purple-400" />
@@ -68,13 +68,14 @@ export default function NotificationBell() {
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => { setOpen(!open); if (!open && unread > 0) markAllRead() }}
-        aria-label="Notifications"
-        className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white/70 hover:text-white transition-all active:scale-95 cursor-pointer"
+        aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+        className="relative w-11 h-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white/70 hover:text-white transition-[background,color,border-color,transform] active:scale-[0.96] cursor-pointer"
       >
         <Bell size={18} />
         {unread > 0 && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#F26522] rounded-full text-white text-[10px] flex items-center justify-center font-bold shadow-md shadow-[#F26522]/40 animate-pulse">
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-brand-orange rounded-full text-white text-[10px] flex items-center justify-center font-bold shadow-md shadow-brand-orange/40 animate-pulse">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
@@ -86,12 +87,12 @@ export default function NotificationBell() {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
           {/* Solid popover container */}
-          <div className="absolute right-0 top-12 z-50 w-80 sm:w-96 bg-[#121212] border border-white/15 rounded-2xl shadow-2xl shadow-black/90 overflow-hidden fade-in-up">
+          <div className="notif-popover absolute right-0 top-12 z-50 w-80 sm:w-96 bg-[#121212] border border-white/10 rounded-2xl shadow-2xl shadow-black/90 overflow-hidden">
             <div className="px-4 py-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-white font-bold text-sm">Notifications</span>
                 {unread > 0 && (
-                  <span className="text-[10px] bg-[#F26522]/20 text-[#F26522] px-2 py-0.5 rounded-full font-semibold border border-[#F26522]/30">
+                  <span className="text-[10px] bg-brand-orange/20 text-brand-orange px-2 py-0.5 rounded-full font-semibold border border-brand-orange/30">
                     {unread} new
                   </span>
                 )}
@@ -99,17 +100,20 @@ export default function NotificationBell() {
               <div className="flex items-center gap-3">
                 {unread > 0 && (
                   <button
+                    type="button"
                     onClick={markAllRead}
-                    className="text-[#F26522] hover:underline text-xs font-medium cursor-pointer"
+                    className="text-brand-orange hover:underline text-xs font-medium cursor-pointer"
                   >
                     Mark all read
                   </button>
                 )}
                 <button
+                  type="button"
+                  aria-label="Close notifications"
                   onClick={() => setOpen(false)}
                   className="text-white/40 hover:text-white transition-colors cursor-pointer p-0.5"
                 >
-                  <X size={16} />
+                  <X size={16} aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -127,7 +131,7 @@ export default function NotificationBell() {
                     href={n.linkHref || '#'}
                     onClick={() => setOpen(false)}
                     className={`block p-3.5 hover:bg-white/5 transition-colors ${
-                      !n.isRead ? 'bg-[#F26522]/10 border-l-2 border-l-[#F26522]' : ''
+                      !n.isRead ? 'bg-brand-orange/10 border-l-2 border-l-brand-orange' : ''
                     }`}
                   >
                     <div className="flex items-start gap-3">

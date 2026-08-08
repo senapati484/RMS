@@ -47,7 +47,7 @@ interface UserQuotation {
 
 const STATUS_COLORS: Record<string, string> = {
   CONFIRMED: 'text-blue-400 bg-blue-400/10 border border-blue-400/20',
-  PICKED_UP: 'text-[#F26522] bg-[#F26522]/10 border border-[#F26522]/20',
+  PICKED_UP: 'text-brand-orange bg-brand-orange/10 border border-brand-orange/20',
   RETURNED_ON_TIME: 'text-green-400 bg-green-400/10 border border-green-400/20',
   RETURNED_LATE: 'text-red-400 bg-red-400/10 border border-red-400/20',
   CANCELLED: 'text-white/30 bg-white/5',
@@ -61,14 +61,14 @@ function StatCard({ label, value, sub, icon: Icon, color = 'text-white', href }:
   label: string; value: number | string; sub?: string; icon: React.ElementType; color?: string; href?: string
 }) {
   const inner = (
-    <div className="liquid-glass border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all duration-200 active:scale-[0.98] group">
+    <div className="liquid-glass border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-[background,border-color,transform,box-shadow] duration-200 active:scale-[0.97] group">
       <div className="flex items-start justify-between mb-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 ${color}`}>
           <Icon size={18} />
         </div>
         {href && <ArrowRight size={14} className="text-white/20 group-hover:text-white/60 transition-colors" />}
       </div>
-      <div className={`text-2xl font-bold ${color} mb-0.5 tracking-tight`}>{value}</div>
+      <div className={`text-2xl font-bold ${color} mb-0.5 tracking-tight tabular-nums`}>{value}</div>
       <div className="text-white/50 text-xs font-medium">{label}</div>
       {sub && <div className="text-white/30 text-[11px] mt-1">{sub}</div>}
     </div>
@@ -120,13 +120,13 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/dashboard/quotations/new"
-              className="bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-[#F26522]/20"
+              className="bg-brand-orange hover:bg-brand-orange-dark active:scale-[0.96] text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-[background,transform,box-shadow] shadow-lg shadow-brand-orange/20"
             >
               + Create Quotation
             </Link>
             <Link
               href="/dashboard/products"
-              className="bg-white/5 hover:bg-white/10 active:scale-95 text-white/80 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all border border-white/10"
+              className="bg-white/5 hover:bg-white/10 active:scale-[0.96] text-white/80 px-4 py-2.5 rounded-xl text-xs font-semibold transition-[background,color,border-color,transform] border border-white/10"
             >
               Browse Equipment
             </Link>
@@ -139,7 +139,7 @@ export default function DashboardPage() {
             label="Active Rentals"
             value={activeOrders.length}
             icon={ShoppingCart}
-            color="text-[#F26522]"
+            color="text-brand-orange"
             href="/dashboard/orders"
           />
           <StatCard
@@ -167,10 +167,10 @@ export default function DashboardPage() {
         <div className="liquid-glass border border-white/10 rounded-2xl overflow-hidden">
           <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
             <h2 className="text-white font-semibold text-sm flex items-center gap-2">
-              <ShoppingCart size={16} className="text-[#F26522]" />
+              <ShoppingCart size={16} className="text-brand-orange" />
               My Equipment Orders ({userOrders.length})
             </h2>
-            <Link href="/dashboard/orders" className="text-[#F26522] text-xs font-semibold hover:underline">
+            <Link href="/dashboard/orders" className="text-brand-orange text-xs font-semibold hover:underline">
               View all orders →
             </Link>
           </div>
@@ -194,7 +194,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-white text-sm font-bold">₹{o.totalAmount.toLocaleString()}</div>
+                  <div className="text-white text-sm font-bold tabular-nums">₹{o.totalAmount.toLocaleString()}</div>
                   <div className="text-white/30 text-[10px]">
                     {new Date(o.rentalStart).toLocaleDateString()} — {new Date(o.rentalEnd).toLocaleDateString()}
                   </div>
@@ -238,7 +238,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-white text-sm font-bold">₹{q.totalAmount.toLocaleString()}</div>
+                  <div className="text-white text-sm font-bold tabular-nums">₹{q.totalAmount.toLocaleString()}</div>
                   <div className="text-white/30 text-[10px]">
                     {q.validUntil ? `Valid until: ${new Date(q.validUntil).toLocaleDateString()}` : 'No expiry'}
                   </div>
@@ -256,8 +256,9 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
+      <div role="status" aria-label="Loading dashboard" className="flex items-center justify-center min-h-64">
+        <div className="w-8 h-8 border-2 border-brand-orange/30 border-t-brand-orange rounded-full animate-spin" aria-hidden="true" />
+        <span className="sr-only">Loading dashboard</span>
       </div>
     )
   }
@@ -275,13 +276,13 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/orders/new"
-            className="bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-[#F26522]/20"
+            className="bg-brand-orange hover:bg-brand-orange-dark active:scale-[0.96] text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-[background,transform,box-shadow] shadow-lg shadow-brand-orange/20"
           >
             + Create Order
           </Link>
           <Link
             href="/dashboard/quotations/new"
-            className="bg-white/5 hover:bg-white/10 active:scale-95 text-white/70 hover:text-white px-4 py-2.5 rounded-xl text-xs font-medium transition-all border border-white/10"
+            className="bg-white/5 hover:bg-white/10 active:scale-[0.96] text-white/70 hover:text-white px-4 py-2.5 rounded-xl text-xs font-medium transition-[background,color,border-color,transform] border border-white/10"
           >
             + New Proposal
           </Link>
@@ -307,7 +308,7 @@ export default function DashboardPage() {
           label="Active Rentals"
           value={data.orders.active}
           icon={ShoppingCart}
-          color="text-[#F26522]"
+          color="text-brand-orange"
           href="/dashboard/orders?status=PICKED_UP"
         />
         <StatCard
@@ -366,7 +367,7 @@ export default function DashboardPage() {
       <div className="liquid-glass border border-white/10 rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
           <h2 className="text-white font-semibold text-sm">Recent Orders</h2>
-          <Link href="/dashboard/orders" className="text-[#F26522] text-xs font-semibold hover:text-[#ff7733] transition-colors">
+          <Link href="/dashboard/orders" className="text-brand-orange text-xs font-semibold hover:text-brand-orange-light transition-colors">
             View all orders →
           </Link>
         </div>
@@ -387,7 +388,7 @@ export default function DashboardPage() {
                 <div className="text-white/40 text-xs mt-0.5 truncate">{order.userId?.name}</div>
               </div>
               <div className="text-right">
-                <div className="text-white text-xs sm:text-sm font-semibold">₹{order.totalAmount.toLocaleString()}</div>
+                <div className="text-white text-xs sm:text-sm font-semibold tabular-nums">₹{order.totalAmount.toLocaleString()}</div>
                 <div className="text-white/30 text-[10px]">
                   {new Date(order.rentalStart).toLocaleDateString()} — {new Date(order.rentalEnd).toLocaleDateString()}
                 </div>

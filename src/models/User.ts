@@ -20,6 +20,8 @@ export interface IUser extends Document {
   digiLockerEncryptedPayload?: string
   govIdType?: string
   companyName?: string
+  productCategory?: string
+  couponCode?: string
   gstin?: string
   employeeId?: string
   addressLine?: string
@@ -56,6 +58,8 @@ const UserSchema = new Schema<IUser>(
     digiLockerEncryptedPayload: { type: String },
     govIdType: { type: String, default: 'AADHAAR' },
     companyName: { type: String },
+    productCategory: { type: String },
+    couponCode: { type: String },
     gstin: { type: String },
     employeeId: { type: String },
     addressLine: { type: String },

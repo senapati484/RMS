@@ -32,7 +32,7 @@ function LoginForm() {
     const result = await login(email, password)
     setLoading(false)
     if (result.error) {
-      toast.error(result.error)
+      toast.error('Invalid User ID or Password.')
     } else {
       toast.success('Welcome back!')
       router.push('/dashboard')
@@ -55,7 +55,7 @@ function LoginForm() {
       <div className="liquid-glass rounded-2xl p-8 border border-white/10">
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-white/60 text-sm mb-2">Email address</label>
+            <label className="block text-white/60 text-sm mb-2">Login ID (Email ID)</label>
             <input
               type="email"
               value={email}
@@ -67,7 +67,12 @@ function LoginForm() {
           </div>
 
           <div>
-            <label className="block text-white/60 text-sm mb-2">Password</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-white/60 text-sm">Password</label>
+              <Link href="/forgot-password" className="text-xs text-[#F26522] hover:underline font-medium">
+                Forgot Password?
+              </Link>
+            </div>
             <div className="relative">
               <input
                 type={showPw ? 'text' : 'password'}
@@ -80,7 +85,7 @@ function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors cursor-pointer"
               >
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -90,18 +95,18 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#F26522] hover:bg-[#e05510] text-white rounded-xl py-3 font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-sm disabled:opacity-60"
+            className="w-full bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white rounded-xl py-3 font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-sm disabled:opacity-60 cursor-pointer shadow-lg shadow-[#F26522]/20"
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading ? 'Signing in...' : 'Log In'}
           </button>
         </form>
 
         <div className="mt-6 pt-6 border-t border-white/10 text-center">
           <p className="text-white/40 text-sm">
-            New to Lease360?{' '}
-            <Link href="/register" className="text-[#F26522] hover:text-[#ff7733] transition-colors">
-              Create account
+            Do not have an account?{' '}
+            <Link href="/register" className="text-[#F26522] hover:text-[#ff7733] font-semibold transition-colors">
+              Register Here
             </Link>
           </p>
         </div>

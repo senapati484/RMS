@@ -1,0 +1,393 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-08T01:00:00.000Z",
+  "title": "Design System: Lease360",
+  "extensions": {
+    "colorMeta": {
+      "brand-orange": {
+        "role": "primary",
+        "displayName": "Signal Orange",
+        "canonical": "#F26522",
+        "tonalRamp": [
+          "#1a0a05",
+          "#3d1607",
+          "#5f220a",
+          "#822e0c",
+          "#a43a0f",
+          "#c74612",
+          "#e05215",
+          "#F26522",
+          "#ff8550",
+          "#ffa377",
+          "#ffc19d",
+          "#ffdcc4",
+          "#fff0e3",
+          "#fff8ee",
+          "#fffdf9",
+          "#ffffff"
+        ]
+      },
+      "brand-orange-light": {
+        "role": "primary-variant",
+        "displayName": "Signal Orange Light",
+        "canonical": "#FF8C42"
+      },
+      "brand-orange-dark": {
+        "role": "primary-variant",
+        "displayName": "Signal Orange Dark",
+        "canonical": "#D4541A"
+      },
+      "surface-base": {
+        "role": "neutral",
+        "displayName": "Ink Black",
+        "canonical": "#0A0A0A"
+      },
+      "surface-elevated": {
+        "role": "neutral",
+        "displayName": "Panel Charcoal",
+        "canonical": "#111111"
+      },
+      "surface-700": {
+        "role": "neutral",
+        "displayName": "Surface 700",
+        "canonical": "#1A1A1A"
+      },
+      "surface-600": {
+        "role": "neutral",
+        "displayName": "Surface 600",
+        "canonical": "#222222"
+      },
+      "surface-500": {
+        "role": "neutral",
+        "displayName": "Surface 500",
+        "canonical": "#333333"
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "#FAFAFA"
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "Dim White",
+        "canonical": "rgba(255, 255, 255, 0.50)"
+      },
+      "text-subtle": {
+        "role": "neutral",
+        "displayName": "Faint White",
+        "canonical": "rgba(255, 255, 255, 0.30)"
+      },
+      "glass-tint": {
+        "role": "neutral",
+        "displayName": "Glass Tint",
+        "canonical": "rgba(255, 255, 255, 0.05)"
+      },
+      "glass-border": {
+        "role": "neutral",
+        "displayName": "Glass Border",
+        "canonical": "rgba(255, 255, 255, 0.10)"
+      },
+      "status-confirmed": {
+        "role": "status",
+        "displayName": "Go Green",
+        "canonical": "#22c55e"
+      },
+      "status-pending": {
+        "role": "status",
+        "displayName": "Hold Yellow",
+        "canonical": "#eab308"
+      },
+      "status-overdue": {
+        "role": "status",
+        "displayName": "Stop Red",
+        "canonical": "#ef4444"
+      },
+      "status-pickup": {
+        "role": "status",
+        "displayName": "Route Blue",
+        "canonical": "#3b82f6"
+      },
+      "status-returned": {
+        "role": "status",
+        "displayName": "Returned Gray",
+        "canonical": "#9ca3af"
+      },
+      "status-cancelled": {
+        "role": "status",
+        "displayName": "Cancelled Gray",
+        "canonical": "#6b7280"
+      },
+      "ambient-shadow": {
+        "role": "shadow-base",
+        "displayName": "Ambient Shadow",
+        "canonical": "rgba(0, 0, 0, 0.35)"
+      },
+      "focus-ring": {
+        "role": "interaction",
+        "displayName": "Focus Ring",
+        "canonical": "2px solid #F26522 with 2px offset, 4px corner radius"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page titles in the dashboard. One per page."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles in cards and panels."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default body text, form labels, list-row metadata."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Captions, button text, sub-labels on stat cards."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Technical fields \u2014 order numbers, IDs, currency."
+      },
+      "micro": {
+        "displayName": "Micro",
+        "purpose": "Status pills, role badges, KPI sub-labels, and unread counts. Reserved for system state and labels \u2014 never body text."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "One-line tertiary metadata \u2014 stat-card sub-labels, popover footer. Never uppercase."
+      }
+    },
+    "shadows": [
+      {
+        "name": "glass-drop",
+        "value": "0 8px 20px rgba(0,0,0,0.35)",
+        "purpose": "Hover state on glass cards and stat cards. Communicates 'lifted in response.'"
+      },
+      {
+        "name": "orange-cta-glow",
+        "value": "0 8px 24px rgba(242,101,34,0.4)",
+        "purpose": "Hover state on the primary CTA. Communicates 'this is the action you're hovering.'"
+      },
+      {
+        "name": "orange-focus-ring",
+        "value": "0 0 0 3px rgba(242,101,34,0.15)",
+        "purpose": "Focus state on inputs. Communicates 'this input is currently active.'"
+      },
+      {
+        "name": "inset-glass-highlight",
+        "value": "inset 0 0 12px rgba(255,255,255,0.05)",
+        "purpose": "Resting state of .liquid-glass. Communicates 'this is a translucent layer above another.'"
+      },
+      {
+        "name": "popover-drop",
+        "value": "0 25px 50px -12px rgba(0,0,0,0.9)",
+        "purpose": "Tailwind shadow-2xl on the notification popover. Communicates 'this floats above the page.'"
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "purpose": "Default motion curve on every interactive transition. Snappier than the Tailwind default."
+      },
+      {
+        "name": "ease-pop",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Reserved for the .fade-in-up keyframe (long-form entrance). Not used for interactive state changes."
+      },
+      {
+        "name": "duration-button",
+        "value": "200ms",
+        "purpose": "Default transition duration on button hover and press feedback."
+      },
+      {
+        "name": "duration-card",
+        "value": "200ms",
+        "purpose": "Default transition duration on glass-card hover (was 250ms before the polish pass)."
+      },
+      {
+        "name": "duration-popover",
+        "value": "180ms",
+        "purpose": "Notification popover entrance. Shorter than a typical keyframe so the user perceives it as a state change, not a staged animation."
+      },
+      {
+        "name": "press-scale",
+        "value": "scale(0.96)",
+        "purpose": "Default press feedback. 0.96 is the tactile value; anything below 0.95 feels exaggerated."
+      },
+      {
+        "name": "press-scale-card",
+        "value": "scale(0.97)",
+        "purpose": "Press feedback for cards. Slightly softer than buttons because the card also lifts on hover (translateY(-2px) \u2192 0)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "2xl",
+        "value": "1536px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single high-signal CTA. Use for the dominant action on a surface \u2014 never as a row of three.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Create Order</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.5rem; background: #F26522; color: #FAFAFA; font-family: 'Inter', system-ui, sans-serif; font-weight: 600; font-size: 0.875rem; border-radius: 12px; border: none; cursor: pointer; white-space: nowrap; transition-property: background, transform, box-shadow; transition-duration: 200ms; transition-timing-function: cubic-bezier(0.2, 0, 0, 1); } .ds-btn-primary:hover { background: #FF8C42; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(242,101,34,0.4); } .ds-btn-primary:active { transform: scale(0.96); } .ds-btn-primary:focus-visible { outline: 2px solid #F26522; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Glass-tinted action used for the secondary action on a surface. Pairs with the primary button on most pages.",
+      "html": "<button class=\"ds-btn-secondary\" type=\"button\">+ New Proposal</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.5rem; background: rgba(255,255,255,0.06); color: #FAFAFA; font-family: 'Inter', system-ui, sans-serif; font-weight: 500; font-size: 0.875rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer; white-space: nowrap; transition-property: background, color, border-color, transform; transition-duration: 200ms; transition-timing-function: ease; } .ds-btn-secondary:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.20); } .ds-btn-secondary:active { transform: scale(0.96); } .ds-btn-secondary:focus-visible { outline: 2px solid #F26522; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Tertiary action \u2014 used in the sidebar footer for Sign out and similar low-emphasis controls.",
+      "html": "<button class=\"ds-btn-ghost\" type=\"button\">Sign out</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background: transparent; color: #9ca3af; font-family: 'Inter', system-ui, sans-serif; font-weight: 500; font-size: 0.875rem; border-radius: 9999px; border: 1px solid transparent; cursor: pointer; transition-property: background, color, border-color, transform; transition-duration: 200ms; transition-timing-function: ease; } .ds-btn-ghost:hover { color: #FAFAFA; border-color: rgba(255,255,255,0.10); background: rgba(255,255,255,0.04); } .ds-btn-ghost:active { transform: scale(0.96); } .ds-btn-ghost:focus-visible { outline: 2px solid #F26522; outline-offset: 2px; }"
+    },
+    {
+      "name": "Stat Card",
+      "kind": "card",
+      "refersTo": "stat-card",
+      "description": "The KPI tile. Liquid-glass surface, icon in a 40\u00d740 glass-tint tile, large value (tabular-nums), label below, optional sub-label.",
+      "html": "<a class=\"ds-stat-card\" href=\"#\"><div class=\"ds-stat-card-icon\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"9\" cy=\"21\" r=\"1\"/><circle cx=\"20\" cy=\"21\" r=\"1\"/><path d=\"M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6\"/></svg></div><div class=\"ds-stat-card-value stat-value\">\u20b91,23,456</div><div class=\"ds-stat-card-label\">Total Revenue</div></a>",
+      "css": ".ds-stat-card { display: block; background: rgba(255,255,255,0.02); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.10); border-radius: 16px; padding: 1.25rem; text-decoration: none; color: #FAFAFA; transition-property: background, border-color, transform, box-shadow; transition-duration: 200ms; transition-timing-function: cubic-bezier(0.2, 0, 0, 1); } .ds-stat-card:hover { border-color: rgba(255,255,255,0.20); } .ds-stat-card:active { transform: scale(0.97); } .ds-stat-card:focus-visible { outline: 2px solid #F26522; outline-offset: 2px; } .ds-stat-card-icon { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: #F26522; margin-bottom: 0.75rem; } .ds-stat-card-value { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.15; font-variant-numeric: tabular-nums; } .ds-stat-card-label { font-size: 0.75rem; font-weight: 500; color: rgba(255,255,255,0.50); margin-top: 0.125rem; }"
+    },
+    {
+      "name": "Glass Panel",
+      "kind": "card",
+      "refersTo": "glass-panel",
+      "description": "The list/card container for recent orders, recent quotations, and similar grouped content. Has a header strip and a divider-separated list body.",
+      "html": "<section class=\"ds-glass-panel\"><header class=\"ds-glass-panel-head\"><h2 class=\"ds-glass-panel-title\">Recent Orders</h2><a class=\"ds-glass-panel-link\" href=\"#\">View all orders \u2192</a></header><ul class=\"ds-glass-panel-list\"><li class=\"ds-glass-panel-row\"><div class=\"ds-glass-panel-row-main\"><div class=\"ds-glass-panel-row-title\">ORD-2024-0042</div><div class=\"ds-glass-panel-row-meta\">Anand Krishnan</div></div><div class=\"ds-glass-panel-row-side\"><div class=\"ds-glass-panel-row-amount stat-value\">\u20b945,000</div><div class=\"ds-glass-panel-row-date\">Aug 8 \u2014 Aug 12</div></div></li></ul></section>",
+      "css": ".ds-glass-panel { background: rgba(255,255,255,0.02); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.10); border-radius: 16px; overflow: hidden; } .ds-glass-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.10); } .ds-glass-panel-title { font-family: 'Inter', system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; color: #FAFAFA; margin: 0; } .ds-glass-panel-link { font-size: 0.75rem; font-weight: 600; color: #F26522; text-decoration: none; } .ds-glass-panel-link:hover { text-decoration: underline; } .ds-glass-panel-list { list-style: none; margin: 0; padding: 0; } .ds-glass-panel-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.875rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background-color 150ms ease; } .ds-glass-panel-row:hover { background: rgba(255,255,255,0.05); } .ds-glass-panel-row:last-child { border-bottom: none; } .ds-glass-panel-row-main { min-width: 0; flex: 1; } .ds-glass-panel-row-title { font-size: 0.875rem; font-weight: 600; color: #FAFAFA; } .ds-glass-panel-row-meta { font-size: 0.75rem; color: rgba(255,255,255,0.40); margin-top: 0.125rem; } .ds-glass-panel-row-side { text-align: right; } .ds-glass-panel-row-amount { font-size: 0.875rem; font-weight: 600; color: #FAFAFA; font-variant-numeric: tabular-nums; } .ds-glass-panel-row-date { font-size: 0.625rem; color: rgba(255,255,255,0.30); margin-top: 0.125rem; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-glass",
+      "description": "The default text input. Glass-tint fill, 12px radius, focus state shifts the border to brand orange and adds the orange focus ring.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Search equipment\u2026\" />",
+      "css": ".ds-input { width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius: 12px; color: #FAFAFA; font-family: 'Inter', system-ui, sans-serif; font-size: 0.875rem; outline: none; transition: border-color 200ms ease, box-shadow 200ms ease; } .ds-input::placeholder { color: rgba(255,255,255,0.30); } .ds-input:focus { border-color: #F26522; box-shadow: 0 0 0 3px rgba(242,101,34,0.15); } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Status Pill",
+      "kind": "chip",
+      "refersTo": "status-pill",
+      "description": "Compact uppercase chip for order, quotation, and maintenance status. One per row; never used decoratively.",
+      "html": "<span class=\"ds-status-pill ds-status-pill--confirmed\">CONFIRMED</span>",
+      "css": ".ds-status-pill { display: inline-block; font-family: 'Inter', system-ui, sans-serif; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.125rem 0.625rem; border-radius: 6px; border: 1px solid; } .ds-status-pill--confirmed { color: #22c55e; background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.30); } .ds-status-pill--pending { color: #eab308; background: rgba(234,179,8,0.15); border-color: rgba(234,179,8,0.30); } .ds-status-pill--overdue { color: #ef4444; background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.30); } .ds-status-pill--pickup { color: #F26522; background: rgba(242,101,34,0.15); border-color: rgba(242,101,34,0.30); } .ds-status-pill--returned { color: #9ca3af; background: rgba(156,163,175,0.15); border-color: rgba(156,163,175,0.30); } .ds-status-pill--cancelled { color: #6b7280; background: rgba(107,114,128,0.15); border-color: rgba(107,114,128,0.30); }"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "sidebar-item",
+      "description": "A single nav item in the desktop sidebar. Inactive: muted text on transparent fill. Active: white text on brand-orange fill with a soft orange shadow.",
+      "html": "<a class=\"ds-sidebar-item ds-sidebar-item--active\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"/></svg><span>Dashboard</span><svg class=\"ds-sidebar-item-chevron\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"9 18 15 12 9 6\"/></svg></a>",
+      "css": ".ds-sidebar-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.875rem; border-radius: 12px; color: rgba(255,255,255,0.50); font-family: 'Inter', system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition-property: background, color, border-color, transform; transition-duration: 200ms; transition-timing-function: ease; } .ds-sidebar-item:hover { background: rgba(255,255,255,0.06); color: #FAFAFA; } .ds-sidebar-item--active { background: #F26522; color: #FAFAFA; font-weight: 600; box-shadow: 0 10px 25px rgba(242,101,34,0.20); } .ds-sidebar-item--active:hover { background: #F26522; color: #FAFAFA; } .ds-sidebar-item-chevron { margin-left: auto; opacity: 0.85; } .ds-sidebar-item:focus-visible { outline: 2px solid #FAFAFA; outline-offset: 2px; }"
+    },
+    {
+      "name": "Notification Popover",
+      "kind": "custom",
+      "refersTo": "glass-panel",
+      "description": "The notification popover. Slides in from top-right on click. Each row has a 32\u00d732 icon tile, title, message, and timestamp. Unread rows have a brand-orange left border and tinted background.",
+      "html": "<div class=\"ds-notif-popover\"><header class=\"ds-notif-popover-head\"><span class=\"ds-notif-popover-title\">Notifications</span><span class=\"ds-notif-popover-count\">3 new</span><button class=\"ds-notif-popover-mark\" type=\"button\">Mark all read</button></header><ul class=\"ds-notif-popover-list\"><li class=\"ds-notif-popover-row ds-notif-popover-row--unread\"><div class=\"ds-notif-popover-icon\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg></div><div class=\"ds-notif-popover-body\"><div class=\"ds-notif-popover-row-title\">Order confirmed</div><p class=\"ds-notif-popover-row-msg\">Your rental of Sony A7 IV is confirmed for Aug 12.</p></div></li></ul></div>",
+      "css": "@keyframes ds-popover-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } } .ds-notif-popover { position: absolute; right: 0; top: 48px; z-index: 50; width: 320px; max-width: 24rem; background: #121212; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.9); overflow: hidden; transform-origin: top right; animation: ds-popover-in 180ms cubic-bezier(0.2, 0, 0, 1) both; will-change: transform, opacity; } .ds-notif-popover-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.10); } .ds-notif-popover-title { font-family: 'Inter', system-ui, sans-serif; font-size: 0.875rem; font-weight: 700; color: #FAFAFA; } .ds-notif-popover-count { font-size: 0.625rem; font-weight: 600; color: #F26522; background: rgba(242,101,34,0.20); border: 1px solid rgba(242,101,34,0.30); padding: 0.125rem 0.5rem; border-radius: 9999px; } .ds-notif-popover-mark { margin-left: auto; font-size: 0.75rem; font-weight: 500; color: #F26522; background: transparent; border: none; cursor: pointer; } .ds-notif-popover-mark:hover { text-decoration: underline; } .ds-notif-popover-list { list-style: none; margin: 0; padding: 0; max-height: 24rem; overflow-y: auto; } .ds-notif-popover-row { display: flex; gap: 0.75rem; padding: 0.875rem; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background-color 150ms ease; } .ds-notif-popover-row:hover { background: rgba(255,255,255,0.05); } .ds-notif-popover-row:last-child { border-bottom: none; } .ds-notif-popover-row--unread { background: rgba(242,101,34,0.10); border-left: 2px solid #F26522; } .ds-notif-popover-icon { width: 32px; height: 32px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #F26522; } .ds-notif-popover-body { min-width: 0; flex: 1; } .ds-notif-popover-row-title { font-size: 0.75rem; font-weight: 600; color: #FAFAFA; } .ds-notif-popover-row-msg { margin: 0.125rem 0 0; font-size: 0.75rem; line-height: 1.4; color: rgba(255,255,255,0.50); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Operations Console",
+    "overview": "Lease360 is designed as a precision operations console. The surface is a calm, dark, glass-layered field; brand orange is the single high-signal accent. Every other color exists to support scanability \u2014 muted text, low-opacity glass, status colors reserved for state. The orange should feel like one indicator light on an otherwise quiet instrument panel: a confident focal point, never a decoration.\n\nThe system is dense where operators live (dashboard, list pages, return inspection) and quiet where customers glance (the portal, the deposit settlement screen). Both register as the same product, but density is the staff truth and quietness is the customer truth; the design system serves both without splitting.\n\nThe system borrows from the liquid-glass vocabulary already in the CSS: translucent panels, backdrop-blur, layered surfaces. But every \"glass\" element earns its blur \u2014 they are containers, separators, and elevated surfaces, not ornaments. Image outlines, hover shadows, and motion are calibrated so the system feels alive without ever feeling busy.",
+    "keyCharacteristics": [
+      "Single-accent discipline. Brand orange is the only chromatic color in interactive surfaces. Status colors (green / yellow / red / blue) appear only on state pills and alerts.",
+      "Dark by default. The product has no light theme. Every token assumes a dark surface; light mode would require a separate design system, not a token swap.",
+      "Glass as structure, not decoration. Translucent layers communicate containment and elevation. No panel exists for visual flair alone.",
+      "Operate-mode polish. Buttons, cards, and lists are sized and spaced for fast scanning on a 14\" laptop at 100% zoom.",
+      "Mobile is a peer. The mobile bottom-nav, the touch targets, and the safe-area insets are first-class. The PWA is installable.",
+      "Motion earns its place. Every animation communicates a state change. The default scale on press is 0.96; entrance animations are one-shot, never re-render."
+    ],
+    "rules": [
+      {
+        "name": "The One Voice Rule",
+        "body": "Brand orange is the only chromatic accent on interactive surfaces. It appears on \u226410% of any given view. Its rarity is the point \u2014 when it shows, it means 'this is the action' or 'this is the alarm.'",
+        "section": "colors"
+      },
+      {
+        "name": "The Status Reservation Rule",
+        "body": "Status colors (green / yellow / red / blue) are reserved for state pills, banners, and the unread notification highlight. They never color a button, an icon, or a body label. A green button is forbidden; a green pill that means 'confirmed' is correct.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Tinted-Outline Rule",
+        "body": "Outlines on images, icons, and glass surfaces use pure white at low opacity (rgba(255,255,255,0.10)), not a tinted neutral that picks up the surface beneath. Tinted outlines read as dirt on the image edge.",
+        "section": "colors"
+      },
+      {
+        "name": "The Single-Family Rule",
+        "body": "Inter is the only typeface. Hierarchy comes from weight, size, and letter-spacing; never from a second face. A monospace face is allowed for technical fields (e.g. order numbers, IDs) but is not a system-wide secondary.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular-Numbers Rule",
+        "body": "Any dynamically updating number (revenue, deposits, spend, prices in lists) uses font-variant-numeric: tabular-nums via the .stat-value utility. Proportional digits cause layout shift on every refresh; tabular digits keep the column stable.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Surfaces are flat at rest. Depth appears only as a response to state (hover, focus, active) or as the resting inset highlight on glass layers. A card does not cast a shadow when nothing is happening to it.",
+        "section": "elevation"
+      },
+      {
+        "name": "The No-Drop-Shadow-At-Rest Rule",
+        "body": "No box-shadow on a surface that is not currently responding to user input. The orange CTA glow and the glass-card hover lift are the only ambient shadows in the system.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use bg-brand-orange / text-brand-orange for interactive accents, never the literal bg-[#F26522]. Tokens are the single source of truth.",
+      "Do apply .stat-value (or tabular-nums) to any number that updates on refresh or sits in a list of numbers.",
+      "Do set transition-property explicitly \u2014 background, transform, box-shadow for buttons; background, border-color, transform, box-shadow for cards. Never transition: all.",
+      "Do use ring-1 ring-white/10 for image outlines, not border border-white/15. The ring is pure white at low opacity and does not tint the surface.",
+      "Do honor prefers-reduced-motion \u2014 wrap animate-pulse, popoverIn, and the mobile bottom-nav scale-110 in a media query that disables them at the system level.",
+      "Do keep touch targets \u2265 44\u00d744px on mobile. Extend with a pseudo-element when the visible element is smaller.",
+      "Do pair the brand orange with scale(0.96) on press, never smaller. Anything below 0.95 reads as exaggerated.",
+      "Do use cubic-bezier(0.2, 0, 0, 1) as the default motion curve on every interactive transition."
+    ],
+    "donts": [
+      "Don't use transition: all. Specify the exact properties.",
+      "Don't use scale-95 or any value below 0.96 on :active. Press feedback should feel tactile, not exaggerated.",
+      "Don't use bg-[#F26522] or text-[#F26522] literals. The brand-orange token exists; use it.",
+      "Don't use the gradient-text pattern (background-clip: text on a brand-orange gradient). The detector will flag it; the system uses solid color for text.",
+      "Don't color a button, an icon, or a body label with a status color. Green / yellow / red / blue are reserved for state pills, banners, and the unread notification highlight.",
+      "Don't introduce a second styling system (CSS modules, styled-components, vanilla-extract). Tailwind 4 utilities plus the @theme tokens and the named component classes in globals.css are the entire system.",
+      "Don't animate on every re-render. Entrance animations are one-shot on mount; high-frequency interactions (hover, focus, keystroke) respond with \u2264150ms color or opacity transitions, not motion.",
+      "Don't use tinted outlines (border-slate-200, border-zinc-300) on images or glass surfaces. Outlines must be pure white at low opacity.",
+      "Don't ship a shadow on a resting card. Depth is a response, not a state.",
+      "Don't assume a light mode exists. Every token is a dark-mode token. Building light mode is out of scope and would require a separate design system."
+    ]
+  }
+}

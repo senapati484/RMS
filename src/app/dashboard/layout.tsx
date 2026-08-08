@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-brand-orange/30 border-t-brand-orange rounded-full animate-spin" />
       </div>
     )
   }
@@ -64,10 +64,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Logo */}
       <div className="p-6 border-b border-white/5">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <img src="/logo.png" alt="Lease360 Logo" className="w-9 h-9 object-contain p-0.5 bg-white/10 border border-white/15 rounded-xl shrink-0 shadow-md" />
+          <img src="/logo.png" alt="" className="w-9 h-9 object-contain p-0.5 bg-white/10 ring-1 ring-white/10 rounded-xl shrink-0 shadow-md" />
           <div>
             <div className="text-white font-semibold text-sm">Lease360</div>
-            <div className="text-[#F26522] text-[10px] font-semibold uppercase tracking-wider">
+            <div className="text-brand-orange text-[10px] font-semibold uppercase tracking-wider">
               {user.role.replace('_', ' ')}
             </div>
           </div>
@@ -83,9 +83,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-[background,color,border-color,transform] ${
                 active
-                  ? 'bg-[#F26522] text-white shadow-lg shadow-[#F26522]/20 font-semibold'
+                  ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20 font-semibold'
                   : 'text-white/50 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -100,8 +100,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* User footer */}
       <div className="p-4 border-t border-white/5">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-[#F26522]/20 rounded-full flex items-center justify-center">
-            <span className="text-[#F26522] text-xs font-bold">{user.name[0].toUpperCase()}</span>
+          <div className="w-8 h-8 bg-brand-orange/20 rounded-full flex items-center justify-center">
+            <span className="text-brand-orange text-xs font-bold">{user.name[0].toUpperCase()}</span>
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-white text-sm font-medium truncate">{user.name}</div>
@@ -110,7 +110,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all text-sm"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-[background,color,border-color,transform] text-sm"
         >
           <LogOut size={14} />
           Sign out
@@ -134,7 +134,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
       )}
       <div
-        className={`lg:hidden fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ${
+        className={`lg:hidden fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -146,19 +146,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Top bar */}
         <header className="sticky top-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 h-16 flex items-center gap-4">
           <button
+            type="button"
+            aria-label="Open menu"
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden text-white/40 hover:text-white transition-colors"
           >
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-2 lg:hidden">
-            <img src="/logo.png" alt="Lease360 Logo" className="w-8 h-8 object-contain p-0.5 bg-white/10 border border-white/15 rounded-xl shrink-0 shadow-sm" />
+            <img src="/logo.png" alt="" className="w-8 h-8 object-contain p-0.5 bg-white/10 ring-1 ring-white/10 rounded-xl shrink-0 shadow-sm" />
             <span className="text-white font-bold text-sm tracking-tight">Lease360</span>
           </div>
           <div className="flex-1" />
           <NotificationBell />
-          <div className="w-8 h-8 bg-[#F26522]/20 rounded-full flex items-center justify-center">
-            <span className="text-[#F26522] text-xs font-bold">{user.name[0].toUpperCase()}</span>
+          <div className="w-8 h-8 bg-brand-orange/20 rounded-full flex items-center justify-center">
+            <span className="text-brand-orange text-xs font-bold">{user.name[0].toUpperCase()}</span>
           </div>
         </header>
 
@@ -173,11 +175,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all ${
-                  active ? 'text-[#F26522] font-semibold' : 'text-white/40 hover:text-white/70'
+                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-[color,background,transform] active:scale-[0.96] ${
+                  active ? 'text-brand-orange font-semibold' : 'text-white/40 hover:text-white/70'
                 }`}
               >
-                <item.icon size={18} className={active ? 'text-[#F26522] scale-110 transition-transform' : ''} />
+                <item.icon size={18} className={active ? 'text-brand-orange scale-110 transition-transform will-change-transform' : ''} />
                 <span className="text-[10px]">{item.label}</span>
               </Link>
             )

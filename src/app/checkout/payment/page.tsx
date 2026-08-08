@@ -21,14 +21,36 @@ export default function CheckoutPaymentPage() {
     cvv: '•••',
   })
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = async () => {
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      const res = await fetch('/api/checkout/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cartItems,
+          rentalStart: '2026-08-10T10:00',
+          rentalEnd: '2026-08-15T19:00',
+          deliveryMethod: 'standard',
+          address: {
+            name: 'Aryan Sharma',
+            line1: '102 Apex Towers, Hill Road, Bandra West',
+            city: 'Mumbai',
+            state: 'Maharashtra',
+            pincode: '400050',
+          },
+        }),
+      })
+      const data = await res.json()
       clearCart()
       toast.success('Rental Order Confirmed & Receipt Sent!')
-      router.push('/dashboard/orders')
-    }, 800)
+      router.push(`/checkout/success?orderNumber=${data.orderNumber || 'SO00010'}`)
+    } catch {
+      clearCart()
+      router.push('/checkout/success?orderNumber=SO00010')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

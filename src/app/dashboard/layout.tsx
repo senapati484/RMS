@@ -50,6 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) return null
 
   const visibleNav = navItems.filter((item) => item.roles.includes(user.role))
+  const mobileNavItems = visibleNav.slice(0, 5) // Top 5 items for mobile bottom bar
 
   const handleLogout = async () => {
     await logout()
@@ -61,12 +62,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Logo */}
       <div className="p-6 border-b border-white/5">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#F26522] rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#F26522] rounded-full flex items-center justify-center shadow-md">
             <span className="text-white font-bold text-xs">R</span>
           </div>
           <div>
             <div className="text-white font-semibold text-sm">RentalOS</div>
-            <div className="text-white/30 text-xs capitalize">{user.role.replace('_', ' ').toLowerCase()}</div>
+            <div className="text-[#F26522] text-[10px] font-semibold uppercase tracking-wider">
+              {user.role.replace('_', ' ')}
+            </div>
           </div>
         </Link>
       </div>
@@ -80,9 +83,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 active
-                  ? 'bg-[#F26522] text-white'
+                  ? 'bg-[#F26522] text-white shadow-lg shadow-[#F26522]/20 font-semibold'
                   : 'text-white/50 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -117,7 +120,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   )
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex">
+    <div className="min-h-screen bg-[#0a0a0a] flex flex-col lg:flex-row pb-20 lg:pb-0">
       {/* Desktop sidebar */}
       <div className="hidden lg:flex fixed inset-y-0 left-0 z-30">
         <Sidebar />
@@ -148,6 +151,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             <Menu size={20} />
           </button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <div className="w-7 h-7 bg-[#F26522] rounded-full flex items-center justify-center shadow-xs">
+              <span className="text-white font-bold text-[10px]">R</span>
+            </div>
+            <span className="text-white font-bold text-sm tracking-tight">RentalOS</span>
+          </div>
           <div className="flex-1" />
           <NotificationBell />
           <div className="w-8 h-8 bg-[#F26522]/20 rounded-full flex items-center justify-center">
@@ -157,6 +166,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Page content */}
         <main className="flex-1 p-4 sm:p-6">{children}</main>
+
+        {/* Mobile PWA Bottom Navigation Bar */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#111111]/90 backdrop-blur-xl border-t border-white/10 px-3 py-2 safe-area-bottom flex items-center justify-around shadow-2xl">
+          {mobileNavItems.map((item) => {
+            const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all ${
+                  active ? 'text-[#F26522] font-semibold' : 'text-white/40 hover:text-white/70'
+                }`}
+              >
+                <item.icon size={18} className={active ? 'text-[#F26522] scale-110 transition-transform' : ''} />
+                <span className="text-[10px]">{item.label}</span>
+              </Link>
+            )
+          })}
+        </nav>
       </div>
     </div>
   )

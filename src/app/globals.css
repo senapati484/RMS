@@ -25,13 +25,15 @@
   --shadow-orange: 0 0 30px rgba(242, 101, 34, 0.3);
 }
 
-/* ── Global Reset ─────────────────────────────────── */
+/* ── Global Reset & PWA Touch Optimizations ──────── */
 *, *::before, *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
@@ -40,6 +42,17 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100%;
+  overscroll-behavior-y: none;
+}
+
+/* ── PWA Safe Area Utilities ──────────────────────── */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 /* ── Glassmorphism Utilities ──────────────────────── */
@@ -57,7 +70,7 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  transition: all 0.25s ease;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .glass-card:hover {
@@ -67,28 +80,32 @@ body {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
+.glass-card:active {
+  transform: scale(0.98);
+}
+
 .glass-nav {
-  background: rgba(10, 10, 10, 0.8);
+  background: rgba(10, 10, 10, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .liquid-glass {
-  background: rgba(255, 255, 255, 0.01);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.05);
 }
 
 .liquid-glass-strong {
-  background: rgba(255, 255, 255, 0.01);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
   box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
-/* ── Orange Glow Utilities ────────────────────────── */
+/* ── Orange Glow & Accents ────────────────────────── */
 .orange-glow {
   box-shadow: 0 0 30px rgba(242, 101, 34, 0.3), 0 0 60px rgba(242, 101, 34, 0.1);
 }
@@ -110,7 +127,7 @@ body {
 .badge-risk-medium { background: rgba(234, 179, 8, 0.15);  color: #eab308; }
 .badge-risk-high   { background: rgba(239, 68, 68, 0.15);  color: #ef4444; }
 
-/* ── Pill Button ──────────────────────────────────── */
+/* ── Interactive Buttons with Touch Feedback ─────── */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -123,7 +140,7 @@ body {
   border-radius: 9999px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   white-space: nowrap;
 }
 
@@ -134,7 +151,7 @@ body {
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: scale(0.96);
 }
 
 .btn-secondary {
@@ -155,6 +172,10 @@ body {
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:active {
+  transform: scale(0.96);
 }
 
 .btn-ghost {
@@ -183,7 +204,7 @@ body {
   padding: 0.75rem 1rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: 12px;
   color: #FAFAFA;
   font-size: 0.875rem;
   outline: none;
@@ -223,17 +244,16 @@ body {
   border-radius: 8px;
 }
 
-/* ── Fade In Animation ────────────────────────────── */
+/* ── Animations ───────────────────────────────────── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .fade-in-up {
-  animation: fadeInUp 0.4s ease forwards;
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* ── Orange Gradient Text ─────────────────────────── */
 .text-gradient-orange {
   background: linear-gradient(135deg, #F26522, #FF8C42, #FFB347);
   -webkit-background-clip: text;
@@ -241,13 +261,13 @@ body {
   background-clip: text;
 }
 
-/* ── Sidebar active item ──────────────────────────── */
+/* ── Sidebar & Mobile Navigation ──────────────────── */
 .sidebar-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem 0.875rem;
-  border-radius: 8px;
+  border-radius: 12px;
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.875rem;
   font-weight: 500;
@@ -261,7 +281,7 @@ body {
 }
 
 .sidebar-item.active {
-  background: rgba(242, 101, 34, 0.12);
+  background: rgba(242, 101, 34, 0.15);
   color: #F26522;
-  border: 1px solid rgba(242, 101, 34, 0.2);
+  border: 1px solid rgba(242, 101, 34, 0.25);
 }

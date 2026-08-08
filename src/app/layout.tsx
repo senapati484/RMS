@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   description:
     'Centralized equipment rental management system with AI-powered operations, real-time dashboards, and automated deposit settlement.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

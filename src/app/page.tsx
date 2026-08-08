@@ -64,9 +64,10 @@ export default function Lease360LandingPage() {
           <div className="bg-white rounded-full p-[5px] px-3 sm:px-4 py-2 flex items-center justify-between shadow-sm">
             {/* LEFT: Logo & Links */}
             <div className="flex items-center">
-              {/* Dark circle logo */}
-              <Link href="/" className="w-9 h-9 sm:w-10 sm:h-10 bg-[#F26522] rounded-full flex items-center justify-center text-white text-xs font-black tracking-tight shrink-0 shadow-md">
-                L360
+              {/* Brand logo */}
+              <Link href="/" className="flex items-center gap-2.5">
+                <img src="/logo.png" alt="Lease360 Logo" className="w-9 h-9 sm:w-10 sm:h-10 object-contain rounded-full shrink-0 shadow-md" />
+                <span className="text-gray-900 font-bold text-base tracking-tight hidden sm:inline">Lease360</span>
               </Link>
               {/* Nav links */}
               <div className="hidden md:flex items-center gap-6 ml-6 text-[14px] font-medium text-gray-900">

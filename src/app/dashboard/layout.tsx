@@ -64,9 +64,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Logo */}
       <div className="p-6 border-b border-white/5">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#F26522] rounded-full flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-[10px]">L360</span>
-          </div>
+          <img src="/logo.png" alt="Lease360 Logo" className="w-8 h-8 object-contain rounded-lg shrink-0 shadow-md" />
           <div>
             <div className="text-white font-semibold text-sm">Lease360</div>
             <div className="text-[#F26522] text-[10px] font-semibold uppercase tracking-wider">
@@ -154,9 +152,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-2 lg:hidden">
-            <div className="w-7 h-7 bg-[#F26522] rounded-full flex items-center justify-center shadow-xs">
-              <span className="text-white font-bold text-[9px]">L360</span>
-            </div>
+            <img src="/logo.png" alt="Lease360 Logo" className="w-7 h-7 object-contain rounded-lg shrink-0 shadow-sm" />
             <span className="text-white font-bold text-sm tracking-tight">Lease360</span>
           </div>
           <div className="flex-1" />

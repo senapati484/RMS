@@ -110,10 +110,8 @@ export default function RegisterPage() {
       <div className="relative w-full max-w-xl space-y-6">
         {/* Logo Branding */}
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 bg-[#F26522] rounded-full flex items-center justify-center shadow-lg shadow-[#F26522]/20">
-              <span className="text-white font-black text-xs">L360</span>
-            </div>
+          <div className="inline-flex items-center gap-2.5 mb-3">
+            <img src="/logo.png" alt="Lease360 Logo" className="w-10 h-10 object-contain rounded-xl shrink-0 shadow-lg shadow-[#F26522]/20" />
             <span className="text-white text-2xl font-bold tracking-tight">Lease360</span>
           </div>
           <h1 className="text-white text-2xl font-bold">Create Account with DigiLocker eKYC</h1>

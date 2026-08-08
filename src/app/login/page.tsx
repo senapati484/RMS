@@ -43,11 +43,9 @@ function LoginForm() {
     <div className="relative w-full max-w-md">
       {/* Logo */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 mb-4">
-          <div className="w-10 h-10 bg-[#F26522] rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-xs">L360</span>
-          </div>
-          <span className="text-white text-xl font-semibold tracking-tight">Lease360</span>
+        <div className="inline-flex items-center gap-2.5 mb-4">
+          <img src="/logo.png" alt="Lease360 Logo" className="w-10 h-10 object-contain rounded-xl shrink-0 shadow-lg shadow-[#F26522]/20" />
+          <span className="text-white text-2xl font-bold tracking-tight">Lease360</span>
         </div>
         <h1 className="text-white text-2xl font-bold">Sign in to your account</h1>
         <p className="text-white/40 text-sm mt-2">Enterprise Lease & Rental Management Platform</p>

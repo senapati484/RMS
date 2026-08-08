@@ -855,8 +855,8 @@ export default function OrderDetailPage() {
 
               {/* UPI Quick Scan Box with Dynamic NPCI UPI QR Code */}
               {selectedPayMethod === 'UPI' && (() => {
-                const upiVpa = 'lease360.pay@okicici'
-                const payeeName = 'Lease360 Equipment Rentals'
+                const upiVpa = process.env.NEXT_PUBLIC_UPI_ID || 'sayansenapati2544@okicici'
+                const payeeName = process.env.NEXT_PUBLIC_UPI_NAME || 'Lease360 Rentals'
                 const amount = order.totalAmount
                 const note = `Payment for Order ${order.orderNumber}`
                 const upiIntentUri = `upi://pay?pa=${encodeURIComponent(upiVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`
@@ -882,7 +882,7 @@ export default function OrderDetailPage() {
                         onClick={() => {
                           if (navigator.clipboard) {
                             navigator.clipboard.writeText(upiVpa)
-                            toast.success('UPI ID lease360.pay@okicici copied!')
+                            toast.success(`UPI ID ${upiVpa} copied!`)
                           }
                         }}
                         className="text-emerald-400 text-xs font-bold font-mono bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 inline-flex items-center gap-1.5 cursor-pointer hover:bg-emerald-500/20 transition-all"

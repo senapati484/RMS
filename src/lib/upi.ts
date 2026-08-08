@@ -3,7 +3,7 @@
 // scanned / the app is opened. In production this is replaced by a payment
 // gateway (e.g. Razorpay / Cashfree), which issues its own QR + deep links.
 
-export const UPI_ID = process.env.NEXT_PUBLIC_UPI_ID || ''
+export const UPI_ID = process.env.NEXT_PUBLIC_UPI_ID || 'sayansenapati2544@okicici'
 export const UPI_NAME = process.env.NEXT_PUBLIC_UPI_NAME || 'Lease360 Rentals'
 
 /**

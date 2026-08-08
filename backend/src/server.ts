@@ -6,8 +6,9 @@ import { connectDB } from './db'
 import { authMiddleware } from './middleware/auth'
 import authRoutes from './routes/auth.routes'
 import productRoutes from './routes/product.routes'
-
 import orderRoutes from './routes/order.routes'
+import quotationRoutes from './routes/quotation.routes'
+import adminRoutes from './routes/admin.routes'
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env.local') })
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
@@ -27,6 +28,8 @@ app.use(authMiddleware)
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/orders', orderRoutes)
+app.use('/api/quotations', quotationRoutes)
+app.use('/api/admin', adminRoutes)
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

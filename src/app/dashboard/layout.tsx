@@ -29,7 +29,6 @@ const navItems = [
   { href: '/dashboard/schedule', label: 'Rental Schedule', icon: Calendar, roles: ['ADMIN', 'STAFF', 'PORTAL_USER'] },
   { href: '/dashboard/quotations', label: 'Quotations', icon: FileText, roles: ['ADMIN', 'STAFF', 'PORTAL_USER'] },
   { href: '/dashboard/reports', label: 'Reports & Analytics', icon: BarChart3, roles: ['ADMIN', 'STAFF'] },
-  { href: '/dashboard/profile', label: 'Profile & eKYC', icon: UserCheck, roles: ['ADMIN', 'STAFF', 'PORTAL_USER'] },
   { href: '/dashboard/settings', label: 'Configuration & Settings', icon: Settings, roles: ['ADMIN', 'STAFF', 'PORTAL_USER'] },
   { href: '/dashboard/maintenance', label: 'Maintenance', icon: Wrench, roles: ['ADMIN', 'STAFF'] },
   { href: '/dashboard/ai', label: 'AI Assistant', icon: Bot, roles: ['ADMIN', 'STAFF'] },
@@ -116,26 +115,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )
         })}
       </nav>
-
-      {/* User Footer Account Box */}
-      <div className="p-4 border-t border-white/10 bg-white/[0.02]">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-[#F26522]/20 border border-[#F26522]/30 rounded-full flex items-center justify-center">
-            <span className="text-[#F26522] text-xs font-bold">{user.name[0].toUpperCase()}</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-white text-xs font-bold truncate">{user.name}</div>
-            <div className="text-white/40 text-[11px] truncate">{user.email}</div>
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all text-xs font-medium cursor-pointer"
-        >
-          <LogOut size={14} />
-          <span>Sign out</span>
-        </button>
-      </div>
     </aside>
   )
 

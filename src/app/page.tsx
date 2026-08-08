@@ -52,7 +52,7 @@ export default function Lease360LandingPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
-  const pageSize = 6
+  const pageSize = 10
   const { addToCart } = useCart()
 
   // Reset page to 1 when filters change

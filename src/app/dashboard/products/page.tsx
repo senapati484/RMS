@@ -80,7 +80,7 @@ export default function ProductsPage() {
   const [inStockOnly, setInStockOnly] = useState(false)
   const [brandFilter, setBrandFilter] = useState('ALL')
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(24)
+  const [limit, setLimit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
   const [showDrafts, setShowDrafts] = useState(false)
@@ -461,7 +461,7 @@ export default function ProductsPage() {
           <span className="text-white/20">|</span>
           <div className="flex items-center gap-1.5">
             <span className="text-white/40">Per Page:</span>
-            {[12, 24, 48].map((l) => (
+            {[10, 20, 50].map((l) => (
               <button
                 key={l}
                 onClick={() => { setLimit(l); setPage(1) }}

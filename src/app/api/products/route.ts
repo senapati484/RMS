@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   const full = searchParams.get('full') === '1'
   const useCursor = searchParams.get('cursor') !== null // Use cursor-based pagination
   const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
-  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')))
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '10')))
   const cursor = searchParams.get('cursor') || undefined
 
   const filter: Record<string, unknown> = {}

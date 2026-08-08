@@ -45,8 +45,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!loading && !user) {
       router.replace('/login')
+      return
     }
-  }, [user, loading, router])
+    // Role-based route guard: redirect to the dashboard home when the user
+    // tries to open a section outside their role.
+    if (user) {
+      const blocked = navItems.find(
+        (item) => pathname.startsWith(item.href) && !item.roles.includes(user.role)
+      )
+      if (blocked && pathname !== '/dashboard') {
+        router.replace('/dashboard')
+      }
+    }
+  }, [user, loading, router, pathname])
 
   if (loading) {
     return (
@@ -172,7 +183,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className="flex items-center gap-2 p-1.5 rounded-full hover:bg-white/5 transition-all cursor-pointer"
             >
               <div className="w-8 h-8 bg-[#F26522]/20 border border-[#F26522]/40 rounded-full flex items-center justify-center text-[#F26522] font-bold text-xs shadow-md">
-                {user.name[0].toUpperCase()}
+                {(user.name?.[0] || 'U').toUpperCase()}
               </div>
             </button>
 
@@ -182,7 +193,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <div className="text-white font-bold">{user.name}</div>
                   <div className="text-white/40 text-[10px] font-mono">{user.email}</div>
                   <span className="inline-block mt-1 text-[9px] bg-[#F26522]/20 text-[#F26522] border border-[#F26522]/30 px-2 py-0.5 rounded-full font-bold uppercase">
-                    {user.role === 'ADMIN' ? 'Admin / Vendor' : 'Customer Account'}
+                    {user.role === 'ADMIN' ? 'Admin / Vendor' : user.role === 'STAFF' ? 'Staff' : 'Customer Account'}
                   </span>
                 </div>
                 <Link href="/dashboard/profile" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">

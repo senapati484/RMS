@@ -130,7 +130,7 @@ export default function StorefrontCatalogPage() {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="w-10 h-10 rounded-full bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] flex items-center justify-center font-bold text-sm cursor-pointer shadow-md"
             >
-              {user ? user.name[0].toUpperCase() : <UserCheckIcon size={18} />}
+              {user ? (user.name?.[0] || 'U').toUpperCase() : <UserCheckIcon size={18} />}
             </button>
 
             {showProfileMenu && (

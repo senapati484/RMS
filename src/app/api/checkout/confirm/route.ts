@@ -1,85 +1,182 @@
-import { NextRequest, NextResponse } from 'next/server'
+// api/checkout/confirm/route.ts
+// Storefront checkout: validates cart server-side, reserves stock, creates a
+// real Order, and triggers the confirmation email with the tax invoice.
+import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/db'
 import { Order } from '@/models/Order'
+import { Product } from '@/models/Product'
+import { User } from '@/models/User'
+import { Notification } from '@/models/Notification'
+import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
+import { generateOrderNumber } from '@/lib/order-number'
+import { calculateRentalDays } from '@/lib/rental-pricing'
 import { sendOrderConfirmationEmail } from '@/lib/mailer'
 
 export async function POST(req: NextRequest) {
+  const user = await getUserFromRequest(req)
+  const authErr = requireAuth(user)
+  if (authErr) return authErr
+
   try {
     await connectDB()
+
     const body = await req.json()
     const { cartItems, rentalStart, rentalEnd, deliveryMethod, address } = body
 
-    // Generate Sale Order Ref (e.g. SO00010)
-    const count = await Order.countDocuments()
-    const orderNumber = `SO${String(count + 10).padStart(5, '0')}`
-    const invoiceNumber = `INV/2026/${String(count + 1).padStart(4, '0')}`
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      return apiError('cartItems is required', 400)
+    }
+    if (!rentalStart || !rentalEnd) {
+      return apiError('rentalStart and rentalEnd are required', 400)
+    }
 
-    const totalAmount = (cartItems || []).reduce(
-      (sum: number, item: { dailyRate: number; quantity: number }) =>
-        sum + (item.dailyRate || 0) * (item.quantity || 1),
-      0
-    )
+    const start = new Date(rentalStart)
+    const end = new Date(rentalEnd)
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) {
+      return apiError('Invalid rental period', 400)
+    }
+
+    const days = calculateRentalDays(rentalStart, rentalEnd)
+
+    // Normalize address (accept both `street` and `line1` keys)
+    const addr = address || {}
+    const customerAddress = {
+      name: addr.name || user!.name,
+      email: addr.email || user!.email,
+      line1: addr.street || addr.line1 || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      pincode: addr.pincode || '',
+    }
+
+    // Server-side pricing, stock validation & reservation
+    let subTotal = 0
+    let depositAmount = 0
+    const resolvedItems = []
+
+    for (const item of cartItems) {
+      const product = await Product.findById(item.productId)
+      if (!product) return apiError(`Product ${item.productId} not found`, 404)
+
+      const quantity = Math.max(1, Math.floor(item.quantity || 1))
+      if (product.availableStock < quantity) {
+        return apiError(`Insufficient stock for ${product.name}`, 400)
+      }
+
+      // ── Vehicle KYC gate ──────────────────────────────────────────────
+      if (product.productType === 'vehicle') {
+        const dbUser = await User.findById(user!.userId).select('drivingLicense').lean()
+        if (dbUser?.drivingLicense?.status !== 'VERIFIED') {
+          return apiError(
+            'Vehicle rental requires a verified Driving License. Please complete KYC in your profile.',
+            403
+          )
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────
+
+      const unitPrice = product.dailyRate || 0
+      const lineTotal = unitPrice * days * quantity
+      subTotal += lineTotal
+
+      const dep = product.depositIsPercent
+        ? (product.baseDepositAmt / 100) * lineTotal
+        : product.baseDepositAmt * quantity
+      depositAmount += dep
+
+      resolvedItems.push({
+        productId: product._id,
+        productName: product.name,
+        productImage: product.imageUrl,
+        rentalPeriodLabel: item.rentalPeriodLabel || `${days} day(s)`,
+        quantity,
+        unitPrice,
+        lineTotal,
+      })
+
+      await Product.findByIdAndUpdate(product._id, {
+        $inc: { availableStock: -quantity },
+      })
+    }
+
+    const totalAmount = subTotal + depositAmount
+    const invoiceNumber = `INV/${new Date().getFullYear()}/${String(Date.now()).slice(-6)}`
+    const isStorePickup = deliveryMethod === 'store' || deliveryMethod === 'STORE_PICKUP'
 
     const order = await Order.create({
-      orderNumber,
-      customerName: address?.name || 'Aryan Sharma',
-      customerEmail: address?.email || 'aryan@domain.com',
+      orderNumber: generateOrderNumber(),
+      userId: user!.userId,
       status: 'CONFIRMED',
-      fulfillmentStatus: 'PICKUP_SCHEDULED',
-      invoiceStatus: 'INVOICED',
-      items: (cartItems || []).map((item: any) => ({
-        productName: item.productName || 'Camera Equipment',
-        productId: item.productId,
-        quantity: item.quantity || 1,
-        dailyRate: item.dailyRate || 500,
-        total: (item.dailyRate || 500) * (item.quantity || 1),
-      })),
-      rentalStartDate: rentalStart ? new Date(rentalStart) : new Date(),
-      rentalEndDate: rentalEnd ? new Date(rentalEnd) : new Date(Date.now() + 5 * 86400000),
-      netAmount: totalAmount,
-      depositHeld: 200,
-      totalPaid: totalAmount + 200,
-      invoiceNumber,
+      deliveryMode: isStorePickup ? 'STORE_PICKUP' : 'SHIPPING',
+      shippingAddress: isStorePickup
+        ? undefined
+        : {
+            line1: customerAddress.line1,
+            city: customerAddress.city,
+            state: customerAddress.state,
+            pincode: customerAddress.pincode,
+          },
+      items: resolvedItems,
+      subTotal,
+      depositAmount,
+      totalAmount,
+      rentalStart: start,
+      rentalEnd: end,
+      lateFeeCharged: 0,
+      invoiceRef: invoiceNumber,
+      deposit: {
+        amount: depositAmount,
+        status: 'HELD',
+        refundedAmount: 0,
+        deductedAmount: 0,
+        transactions: [
+          {
+            type: 'HOLD',
+            amount: depositAmount,
+            note: 'Deposit held on order confirmation',
+          },
+        ],
+      },
     })
 
-    // Trigger automated email with computer-generated Amazon-style Tax Invoice attachment
-    const customerEmail = address?.email || 'aryan@domain.com'
-    const customerName = address?.name || 'Aryan Sharma'
-    const fullAddress = address?.street
-      ? `${address.street}, ${address.city}, ${address.state} - ${address.pincode}`
-      : '102 Apex Towers, Hill Road, Bandra West, Mumbai, MH - 400050'
+    await Notification.create({
+      userId: user!.userId,
+      type: 'ORDER_CONFIRMED',
+      title: 'Order Confirmed!',
+      message: `Your order ${order.orderNumber} has been confirmed. Deposit of ₹${depositAmount} is held.`,
+      linkHref: `/dashboard/orders/${order._id}`,
+      relatedOrderId: order._id,
+    })
 
     sendOrderConfirmationEmail({
-      userEmail: customerEmail,
-      userName: customerName,
-      orderNumber,
+      userEmail: customerAddress.email,
+      userName: customerAddress.name,
+      orderNumber: order.orderNumber,
       invoiceNumber,
-      items: (cartItems || []).map((item: any) => ({
-        productName: item.productName || 'Camera Equipment',
-        quantity: item.quantity || 1,
-        unitPrice: item.dailyRate || 500,
-        sku: item.productId ? `SKU-${String(item.productId).slice(-6)}` : 'EQP-2026-N1',
+      items: resolvedItems.map((i) => ({
+        productName: i.productName,
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
       })),
       totalAmount,
-      depositAmount: 200,
-      rentalStart: rentalStart || new Date().toISOString(),
-      rentalEnd: rentalEnd || new Date(Date.now() + 5 * 86400000).toISOString(),
-      customerAddress: fullAddress,
-    }).catch(err => console.error('[CHECKOUT_CONFIRM] Non-blocking mail trigger error:', err))
+      depositAmount,
+      rentalStart: start.toISOString(),
+      rentalEnd: end.toISOString(),
+      customerAddress: `${customerAddress.line1}, ${customerAddress.city}, ${customerAddress.state} - ${customerAddress.pincode}`,
+    }).catch((e) => console.error('[MAILER ERROR]', e))
 
-    return NextResponse.json({
-      success: true,
-      orderNumber,
-      invoiceNumber,
-      order,
-    })
-  } catch (err: any) {
-    // Fallback order ref if db connection fails
-    const fallbackOrder = `SO00010`
-    return NextResponse.json({
-      success: true,
-      orderNumber: fallbackOrder,
-      invoiceNumber: 'INV/2026/0001',
-    })
+    return apiOk(
+      {
+        success: true,
+        orderId: order._id,
+        orderNumber: order.orderNumber,
+        invoiceNumber,
+        order,
+      },
+      201
+    )
+  } catch (err) {
+    console.error('[CHECKOUT_CONFIRM]', err)
+    return apiError('Failed to confirm order. Please try again.', 500)
   }
 }

@@ -20,6 +20,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const quote = await Quotation.findById(id)
   if (!quote) return apiError('Quotation not found', 404)
 
+  // Only the owner, staff, or admin may convert a quotation
+  const isStaffOrAdmin = user!.role === 'ADMIN' || user!.role === 'STAFF'
+  if (!isStaffOrAdmin && String(quote.userId) !== user!.userId) {
+    return apiError('Forbidden: you can only convert your own quotations', 403)
+  }
+
   if (quote.status === 'EXPIRED' || new Date() > quote.validUntil) {
     await Quotation.findByIdAndUpdate(id, { status: 'EXPIRED' })
     return apiError('Quotation has expired', 410)

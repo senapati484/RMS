@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useCart, type CartItem } from '@/context'
 import {
-  ShoppingBag, Trash2, Bookmark, ArrowRight,
-  Calendar as CalendarIcon, CreditCard, X
+  ShoppingBag, Trash2, Bookmark,
+  Calendar as CalendarIcon, CreditCard, X, Loader2
 } from 'lucide-react'
 
 export default function CartPage() {
@@ -15,6 +15,7 @@ export default function CartPage() {
   const [couponCode, setCouponCode] = useState('')
   const [discountApplied, setDiscountApplied] = useState(false)
   const [showExpressModal, setShowExpressModal] = useState(false)
+  const [expressLoading, setExpressLoading] = useState(false)
 
   // Express Checkout Form State
   const [expressForm, setExpressForm] = useState({
@@ -29,6 +30,8 @@ export default function CartPage() {
 
   const discountAmount = discountApplied ? Math.round(cartTotal * 0.1) : 0
   const finalTotal = Math.max(0, cartTotal - discountAmount)
+  const rentalStart = cartItems[0]?.rentalStart
+  const rentalEnd = cartItems[0]?.rentalEnd
 
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) {
@@ -39,11 +42,49 @@ export default function CartPage() {
     toast.success('Promo Coupon Applied! 10% instant discount unlocked')
   }
 
-  const handleExpressPayment = () => {
-    toast.success('Express Checkout Payment Authorized!')
-    setShowExpressModal(false)
-    clearCart()
-    router.push('/dashboard/orders')
+  const handleExpressPayment = async () => {
+    if (!cartItems.length) {
+      toast.error('Your cart is empty')
+      return
+    }
+    setExpressLoading(true)
+    try {
+      const start = rentalStart || new Date().toISOString()
+      const end = rentalEnd || new Date(Date.now() + 5 * 86400000).toISOString()
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: cartItems.map(i => ({
+            productId: i.productId,
+            quantity: i.quantity,
+            rentalPeriodLabel: `${new Date(start).toLocaleDateString()} to ${new Date(end).toLocaleDateString()}`,
+          })),
+          rentalStart: start,
+          rentalEnd: end,
+          deliveryMode: 'SHIPPING',
+          shippingAddress: {
+            line1: expressForm.address,
+            city: expressForm.city,
+            state: expressForm.country,
+            pincode: expressForm.zipCode,
+          },
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || 'Express checkout failed. Please try again.')
+        return
+      }
+      clearCart()
+      setShowExpressModal(false)
+      toast.success(`Express Checkout Complete — Order ${data.orderNumber}!`)
+      router.push(`/checkout/success?orderId=${data._id}&orderNumber=${data.orderNumber}`)
+    } catch {
+      toast.error('Express checkout failed. Please try again.')
+    } finally {
+      setExpressLoading(false)
+    }
   }
 
   return (
@@ -83,7 +124,7 @@ export default function CartPage() {
 
           <div className="space-y-4">
             {cartItems.map((item: CartItem, idx: number) => (
-              <div key={item.productId || idx} className="liquid-glass border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4">
+              <div key={item.lineId || item.productId || idx} className="liquid-glass border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-white/5 rounded-xl overflow-hidden shrink-0 border border-white/10">
                     <img src={item.productImage} alt={item.productName} className="w-full h-full object-cover" />
@@ -99,17 +140,17 @@ export default function CartPage() {
 
                 <div className="flex flex-col items-end gap-2">
                   <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-1 text-xs font-mono font-bold">
-                    <button onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))} className="w-6 h-6 hover:bg-white/10 rounded">
+                    <button onClick={() => updateQuantity(item.lineId || item.productId, Math.max(1, item.quantity - 1))} className="w-6 h-6 hover:bg-white/10 rounded">
                       -
                     </button>
                     <span className="w-8 text-center">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="w-6 h-6 hover:bg-white/10 rounded">
+                    <button onClick={() => updateQuantity(item.lineId || item.productId, item.quantity + 1)} className="w-6 h-6 hover:bg-white/10 rounded">
                       +
                     </button>
                   </div>
 
                   <div className="flex items-center gap-3 text-[11px]">
-                    <button onClick={() => removeFromCart(item.productId)} className="text-white/40 hover:text-red-400 flex items-center gap-1 cursor-pointer">
+                    <button onClick={() => removeFromCart(item.lineId || item.productId)} className="text-white/40 hover:text-red-400 flex items-center gap-1 cursor-pointer">
                       <Trash2 size={12} /> Remove
                     </button>
                     <button onClick={() => toast.info('Saved for Later')} className="text-white/40 hover:text-white flex items-center gap-1 cursor-pointer">
@@ -147,11 +188,15 @@ export default function CartPage() {
             <div className="space-y-3 text-xs">
               <div className="flex justify-between text-white/60">
                 <span>Start Date / Time:</span>
-                <span className="text-white font-mono">2026-08-10 10:00 AM</span>
+                <span className="text-white font-mono">
+                  {rentalStart ? new Date(rentalStart).toLocaleString() : '—'}
+                </span>
               </div>
               <div className="flex justify-between text-white/60">
                 <span>End Date / Time:</span>
-                <span className="text-white font-mono">2026-08-15 07:00 PM</span>
+                <span className="text-white font-mono">
+                  {rentalEnd ? new Date(rentalEnd).toLocaleString() : '—'}
+                </span>
               </div>
               <div className="flex justify-between text-white/60">
                 <span>Delivery Charges:</span>
@@ -293,7 +338,8 @@ export default function CartPage() {
               <button onClick={() => setShowExpressModal(false)} className="px-4 py-2 rounded-xl text-xs text-white/50 hover:text-white bg-white/5">
                 Cancel
               </button>
-              <button onClick={handleExpressPayment} className="px-6 py-2.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-md cursor-pointer">
+              <button onClick={handleExpressPayment} disabled={expressLoading} className="px-6 py-2.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-md cursor-pointer disabled:opacity-60 flex items-center gap-2">
+                {expressLoading && <Loader2 size={13} className="animate-spin" />}
                 Pay Now (Rs. {finalTotal})
               </button>
             </div>

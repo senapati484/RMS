@@ -8,6 +8,7 @@ import { User } from '@/models/User'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
 import { generateOrderNumber } from '@/lib/order-number'
+import { calculateRentalDays, calculateItemRentalPrice } from '@/lib/rental-pricing'
 import { sendOrderConfirmationEmail } from '@/lib/mailer'
 
 export async function GET(req: NextRequest) {
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
   await connectDB()
   const { searchParams } = new URL(req.url)
   const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
-  const limit = parseInt(searchParams.get('limit') || '20')
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')))
   const status = searchParams.get('status')
 
   const userIdFilter: unknown[] = [user!.userId]
@@ -61,7 +62,16 @@ export async function POST(req: NextRequest) {
       return apiError('items, rentalStart, rentalEnd are required')
     }
 
-    // Validate stock and compute totals
+    const start = new Date(rentalStart)
+    const end = new Date(rentalEnd)
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) {
+      return apiError('Invalid rental period')
+    }
+    const days = calculateRentalDays(rentalStart, rentalEnd)
+
+    // Validate stock and compute totals — prices are always derived from the
+    // product's own daily rate on the server (client-supplied unitPrice is
+    // ignored to prevent price forgery).
     let subTotal = 0
     let depositAmount = 0
     const resolvedItems = []
@@ -69,7 +79,9 @@ export async function POST(req: NextRequest) {
     for (const item of items) {
       const product = await Product.findById(item.productId)
       if (!product) return apiError(`Product ${item.productId} not found`, 404)
-      if (product.availableStock < item.quantity) {
+
+      const quantity = Math.max(1, Math.floor(item.quantity || 1))
+      if (product.availableStock < quantity) {
         return apiError(`Insufficient stock for ${product.name}`, 400)
       }
 
@@ -86,27 +98,29 @@ export async function POST(req: NextRequest) {
       }
       // ─────────────────────────────────────────────────────────────────
 
-      const lineTotal = item.unitPrice * item.quantity
+      const pricing = calculateItemRentalPrice(product.dailyRate || 0, days, quantity)
+      const unitPrice = pricing.discountedDailyRate
+      const lineTotal = pricing.lineSubtotal
       subTotal += lineTotal
 
       const dep = product.depositIsPercent
         ? (product.baseDepositAmt / 100) * lineTotal
-        : product.baseDepositAmt * item.quantity
+        : product.baseDepositAmt * quantity
       depositAmount += dep
 
       resolvedItems.push({
         productId: product._id,
         productName: product.name,
         productImage: product.imageUrl,
-        rentalPeriodLabel: item.rentalPeriodLabel,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
+        rentalPeriodLabel: item.rentalPeriodLabel || pricing.rentalPeriodLabel,
+        quantity,
+        unitPrice,
         lineTotal,
       })
 
       // Reserve stock
       await Product.findByIdAndUpdate(product._id, {
-        $inc: { availableStock: -item.quantity },
+        $inc: { availableStock: -quantity },
       })
     }
 
@@ -121,8 +135,8 @@ export async function POST(req: NextRequest) {
       subTotal,
       depositAmount,
       totalAmount,
-      rentalStart: new Date(rentalStart),
-      rentalEnd: new Date(rentalEnd),
+      rentalStart: start,
+      rentalEnd: end,
       lateFeeCharged: 0,
       deposit: {
         amount: depositAmount,
@@ -145,7 +159,7 @@ export async function POST(req: NextRequest) {
       type: 'ORDER_CONFIRMED',
       title: 'Order Confirmed!',
       message: `Your order ${order.orderNumber} has been confirmed. Deposit of ₹${depositAmount} is held.`,
-      linkHref: `/orders/${order._id}`,
+      linkHref: `/dashboard/orders/${order._id}`,
       relatedOrderId: order._id,
     })
 
@@ -154,11 +168,15 @@ export async function POST(req: NextRequest) {
       userEmail: user!.email,
       userName: user!.name || 'Valued Customer',
       orderNumber: order.orderNumber,
-      items: resolvedItems,
+      items: resolvedItems.map((i) => ({
+        productName: i.productName,
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+      })),
       totalAmount,
       depositAmount,
-      rentalStart: String(rentalStart),
-      rentalEnd: String(rentalEnd),
+      rentalStart: start.toISOString(),
+      rentalEnd: end.toISOString(),
     }).catch((e) => console.error('[MAILER ERROR]', e))
 
     return apiOk(order, 201)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectDB } from '@/lib/db'
 import { Pricelist } from '@/models/Pricelist'
+import { getUserFromRequest, requireAdmin } from '@/lib/api-helpers'
 
 export async function GET() {
   await connectDB()
@@ -9,6 +10,10 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getUserFromRequest(req)
+  const authErr = requireAdmin(user)
+  if (authErr) return authErr
+
   await connectDB()
   try {
     const body = await req.json()

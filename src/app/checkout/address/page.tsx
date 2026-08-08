@@ -17,6 +17,7 @@ export default function CheckoutAddressPage() {
   const [deliveryMethod, setDeliveryMethod] = useState<'standard' | 'store'>('standard')
   const [sameAsBilling, setSameAsBilling] = useState(true)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [editingAddress, setEditingAddress] = useState(false)
 
   // Segregated Address States
   const [customerAddress, setCustomerAddress] = useState({
@@ -33,6 +34,22 @@ export default function CheckoutAddressPage() {
     city: 'Mumbai',
     state: 'Maharashtra',
     pincode: '400050',
+  }
+
+  const handleProceedToPayment = () => {
+    if (deliveryMethod === 'standard' && !customerAddress.line1.trim()) {
+      toast.error('Please provide your delivery address')
+      return
+    }
+    try {
+      sessionStorage.setItem(
+        'lease360_checkout',
+        JSON.stringify({ deliveryMethod, sameAsBilling, customerAddress })
+      )
+    } catch {
+      // ignore
+    }
+    router.push('/checkout/payment')
   }
 
   return (
@@ -52,7 +69,7 @@ export default function CheckoutAddressPage() {
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             className="w-9 h-9 rounded-full bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] flex items-center justify-center font-bold text-xs cursor-pointer shadow-md"
           >
-            {user ? user.name[0].toUpperCase() : <UserCheckIcon size={16} />}
+            {user ? (user.name?.[0] || 'U').toUpperCase() : <UserCheckIcon size={16} />}
           </button>
 
           {showProfileMenu && (
@@ -158,24 +175,76 @@ export default function CheckoutAddressPage() {
                     Customer Delivery Address
                   </h2>
                   <button
-                    onClick={() => toast.info('Edit Customer Address')}
+                    onClick={() => setEditingAddress(!editingAddress)}
                     className="p-2 text-white/40 hover:text-white cursor-pointer"
                   >
                     <Edit2 size={16} />
                   </button>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-bold text-sm">{customerAddress.name}</span>
-                    <span className="bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] px-2.5 py-0.5 rounded-full text-[10px] font-bold">
-                      Customer Delivery Address
-                    </span>
+                {editingAddress ? (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+                    <div>
+                      <label className="block text-white/50 text-[11px] font-semibold mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        value={customerAddress.name}
+                        onChange={e => setCustomerAddress({ ...customerAddress, name: e.target.value })}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-[#F26522]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-white/50 text-[11px] font-semibold mb-1">Address Line</label>
+                      <input
+                        type="text"
+                        value={customerAddress.line1}
+                        onChange={e => setCustomerAddress({ ...customerAddress, line1: e.target.value })}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-[#F26522]"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <input
+                        type="text"
+                        placeholder="City"
+                        value={customerAddress.city}
+                        onChange={e => setCustomerAddress({ ...customerAddress, city: e.target.value })}
+                        className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-[#F26522]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="State"
+                        value={customerAddress.state}
+                        onChange={e => setCustomerAddress({ ...customerAddress, state: e.target.value })}
+                        className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-[#F26522]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Pincode"
+                        value={customerAddress.pincode}
+                        onChange={e => setCustomerAddress({ ...customerAddress, pincode: e.target.value })}
+                        className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-[#F26522]"
+                      />
+                    </div>
+                    <button
+                      onClick={() => setEditingAddress(false)}
+                      className="w-full py-2 rounded-xl bg-[#F26522] text-white font-bold text-xs cursor-pointer"
+                    >
+                      Save Address
+                    </button>
                   </div>
-                  <p className="text-white/60 text-xs leading-relaxed font-mono">
-                    {customerAddress.line1}, {customerAddress.city}, {customerAddress.state} - {customerAddress.pincode}
-                  </p>
-                </div>
+                ) : (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-white font-bold text-sm">{customerAddress.name}</span>
+                      <span className="bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                        Customer Delivery Address
+                      </span>
+                    </div>
+                    <p className="text-white/60 text-xs leading-relaxed font-mono">
+                      {customerAddress.line1}, {customerAddress.city}, {customerAddress.state} - {customerAddress.pincode}
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               /* Vendor Warehouse Pickup Address Card */
@@ -249,12 +318,11 @@ export default function CheckoutAddressPage() {
             </div>
 
             <button
-              onClick={() => router.push('/checkout/payment')}
+              onClick={handleProceedToPayment}
               className="w-full py-3.5 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Proceed to Payment →</span>
             </button>
-
             <Link href="/cart" className="block text-center text-xs text-white/40 hover:text-white pt-1">
               ‹ Back to Cart
             </Link>

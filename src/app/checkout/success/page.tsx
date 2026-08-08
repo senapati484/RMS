@@ -1,5 +1,5 @@
 'use client'
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
@@ -10,9 +10,39 @@ import {
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams()
-  const orderNumber = searchParams.get('orderNumber') || 'SO00010'
+  const orderId = searchParams.get('orderId')
+  const orderNumberParam = searchParams.get('orderNumber') || 'SO00010'
   const { user, logout } = useAuth()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [order, setOrder] = useState<any>(null)
+  const [fetchFailed, setFetchFailed] = useState(false)
+
+  const orderNumber = order?.orderNumber || orderNumberParam
+
+  useEffect(() => {
+    if (!orderId) {
+      setFetchFailed(true)
+      return
+    }
+    fetch(`/api/orders/${orderId}`)
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (data && !data.error) {
+          setOrder(data)
+        } else {
+          setFetchFailed(true)
+        }
+      })
+      .catch(() => setFetchFailed(true))
+  }, [orderId])
+
+  const customerAddress = order?.shippingAddress || {}
+  const items = order?.items || []
+  const subTotal = order?.subTotal ?? 0
+  const depositAmount = order?.depositAmount ?? 0
+  const totalAmount = order?.totalAmount ?? subTotal
+  const rentalStart = order ? new Date(order.rentalStart).toLocaleString() : '—'
+  const rentalEnd = order ? new Date(order.rentalEnd).toLocaleString() : '—'
 
   const handlePrintInvoice = () => {
     if (typeof window !== 'undefined') {
@@ -44,7 +74,7 @@ function OrderSuccessContent() {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="w-9 h-9 rounded-full bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] flex items-center justify-center font-bold text-xs cursor-pointer shadow-md"
             >
-              {user ? user.name[0].toUpperCase() : <UserCheckIcon size={16} />}
+              {user ? (user.name?.[0] || 'U').toUpperCase() : <UserCheckIcon size={16} />}
             </button>
 
             {showProfileMenu && (
@@ -109,10 +139,13 @@ function OrderSuccessContent() {
                   Customer Delivery Address
                 </span>
                 <div className="pt-1">
-                  <h3 className="text-white font-bold text-base">Aryan Sharma</h3>
+                  <h3 className="text-white font-bold text-base">
+                    {fetchFailed && !order ? user?.name || 'Customer' : customerAddress.name || user?.name || 'Customer'}
+                  </h3>
                   <p className="text-white/60 text-xs font-mono leading-relaxed mt-1">
-                    102 Apex Towers, Hill Road, Bandra West,<br />
-                    Mumbai, Maharashtra - 400050
+                    {order?.deliveryMode === 'STORE_PICKUP'
+                      ? 'Pickup from Vendor Warehouse'
+                      : `${customerAddress.line1 || ''}, ${customerAddress.city || ''}, ${customerAddress.state || ''} - ${customerAddress.pincode || ''}`}
                   </p>
                 </div>
               </div>
@@ -135,23 +168,42 @@ function OrderSuccessContent() {
             {/* Right Summary Panel matching Excalidraw */}
             <div className="lg:col-span-6 liquid-glass border border-white/10 rounded-2xl p-5 space-y-4">
               {/* Product Info */}
-              <div className="flex items-center gap-4 border-b border-white/10 pb-4">
-                <div className="w-14 h-14 bg-white/5 rounded-xl border border-white/10 overflow-hidden shrink-0">
-                  <img src="/logo.png" alt="Equipment" className="w-full h-full object-contain p-2" />
+              {items.length > 0 ? (
+                <div className="space-y-3 border-b border-white/10 pb-4">
+                  {items.map((item: any, idx: number) => (
+                    <div key={idx} className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-white/5 rounded-xl border border-white/10 overflow-hidden shrink-0">
+                        <img
+                          src={item.productImage || '/logo.png'}
+                          alt={item.productName}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-bold text-sm">{item.productName} ×{item.quantity}</h4>
+                        <div className="text-[#F26522] font-mono font-bold text-xs mt-0.5">Rs. {item.unitPrice} / day</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <h4 className="text-white font-bold text-sm">Sony FX6 Cinema Camera</h4>
-                  <div className="text-[#F26522] font-mono font-bold text-xs mt-0.5">Rs. 1,500 / day</div>
+              ) : (
+                <div className="flex items-center gap-4 border-b border-white/10 pb-4">
+                  <div className="w-14 h-14 bg-white/5 rounded-xl border border-white/10 overflow-hidden shrink-0">
+                    <img src="/logo.png" alt="Equipment" className="w-full h-full object-contain p-2" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold text-sm">Rental Equipment</h4>
+                    <div className="text-white/40 font-mono text-xs mt-0.5">Details unavailable</div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Rental Period Info */}
               <div className="space-y-2 text-xs border-b border-white/10 pb-4 font-mono">
                 <div className="text-white/40 text-[10px] uppercase font-sans font-bold">Rental Period</div>
                 <div className="text-white/80">
-                  Today and time <span className="text-white/30">to</span> end date and time
+                  {rentalStart} <span className="text-white/30">to</span> {rentalEnd}
                 </div>
-                <div className="text-emerald-400 font-semibold">2026-08-10 10:00 AM to 2026-08-15 07:00 PM</div>
               </div>
 
               {/* Breakdown Totals */}
@@ -162,11 +214,15 @@ function OrderSuccessContent() {
                 </div>
                 <div className="flex justify-between text-white/60">
                   <span>Sub Total:</span>
-                  <span className="text-white font-bold">Rs. 7,500</span>
+                  <span className="text-white font-bold">Rs. {subTotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-white/60">
+                  <span>Security Deposit (Refundable):</span>
+                  <span className="text-blue-400 font-bold">Rs. {depositAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-white font-bold text-base border-t border-white/10 pt-3">
                   <span>Total:</span>
-                  <span className="text-[#F26522]">Rs. 7,700</span>
+                  <span className="text-[#F26522]">Rs. {totalAmount.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -179,7 +235,7 @@ function OrderSuccessContent() {
             </Link>
 
             <Link
-              href="/dashboard/orders"
+              href={orderId ? `/dashboard/orders/${orderId}` : '/dashboard/orders'}
               className="bg-[#F26522] hover:bg-[#e05510] text-white font-bold text-xs px-6 py-3 rounded-xl shadow-lg shadow-[#F26522]/20 flex items-center gap-2"
             >
               <span>View Order in Dashboard →</span>

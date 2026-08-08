@@ -258,6 +258,21 @@ export default function RegisterPage() {
                     />
                   </div>
                 </div>
+
+                <div>
+                  <label className="block text-purple-300 text-xs mb-1.5 font-medium">Vendor Partner Access Code *</label>
+                  <input
+                    type="password"
+                    value={form.secretCode}
+                    onChange={(e) => set('secretCode', e.target.value)}
+                    required={isVendor}
+                    placeholder="Provided by Lease360 for vendor onboarding"
+                    className="w-full bg-white/5 border border-purple-500/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-400"
+                  />
+                  <span className="text-[10px] text-white/40 mt-1 block">
+                    Vendors require an organization access code issued by Lease360 to register as a partner store.
+                  </span>
+                </div>
               </div>
             )}
 

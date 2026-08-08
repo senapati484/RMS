@@ -126,7 +126,7 @@ export default function ProfilePage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
           {/* Avatar */}
           <div className="w-20 h-20 bg-gradient-to-br from-[#F26522] to-[#FF8C42] rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-[#F26522]/20 shrink-0">
-            {profile.name[0].toUpperCase()}
+            {(profile.name?.[0] || 'U').toUpperCase()}
           </div>
 
           <div className="flex-1 min-w-0">

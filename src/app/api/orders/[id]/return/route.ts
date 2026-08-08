@@ -30,19 +30,35 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     conditionNote,
     missingAccessories = [],
     damageNoted = false,
-    damageDeduction = 0,
     gracePeriodMins = 30,
   } = body
 
+  // damageDeduction must be a non-negative number and cannot exceed the deposit
+  const damageDeduction = Math.min(
+    order.deposit.amount,
+    Math.max(0, Math.round(Number(body.damageDeduction) || 0))
+  )
+
   const actualReturn = new Date()
+
+  // Late-fee rate: use the highest hourly penalty across the ordered equipment,
+  // falling back to ₹500/day if no product carries a rate.
+  const itemProducts = await Product.find({
+    _id: { $in: order.items.map((i) => i.productId) },
+  }).select('lateFeePerHour periodicity').lean()
+  const hourlyRates = itemProducts
+    .map((p) => p.lateFeePerHour)
+    .filter((r): r is number => typeof r === 'number' && r > 0)
+  const lateFeeRate = hourlyRates.length ? Math.max(...hourlyRates) : 500
+  const feeUnit = hourlyRates.length ? 'HOURLY' : 'DAILY'
 
   // Calculate late fee
   const feeResult = calculateLateFee({
     rentalEnd: order.rentalEnd,
     actualReturn,
     gracePeriodMins,
-    unit: 'DAILY',
-    ratePerUnit: 500, // configurable — ₹500/day late fee
+    unit: feeUnit,
+    ratePerUnit: lateFeeRate,
     maxFeeCap: order.deposit.amount,
     depositAmount: order.deposit.amount,
   })

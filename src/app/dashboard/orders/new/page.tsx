@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
@@ -37,7 +37,7 @@ const RENTAL_PRESETS = [
   { label: '1 Month (40% Off)', days: 30 },
 ]
 
-export default function NewOrderPage() {
+function NewOrderPage() {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -381,5 +381,17 @@ export default function NewOrderPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function NewOrderPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
+      </div>
+    }>
+      <NewOrderPage />
+    </Suspense>
   )
 }

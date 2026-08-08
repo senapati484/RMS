@@ -279,7 +279,7 @@ export default function UsersManagementPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-sm text-white shrink-0 shadow-lg bg-white/10 border border-white/15">
-                      {u.name[0].toUpperCase()}
+                      {(u.name?.[0] || 'U').toUpperCase()}
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-white text-sm font-bold truncate group-hover:text-brand-orange transition-colors duration-200 ease-out">{u.name}</h3>
@@ -387,7 +387,7 @@ export default function UsersManagementPage() {
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-xl bg-white/10 text-white font-bold flex items-center justify-center border border-white/15 shrink-0">
-                            {u.name[0].toUpperCase()}
+                            {(u.name?.[0] || 'U').toUpperCase()}
                           </div>
                           <div>
                             <div className="text-white font-semibold">{u.name}</div>

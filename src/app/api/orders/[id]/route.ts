@@ -53,9 +53,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return apiError('Forbidden', 403)
   }
 
-  // Portal users can only cancel their own confirmed orders
-  if (body.status && user!.role === 'PORTAL_USER' && body.status !== 'CANCELLED') {
-    return apiError('Forbidden: cannot set this status', 403)
+  // Portal users can only cancel their own confirmed orders — and nothing else
+  if (user!.role === 'PORTAL_USER') {
+    const allowedCancellation = body.status === 'CANCELLED' && order.status === 'CONFIRMED'
+    if (!allowedCancellation) {
+      return apiError('Forbidden: you can only cancel your own confirmed orders', 403)
+    }
+  }
+
+  // Staff/Admin may only change the status via PATCH; all other fields
+  // (totals, deposit, items…) are managed by dedicated endpoints.
+  const keys = Object.keys(body)
+  const onlyStatus = keys.length === 1 && keys[0] === 'status'
+  if (user!.role !== 'PORTAL_USER' && !onlyStatus) {
+    return apiError('Only the status field can be updated here', 400)
   }
 
   const prevStatus = order.status

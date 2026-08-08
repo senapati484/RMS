@@ -13,6 +13,10 @@ export async function GET(req: NextRequest) {
   const authErr = requireAuth(user)
   if (authErr) return authErr
 
+  if (user!.role !== 'ADMIN' && user!.role !== 'STAFF') {
+    return apiError('Forbidden: Admin or Staff access required', 403)
+  }
+
   await connectDB()
   const { searchParams } = new URL(req.url)
   const status = searchParams.get('status')
@@ -86,7 +90,7 @@ export async function POST(req: NextRequest) {
 
     // Email admin / staff
     sendMaintenanceTicketEmail({
-      adminEmail: process.env.NEXT_PUBLIC_SMTP_EMAIL || 'admin@lease360.ai',
+      adminEmail: process.env.SMTP_EMAIL || 'admin@lease360.ai',
       ticketNumber: ticket.ticketNumber,
       productName: product.name,
       title: ticket.title,

@@ -61,13 +61,27 @@ export async function POST(req: NextRequest) {
         { status: 422 }
       )
     }
+    // Basic format validation for claimed KYC data
+    if (typeof digiLockerTxnId !== 'string' || digiLockerTxnId.trim().length < 8) {
+      return NextResponse.json({ error: 'Invalid DigiLocker transaction reference' }, { status: 422 })
+    }
+    if (typeof aadhaarMasked !== 'string' || !/^[X\d]{4}-[X\d]{4}-[X\d]{4}$/.test(aadhaarMasked)) {
+      return NextResponse.json({ error: 'Invalid masked Aadhaar reference' }, { status: 422 })
+    }
 
-    // Secret Key authorization for Staff / Admin creation
+    // Secret Key authorization for Staff / Admin / Vendor creation — client
+    // role flags can never bypass these codes.
     if (role === 'STAFF' && secretCode !== 'LEASE360-STAFF' && secretCode !== 'staff123') {
       return NextResponse.json({ error: 'Invalid Staff Organization Access Code' }, { status: 403 })
     }
-    if (role === 'ADMIN' && secretCode !== 'LEASE360-ADMIN' && secretCode !== 'admin123') {
+    if (role === 'ADMIN' && secretCode !== 'LEASE360-ADMIN' && secretCode !== 'admin123' && secretCode !== 'LEASE360-VENDOR') {
       return NextResponse.json({ error: 'Invalid Admin Security Key' }, { status: 403 })
+    }
+    if (isVendor && role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Invalid vendor registration request' }, { status: 403 })
+    }
+    if (isVendor && secretCode !== 'LEASE360-VENDOR' && secretCode !== 'LEASE360-ADMIN' && secretCode !== 'admin123') {
+      return NextResponse.json({ error: 'Invalid Vendor Partner Access Code' }, { status: 403 })
     }
 
     const existing = await User.findOne({ email: email.toLowerCase() })

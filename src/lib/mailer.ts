@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 
-const SMTP_EMAIL = process.env.NEXT_PUBLIC_SMTP_EMAIL || process.env.SMTP_EMAIL
-const SMTP_PASS = process.env.NEXT_PUBLIC_SMTP_PASS || process.env.SMTP_PASS
+const SMTP_EMAIL = process.env.SMTP_EMAIL
+const SMTP_PASS = process.env.SMTP_PASS
 
 // Configure transport (Gmail default or custom SMTP)
 const transporter = nodemailer.createTransport({
@@ -135,7 +135,9 @@ export async function sendOrderConfirmationEmail({
     )
     .join('')
 
-  const subtotal = totalAmount
+  // totalAmount already includes the refundable deposit — extract the true
+  // equipment subtotal so the deposit is not double-counted on the invoice.
+  const subtotal = Math.max(0, totalAmount - depositAmount)
   const taxAmount = Math.round(subtotal * 0.18)
   const totalPaid = subtotal + depositAmount
 
@@ -199,7 +201,7 @@ export async function sendOrderConfirmationEmail({
       </tbody>
     </table>
 
-    <div style="background-color: rgba(255, 255, 255, 0.03); border: 1px border-dashed #333333; border-radius: 8px; padding: 16px; margin-top: 24px; font-size: 12px; color: #AAAAAA;">
+    <div style="background-color: rgba(255, 255, 255, 0.03); border: 1px dashed #333333; border-radius: 8px; padding: 16px; margin-top: 24px; font-size: 12px; color: #AAAAAA;">
       <strong style="color: #FFFFFF;">📎 Attachment Included:</strong><br>
       Your computer-generated tax invoice <code>Tax_Invoice_${orderNumber}.html</code> is attached to this email. Please keep it for your accounting and proof of equipment rental ownership.
     </div>

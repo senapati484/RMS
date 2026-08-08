@@ -60,7 +60,7 @@ export function generateAmazonStyleInvoiceHtml(data: InvoiceData): string {
     .totals-table { width: 320px; float: right; border-collapse: collapse; margin-bottom: 24px; }
     .totals-table td { padding: 6px 12px; font-size: 13px; }
     .paid-stamp { display: inline-block; background-color: #DCFCE7; color: #166534; border: 2px solid #22C55E; font-weight: bold; font-size: 14px; padding: 6px 16px; border-radius: 9999px; text-transform: uppercase; }
-    .footer-note { clear: both; border-top: 1px border-dashed #D1D5DB; pt: 16px; font-size: 11px; color: #6B7280; text-align: center; margin-top: 40px; }
+    .footer-note { clear: both; border-top: 1px dashed #D1D5DB; padding-top: 16px; font-size: 11px; color: #6B7280; text-align: center; margin-top: 40px; }
   </style>
 </head>
 <body>

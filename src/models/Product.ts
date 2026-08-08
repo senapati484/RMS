@@ -13,6 +13,7 @@ export interface IProduct extends Document {
   description?: string
   imageUrl?: string
   productType: ProductType
+  itemKind: 'GOODS' | 'SERVICE'
   category: string       // derived from productType, kept for backwards compat
   brand?: string
   sku: string
@@ -20,8 +21,15 @@ export interface IProduct extends Document {
   totalStock: number
   availableStock: number
   dailyRate: number
+  costPrice?: number
+  salesPrice?: number
   baseDepositAmt: number
   depositIsPercent: boolean
+  periodicity?: 'HOURLY' | 'DAILY' | 'NIGHTLY' | 'WEEKLY'
+  paddingTimeHours?: number
+  pickupTime?: string
+  returnTime?: string
+  lateFeePerHour?: number
   accessoryList: string[]
   tags: string[]
   specifications: Map<string, string>  // type-specific key-value specs
@@ -42,6 +50,11 @@ const ProductSchema = new Schema<IProduct>(
       enum: ['camera', 'lens', 'audio', 'lighting', 'monitor', 'vehicle', 'support', 'furniture', 'event', 'other'],
       default: 'other',
     },
+    itemKind: {
+      type: String,
+      enum: ['GOODS', 'SERVICE'],
+      default: 'GOODS',
+    },
     category: { type: String, required: true },
     brand: { type: String },
     sku: { type: String, required: true, unique: true },
@@ -53,8 +66,15 @@ const ProductSchema = new Schema<IProduct>(
     totalStock: { type: Number, default: 1, min: 0 },
     availableStock: { type: Number, default: 1, min: 0 },
     dailyRate: { type: Number, default: 500, min: 0 },
+    costPrice: { type: Number, default: 0 },
+    salesPrice: { type: Number, default: 500 },
     baseDepositAmt: { type: Number, default: 0 },
     depositIsPercent: { type: Boolean, default: false },
+    periodicity: { type: String, enum: ['HOURLY', 'DAILY', 'NIGHTLY', 'WEEKLY'], default: 'DAILY' },
+    paddingTimeHours: { type: Number, default: 2 },
+    pickupTime: { type: String, default: '10:00' },
+    returnTime: { type: String, default: '19:00' },
+    lateFeePerHour: { type: Number, default: 100 },
     accessoryList: [{ type: String }],
     tags: [{ type: String }],
     specifications: {

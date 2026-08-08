@@ -2,9 +2,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Loader2, Camera, Monitor, Car, Mic, Lightbulb, Armchair, Tent, Speaker, Box } from 'lucide-react'
-
-// ── Product Type Config ─────────────────────────────────────────────────────
+import {
+  Loader2, Camera, Monitor, Car, Mic, Lightbulb, Armchair, Tent, Box,
+  Info, Sliders, DollarSign, Plus, Trash2, ShieldCheck, CheckCircle2
+} from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 
 const PRODUCT_TYPES = [
   { value: 'camera',     label: 'Camera',     icon: Camera },
@@ -19,139 +21,84 @@ const PRODUCT_TYPES = [
   { value: 'other',      label: 'Other',      icon: Box },
 ] as const
 
-type ProductType = typeof PRODUCT_TYPES[number]['value']
-
-// Spec fields per product type
-const SPEC_FIELDS: Record<ProductType, Array<{ key: string; label: string; placeholder: string }>> = {
-  camera: [
-    { key: 'sensorSize',    label: 'Sensor Size',       placeholder: 'Full Frame / APS-C / MFT' },
-    { key: 'resolution',    label: 'Resolution (MP)',    placeholder: '24.2 MP' },
-    { key: 'mountType',     label: 'Lens Mount',         placeholder: 'Sony E / Canon RF / Nikon Z' },
-    { key: 'videoSpec',     label: 'Video Capability',   placeholder: '4K 60fps / 6K RAW' },
-    { key: 'afPoints',      label: 'AF Points',          placeholder: '693 Phase Detect' },
-    { key: 'isoRange',      label: 'ISO Range',          placeholder: '100-51200' },
-  ],
-  lens: [
-    { key: 'focalLength',   label: 'Focal Length',       placeholder: '50mm / 24-70mm' },
-    { key: 'aperture',      label: 'Max Aperture',       placeholder: 'f/1.4 / f/2.8' },
-    { key: 'mountType',     label: 'Lens Mount',         placeholder: 'Sony E / Canon EF' },
-    { key: 'filterSize',    label: 'Filter Thread',      placeholder: '77mm / 82mm' },
-    { key: 'oisStabilizer', label: 'Stabilization',      placeholder: 'OIS / IS / VR / None' },
-    { key: 'minFocusDist',  label: 'Min Focus Distance', placeholder: '0.45m' },
-  ],
-  audio: [
-    { key: 'polarPattern',  label: 'Polar Pattern',      placeholder: 'Cardioid / Hypercardioid / Omni' },
-    { key: 'freqResponse',  label: 'Freq Response',      placeholder: '20Hz - 20kHz' },
-    { key: 'connectivity',  label: 'Connectivity',       placeholder: 'XLR / 3.5mm / USB-C' },
-    { key: 'sensitivity',   label: 'Sensitivity (dBV)',  placeholder: '-38 dBV/Pa' },
-    { key: 'powerReq',      label: 'Power',              placeholder: 'Phantom 48V / Battery' },
-    { key: 'spl',           label: 'Max SPL',            placeholder: '132 dB' },
-  ],
-  lighting: [
-    { key: 'wattage',       label: 'Wattage',            placeholder: '60W / 150W' },
-    { key: 'colorTemp',     label: 'Colour Temperature', placeholder: '5600K Daylight / Bi-colour' },
-    { key: 'cri',           label: 'CRI',                placeholder: '96+' },
-    { key: 'beamAngle',     label: 'Beam Angle',         placeholder: '120° / Fresnel adjustable' },
-    { key: 'mountType',     label: 'Mount Type',         placeholder: 'Bowens S / V-Lock' },
-    { key: 'powerSource',   label: 'Power Source',       placeholder: 'AC / V-Mount Battery' },
-  ],
-  monitor: [
-    { key: 'screenSize',    label: 'Screen Size',        placeholder: '5" / 27"' },
-    { key: 'resolution',    label: 'Panel Resolution',   placeholder: '4K UHD / 1080p' },
-    { key: 'panelType',     label: 'Panel Type',         placeholder: 'OLED / IPS / VA' },
-    { key: 'refreshRate',   label: 'Refresh Rate',       placeholder: '60Hz / 120Hz' },
-    { key: 'hdrin',         label: 'HDR Capability',     placeholder: 'HDR10 / Dolby Vision / None' },
-    { key: 'connectivity',  label: 'Input Ports',        placeholder: 'HDMI 2.1, DisplayPort, SDI' },
-  ],
-  vehicle: [
-    { key: 'make',          label: 'Make',               placeholder: 'Toyota / BMW / Tata' },
-    { key: 'model',         label: 'Model',              placeholder: 'Fortuner / X5 / Nexon' },
-    { key: 'year',          label: 'Year',               placeholder: '2023' },
-    { key: 'fuelType',      label: 'Fuel Type',          placeholder: 'Petrol / Diesel / Electric / CNG' },
-    { key: 'seats',         label: 'Seating Capacity',   placeholder: '5 / 7 / 9' },
-    { key: 'transmission',  label: 'Transmission',       placeholder: 'Manual / Automatic / CVT' },
-    { key: 'registration',  label: 'Reg Number',         placeholder: 'MH01AB1234' },
-    { key: 'insuranceExp',  label: 'Insurance Expiry',   placeholder: '2025-12-31' },
-  ],
-  support: [
-    { key: 'maxPayload',    label: 'Max Payload',        placeholder: '10kg / 25kg' },
-    { key: 'headType',      label: 'Head Type',          placeholder: 'Ball Head / Fluid Head / Pan-Tilt' },
-    { key: 'material',      label: 'Material',           placeholder: 'Carbon Fibre / Aluminium' },
-    { key: 'maxHeight',     label: 'Max Height',         placeholder: '175cm' },
-    { key: 'foldedLen',     label: 'Folded Length',      placeholder: '56cm' },
-    { key: 'legSections',   label: 'Leg Sections',       placeholder: '3 / 4 sections' },
-  ],
-  furniture: [
-    { key: 'dimensions',    label: 'Dimensions (LxWxH)', placeholder: '180cm × 90cm × 75cm' },
-    { key: 'material',      label: 'Material',           placeholder: 'Wood / Steel / Fabric' },
-    { key: 'maxLoad',       label: 'Max Load (kg)',      placeholder: '120kg' },
-    { key: 'colour',        label: 'Colour / Finish',    placeholder: 'White Gloss / Oak Veneer' },
-    { key: 'assembly',      label: 'Assembly Required',  placeholder: 'Yes / No' },
-    { key: 'style',         label: 'Style',              placeholder: 'Modern / Industrial / Classic' },
-  ],
-  event: [
-    { key: 'maxCapacity',   label: 'Max Capacity',       placeholder: '50 pax / 200 pax' },
-    { key: 'setupTime',     label: 'Setup Time',         placeholder: '2 hours' },
-    { key: 'powerReq',      label: 'Power Req.',         placeholder: '15A / 3-phase 60A' },
-    { key: 'dimensions',    label: 'Dimensions',         placeholder: '6m × 4m / 10m × 10m' },
-    { key: 'weatherProof',  label: 'Weather Proof',      placeholder: 'Yes (IP54) / Indoors only' },
-    { key: 'includes',      label: 'Includes',           placeholder: 'Tables, chairs, lighting rig' },
-  ],
-  other: [
-    { key: 'spec1',  label: 'Specification 1',  placeholder: 'Key detail' },
-    { key: 'spec2',  label: 'Specification 2',  placeholder: 'Key detail' },
-    { key: 'spec3',  label: 'Specification 3',  placeholder: 'Key detail' },
-    { key: 'spec4',  label: 'Specification 4',  placeholder: 'Key detail' },
-  ],
-}
-
-const CONDITIONS = ['NEW', 'EXCELLENT', 'GOOD', 'FAIR']
-
-// ── Component ───────────────────────────────────────────────────────────────
-
 export default function NewProductPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [loading, setLoading] = useState(false)
-  const [productType, setProductType] = useState<ProductType>('camera')
+  const [activeTab, setActiveTab] = useState<'general' | 'attributes' | 'sales'>('general')
 
+  // Excalidraw Product Creation Form States
   const [form, setForm] = useState({
     name: '',
     sku: '',
     brand: '',
     description: '',
-    imageUrl: '',
-    totalStock: 1,
-    availableStock: 1,
+    imageUrl: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400',
+    itemKind: 'GOODS' as 'GOODS' | 'SERVICE',
+    productType: 'camera',
+    totalStock: 10,
+    availableStock: 10,
+    salesPrice: 500,
+    costPrice: 350,
     dailyRate: 500,
-    baseDepositAmt: 0,
-    depositIsPercent: false,
-    accessoryList: '',
+    baseDepositAmt: 200,
     isPublished: true,
-    condition: 'EXCELLENT',
+
+    // Rental / Sales Tab Fields
+    periodicity: 'DAILY' as 'HOURLY' | 'DAILY' | 'NIGHTLY' | 'WEEKLY',
+    paddingTimeHours: 2.00,
+    pickupTime: '10:00',
+    returnTime: '19:00',
+    lateFeePerHour: 100,
+
+    accessoryList: '',
     tags: '',
   })
 
-  const [specs, setSpecs] = useState<Record<string, string>>({})
+  // Dynamic Attributes State
+  const [attributes, setAttributes] = useState<Array<{ name: string; values: string }>>([
+    { name: 'Brand / Manufacturer', values: 'Sony, Canon, RED, Arri' },
+    { name: 'Color / Finish', values: 'Matte Black, Silver' },
+  ])
 
   const set = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }))
-  const setSpec = (k: string, v: string) => setSpecs(s => ({ ...s, [k]: v }))
 
-  const handleProductTypeChange = (t: ProductType) => {
-    setProductType(t)
-    setSpecs({}) // Reset specs when type changes
+  const handleAddAttribute = () => {
+    setAttributes([...attributes, { name: '', values: '' }])
+  }
+
+  const handleRemoveAttribute = (index: number) => {
+    setAttributes(attributes.filter((_, i) => i !== index))
+  }
+
+  const handleAttributeChange = (index: number, field: 'name' | 'values', val: string) => {
+    const updated = [...attributes]
+    updated[index][field] = val
+    setAttributes(updated)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!form.name || !form.sku) {
+      toast.error('Product Name and SKU identifier are required')
+      return
+    }
+
     setLoading(true)
+
+    // Map attributes into variants format
+    const variants = attributes
+      .filter(a => a.name.trim() && a.values.trim())
+      .map(a => ({ attribute: a.name.trim(), value: a.values.trim() }))
 
     const payload = {
       ...form,
-      productType,
-      category: productType.charAt(0).toUpperCase() + productType.slice(1),
+      dailyRate: form.salesPrice,
+      category: form.productType.charAt(0).toUpperCase() + form.productType.slice(1),
       accessoryList: form.accessoryList.split(',').map(s => s.trim()).filter(Boolean),
       tags: form.tags.split(',').map(s => s.trim()).filter(Boolean),
-      specifications: specs,
+      variants,
     }
 
     const res = await fetch('/api/products', {
@@ -159,257 +106,358 @@ export default function NewProductPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })
+
     const data = await res.json()
     setLoading(false)
 
     if (res.ok) {
-      toast.success(`${form.name} added to catalog!`)
+      toast.success(`${form.name} created successfully!`)
       router.push('/dashboard/products')
     } else {
       toast.error(data.error || 'Failed to create product')
     }
   }
 
-  const specFields = SPEC_FIELDS[productType] || []
-  const TypeIcon = PRODUCT_TYPES.find(t => t.value === productType)?.icon || Box
+  const isAdmin = user?.role === 'ADMIN'
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto pb-10">
-      <div>
-        <h1 className="text-white text-2xl font-bold">Add Rental Item</h1>
-        <p className="text-white/40 text-sm mt-1">Create a typed rental listing with category-specific specifications</p>
+    <div className="space-y-6 max-w-4xl mx-auto pb-12">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-white text-2xl font-bold tracking-tight">New Product Creation</h1>
+          <p className="text-white/40 text-xs mt-1">Define inventory items, pricing, periodicity, attributes & deposits</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-xs text-white/50 hover:text-white px-3 py-2 rounded-xl bg-white/5 border border-white/10"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Product Type Selector */}
-        <div className="liquid-glass border border-white/10 rounded-2xl p-5">
-          <h2 className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-4">Rental Category</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-            {PRODUCT_TYPES.map(({ value, label, icon: Icon }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => handleProductTypeChange(value)}
-                className={`flex flex-col items-center gap-2 p-3 rounded-xl border text-xs font-medium transition-all ${
-                  productType === value
-                    ? 'bg-[#F26522]/20 border-[#F26522]/50 text-[#F26522]'
-                    : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Icon size={18} />
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Core Fields */}
-        <div className="liquid-glass border border-white/10 rounded-2xl p-5 space-y-4">
-          <h2 className="text-white/70 text-xs font-semibold uppercase tracking-wider flex items-center gap-2">
-            <TypeIcon size={14} />
-            Core Information
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              <label className="block text-white/50 text-xs mb-1.5">Item Name *</label>
+      {/* Main Creation Card */}
+      <form onSubmit={handleSubmit} className="liquid-glass border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6">
+        {/* Product Name Header Bar with Image Preview */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-b border-white/10 pb-6">
+          <div className="flex-1 w-full space-y-3">
+            <label className="block text-white/60 text-xs font-semibold uppercase tracking-wider">Product Name *</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={e => set('name', e.target.value)}
+              placeholder="e.g. Sony Alpha A7 IV Full Frame Camera"
+              required
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-lg font-bold focus:outline-none focus:border-[#F26522]"
+            />
+            <div className="flex items-center gap-3">
+              <span className="text-white/40 text-xs font-mono">SKU:</span>
               <input
-                value={form.name}
-                onChange={e => set('name', e.target.value)}
-                required
-                placeholder={productType === 'vehicle' ? 'e.g. 2023 Toyota Fortuner 4WD' : productType === 'monitor' ? 'e.g. ASUS ProArt 27" 4K OLED' : 'e.g. Sony A7III Mirrorless Camera'}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">SKU / Asset ID *</label>
-              <input
+                type="text"
                 value={form.sku}
-                onChange={e => set('sku', e.target.value)}
+                onChange={e => set('sku', e.target.value.toUpperCase())}
+                placeholder="SKU-CAM-001"
                 required
-                placeholder={productType === 'vehicle' ? 'VEH-TOY-FOR-001' : 'CAM-SONY-A7III-01'}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">Brand / Manufacturer</label>
-              <input
-                value={form.brand}
-                onChange={e => set('brand', e.target.value)}
-                placeholder="Sony / Toyota / ASUS"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">Condition</label>
-              <select
-                value={form.condition}
-                onChange={e => set('condition', e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              >
-                {CONDITIONS.map(c => <option key={c} value={c} className="bg-[#111]">{c}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">Image URL</label>
-              <input
-                value={form.imageUrl}
-                onChange={e => set('imageUrl', e.target.value)}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-white/50 text-xs mb-1.5">Description</label>
-              <textarea
-                value={form.description}
-                onChange={e => set('description', e.target.value)}
-                rows={2}
-                placeholder="Brief description for the customer catalog..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors resize-none"
+                className="bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-white text-xs font-mono uppercase focus:outline-none focus:border-[#F26522]"
               />
             </div>
           </div>
+
+          {/* Image Thumbnail Preview */}
+          <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 overflow-hidden shrink-0 flex items-center justify-center relative group">
+            {form.imageUrl ? (
+              <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+            ) : (
+              <Camera size={28} className="text-white/20" />
+            )}
+          </div>
         </div>
 
-        {/* Type-Specific Specs */}
-        {specFields.length > 0 && (
-          <div className="liquid-glass border border-[#F26522]/20 rounded-2xl p-5 space-y-4">
-            <h2 className="text-[#F26522] text-xs font-semibold uppercase tracking-wider flex items-center gap-2">
-              <TypeIcon size={14} />
-              {productType.charAt(0).toUpperCase() + productType.slice(1)} Specifications
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {specFields.map(field => (
-                <div key={field.key}>
-                  <label className="block text-white/50 text-xs mb-1.5">{field.label}</label>
+        {/* Excalidraw 3-Tab Selector Switcher */}
+        <div className="flex bg-white/5 border border-white/10 p-1.5 rounded-2xl gap-2 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab('general')}
+            className={`flex-1 min-w-[140px] py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'general' ? 'bg-[#F26522] text-white shadow-lg shadow-[#F26522]/20' : 'text-white/40 hover:text-white'
+            }`}
+          >
+            <Info size={15} />
+            <span>General Information</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('attributes')}
+            className={`flex-1 min-w-[140px] py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'attributes' ? 'bg-[#F26522] text-white shadow-lg shadow-[#F26522]/20' : 'text-white/40 hover:text-white'
+            }`}
+          >
+            <Sliders size={15} />
+            <span>Attributes & Variants</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('sales')}
+            className={`flex-1 min-w-[140px] py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'sales' ? 'bg-[#F26522] text-white shadow-lg shadow-[#F26522]/20' : 'text-white/40 hover:text-white'
+            }`}
+          >
+            <DollarSign size={15} />
+            <span>Sales & Rental</span>
+          </button>
+        </div>
+
+        {/* TAB 1: General Information */}
+        {activeTab === 'general' && (
+          <div className="space-y-6">
+            {/* Product Type (Goods vs Service) */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+              <label className="block text-white/70 text-xs font-semibold uppercase tracking-wider">Product Type</label>
+              <div className="flex items-center gap-6 text-xs text-white">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
-                    value={specs[field.key] || ''}
-                    onChange={e => setSpec(field.key, e.target.value)}
-                    placeholder={field.placeholder}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522]/60 transition-colors"
+                    type="radio"
+                    name="itemKind"
+                    checked={form.itemKind === 'GOODS'}
+                    onChange={() => set('itemKind', 'GOODS')}
+                    className="accent-[#F26522]"
                   />
+                  <span className="font-semibold">Goods (Physical Rental Equipment)</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="itemKind"
+                    checked={form.itemKind === 'SERVICE'}
+                    onChange={() => set('itemKind', 'SERVICE')}
+                    className="accent-[#F26522]"
+                  />
+                  <span className="font-semibold">Service (Deposit / Downpayment / Warranty Line)</span>
+                </label>
+              </div>
+
+              <span className="text-[11px] text-white/40 block leading-relaxed pt-1">
+                Note: If adding a deposit, downpayment, or warranty service line to invoices, select type <strong>Service</strong>.
+              </span>
+            </div>
+
+            {/* Quantity on Hand & Prices */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-medium">Quantity on Hand *</label>
+                <input
+                  type="number"
+                  value={form.totalStock}
+                  onChange={e => {
+                    const val = Number(e.target.value)
+                    set('totalStock', val)
+                    set('availableStock', val)
+                  }}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] font-mono font-bold"
+                  min="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-medium">Sales Price (₹)</label>
+                <input
+                  type="number"
+                  value={form.salesPrice}
+                  onChange={e => set('salesPrice', Number(e.target.value))}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] font-mono font-bold text-emerald-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-medium">Cost Price (₹)</label>
+                <input
+                  type="number"
+                  value={form.costPrice}
+                  onChange={e => set('costPrice', Number(e.target.value))}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] font-mono"
+                />
+              </div>
+            </div>
+
+            {/* Admin Publish Toggle Switch */}
+            <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between">
+              <div>
+                <div className="text-white text-sm font-semibold flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-[#F26522]" />
+                  Product Publish Status
+                </div>
+                <div className="text-white/40 text-xs mt-0.5">
+                  {isAdmin
+                    ? 'Only Admins have the right to publish or unpublish products in the catalog'
+                    : 'Requires Admin review to publish to public store'}
+                </div>
+              </div>
+
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.isPublished}
+                  disabled={!isAdmin}
+                  onChange={e => set('isPublished', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#F26522]"></div>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: Attributes & Variants */}
+        {activeTab === 'attributes' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white text-sm font-bold">Product Attributes & Possible Values</h3>
+              <button
+                type="button"
+                onClick={handleAddAttribute}
+                className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus size={13} />
+                <span>Add Attribute Row</span>
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {attributes.map((attr, idx) => (
+                <div key={idx} className="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={attr.name}
+                      onChange={e => handleAttributeChange(idx, 'name', e.target.value)}
+                      placeholder="Attribute Name (e.g. Brand, Color, Focal Length)"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-white text-xs focus:outline-none focus:border-[#F26522]"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={attr.values}
+                      onChange={e => handleAttributeChange(idx, 'values', e.target.value)}
+                      placeholder="Possible Values (e.g. Sony, Canon / Red, Blue)"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-white text-xs focus:outline-none focus:border-[#F26522]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAttribute(idx)}
+                    className="p-2 text-white/30 hover:text-red-400 cursor-pointer"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Pricing & Stock */}
-        <div className="liquid-glass border border-white/10 rounded-2xl p-5 space-y-4">
-          <h2 className="text-white/70 text-xs font-semibold uppercase tracking-wider">Pricing & Inventory</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">Daily Rate (₹) *</label>
-              <input
-                type="number"
-                value={form.dailyRate}
-                min={0}
-                onChange={e => set('dailyRate', Number(e.target.value))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
+        {/* TAB 3: Sales & Rental */}
+        {activeTab === 'sales' && (
+          <div className="space-y-6">
+            {/* Periodicity & Timing */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-medium">Rental Periodicity</label>
+                <select
+                  value={form.periodicity}
+                  onChange={e => set('periodicity', e.target.value)}
+                  className="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] cursor-pointer"
+                >
+                  <option value="HOURLY">Hours</option>
+                  <option value="DAILY">Day</option>
+                  <option value="NIGHTLY">Night</option>
+                  <option value="WEEKLY">Weekly</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-medium">Padding Time (Hours)</label>
+                <input
+                  type="number"
+                  step="0.5"
+                  value={form.paddingTimeHours}
+                  onChange={e => set('paddingTimeHours', Number(e.target.value))}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] font-mono"
+                />
+                <span className="text-[10px] text-white/30 block mt-1">(Only in case of hourly rentals)</span>
+              </div>
             </div>
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">Security Deposit (₹)</label>
-              <input
-                type="number"
-                value={form.baseDepositAmt}
-                min={0}
-                onChange={e => set('baseDepositAmt', Number(e.target.value))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-medium">Standard Pickup Time</label>
+                <input
+                  type="text"
+                  value={form.pickupTime}
+                  onChange={e => set('pickupTime', e.target.value)}
+                  placeholder="10:00"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-medium">Standard Return Time</label>
+                <input
+                  type="text"
+                  value={form.returnTime}
+                  onChange={e => set('returnTime', e.target.value)}
+                  placeholder="19:00"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] font-mono"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">Total Stock</label>
-              <input
-                type="number"
-                value={form.totalStock}
-                min={1}
-                onChange={e => {
-                  const v = Number(e.target.value)
-                  set('totalStock', v)
-                  set('availableStock', v)
-                }}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">Available Now</label>
-              <input
-                type="number"
-                value={form.availableStock}
-                min={0}
-                max={form.totalStock}
-                onChange={e => set('availableStock', Number(e.target.value))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
+
+            {/* Late Fees & Security Deposit */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/5">
+              <div>
+                <label className="block text-amber-300 text-xs mb-1.5 font-semibold">Late Fees Rate (₹ / Hour Late)</label>
+                <input
+                  type="number"
+                  value={form.lateFeePerHour}
+                  onChange={e => set('lateFeePerHour', Number(e.target.value))}
+                  className="w-full bg-white/5 border border-amber-400/30 rounded-xl px-4 py-2.5 text-amber-300 text-sm font-mono font-bold focus:outline-none focus:border-amber-400"
+                />
+                <span className="text-[10px] text-amber-300/60 block mt-1">
+                  Automatically calculated and added to invoice lines on late return
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-blue-300 text-xs mb-1.5 font-semibold">Rental Security Deposit (₹)</label>
+                <input
+                  type="number"
+                  value={form.baseDepositAmt}
+                  onChange={e => set('baseDepositAmt', Number(e.target.value))}
+                  className="w-full bg-white/5 border border-blue-400/30 rounded-xl px-4 py-2.5 text-blue-300 text-sm font-mono font-bold focus:outline-none focus:border-blue-400"
+                />
+                <span className="text-[10px] text-blue-300/60 block mt-1">
+                  Refundable escrow security deposit held during active rental
+                </span>
+              </div>
             </div>
           </div>
+        )}
 
-          {/* Rate preview */}
-          <div className="bg-white/5 rounded-xl p-3 text-xs text-white/50 grid grid-cols-3 gap-2">
-            <div>Day: <span className="text-white font-semibold">₹{form.dailyRate.toLocaleString()}</span></div>
-            <div>Week (10% off): <span className="text-white font-semibold">₹{Math.round(form.dailyRate * 7 * 0.9).toLocaleString()}</span></div>
-            <div>Month (30% off): <span className="text-white font-semibold">₹{Math.round(form.dailyRate * 30 * 0.7).toLocaleString()}</span></div>
-          </div>
-        </div>
-
-        {/* Extras */}
-        <div className="liquid-glass border border-white/10 rounded-2xl p-5 space-y-4">
-          <h2 className="text-white/70 text-xs font-semibold uppercase tracking-wider">Accessories & Tags</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">Included Accessories (comma-separated)</label>
-              <input
-                value={form.accessoryList}
-                onChange={e => set('accessoryList', e.target.value)}
-                placeholder="Battery ×2, Charger, Case, Strap"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-white/50 text-xs mb-1.5">Search Tags (comma-separated)</label>
-              <input
-                value={form.tags}
-                onChange={e => set('tags', e.target.value)}
-                placeholder="4k, mirrorless, photography, low-light"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] transition-colors"
-              />
-            </div>
-          </div>
-
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <div className={`w-10 h-5 rounded-full transition-all ${form.isPublished ? 'bg-[#F26522]' : 'bg-white/20'} relative`}>
-              <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.isPublished ? 'translate-x-5' : 'translate-x-0.5'}`} />
-            </div>
-            <input type="checkbox" checked={form.isPublished} onChange={e => set('isPublished', e.target.checked)} className="sr-only" />
-            <span className="text-white/60 text-sm group-hover:text-white transition-colors">
-              {form.isPublished ? 'Published — visible to customers' : 'Draft — hidden from customers'}
-            </span>
-          </label>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-xl text-sm font-medium transition-all"
-          >
-            Cancel
-          </button>
+        {/* Submit Footer Button */}
+        <div className="pt-4 border-t border-white/10 flex justify-end">
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-3 bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-[#F26522]/20 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center gap-2 cursor-pointer disabled:opacity-60"
           >
-            {loading && <Loader2 size={14} className="animate-spin" />}
-            Add to Catalog
+            {loading && <Loader2 size={16} className="animate-spin" />}
+            <span>{loading ? 'Creating Item...' : 'Save & Create Rental Item'}</span>
           </button>
         </div>
       </form>

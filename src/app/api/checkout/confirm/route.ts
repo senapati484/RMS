@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectDB } from '@/lib/db'
 import { Order } from '@/models/Order'
+import { sendOrderConfirmationEmail } from '@/lib/mailer'
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,6 +41,31 @@ export async function POST(req: NextRequest) {
       totalPaid: totalAmount + 200,
       invoiceNumber,
     })
+
+    // Trigger automated email with computer-generated Amazon-style Tax Invoice attachment
+    const customerEmail = address?.email || 'aryan@domain.com'
+    const customerName = address?.name || 'Aryan Sharma'
+    const fullAddress = address?.street
+      ? `${address.street}, ${address.city}, ${address.state} - ${address.pincode}`
+      : '102 Apex Towers, Hill Road, Bandra West, Mumbai, MH - 400050'
+
+    sendOrderConfirmationEmail({
+      userEmail: customerEmail,
+      userName: customerName,
+      orderNumber,
+      invoiceNumber,
+      items: (cartItems || []).map((item: any) => ({
+        productName: item.productName || 'Camera Equipment',
+        quantity: item.quantity || 1,
+        unitPrice: item.dailyRate || 500,
+        sku: item.productId ? `SKU-${String(item.productId).slice(-6)}` : 'EQP-2026-N1',
+      })),
+      totalAmount,
+      depositAmount: 200,
+      rentalStart: rentalStart || new Date().toISOString(),
+      rentalEnd: rentalEnd || new Date(Date.now() + 5 * 86400000).toISOString(),
+      customerAddress: fullAddress,
+    }).catch(err => console.error('[CHECKOUT_CONFIRM] Non-blocking mail trigger error:', err))
 
     return NextResponse.json({
       success: true,

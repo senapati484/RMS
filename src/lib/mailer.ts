@@ -12,8 +12,18 @@ const transporter = nodemailer.createTransport({
   },
 })
 
-// General mail sender helper with non-blocking error handling
-async function sendMail({ to, subject, html }: { to: string; subject: string; html: string }) {
+// General mail sender helper with non-blocking error handling and attachment support
+async function sendMail({
+  to,
+  subject,
+  html,
+  attachments,
+}: {
+  to: string
+  subject: string
+  html: string
+  attachments?: Array<{ filename: string; content: Buffer | string; contentType?: string }>
+}) {
   if (!SMTP_EMAIL || !SMTP_PASS) {
     console.warn('[MAILER] SMTP credentials not set in env. Skipping email send.')
     return false
@@ -21,12 +31,13 @@ async function sendMail({ to, subject, html }: { to: string; subject: string; ht
 
   try {
     const info = await transporter.sendMail({
-      from: `"Lease360 Operations" <${SMTP_EMAIL}>`,
+      from: `"Lease360 Orders & Payment Proof" <${SMTP_EMAIL}>`,
       to,
       subject,
       html,
+      attachments,
     })
-    console.log('[MAILER] Email sent successfully:', info.messageId, 'to:', to)
+    console.log('[MAILER] Email sent successfully with invoice attachment:', info.messageId, 'to:', to)
     return true
   } catch (err) {
     console.error('[MAILER] Error sending email:', err)
@@ -84,77 +95,131 @@ function emailWrapper(title: string, bodyContent: string) {
   `
 }
 
+import { generateAmazonStyleInvoiceHtml } from './invoice-generator'
+
 // ── 1. Order Confirmation Email (to Customer & Staff) ──────────
 export async function sendOrderConfirmationEmail({
   userEmail,
   userName,
   orderNumber,
+  invoiceNumber = 'INV/2026/0001',
   items,
   totalAmount,
   depositAmount,
   rentalStart,
   rentalEnd,
+  customerAddress = '102 Apex Towers, Hill Road, Bandra West, Mumbai, MH - 400050',
 }: {
   userEmail: string
   userName: string
   orderNumber: string
-  items: Array<{ productName: string; quantity: number; unitPrice: number }>
+  invoiceNumber?: string
+  items: Array<{ productName: string; quantity: number; unitPrice: number; sku?: string }>
   totalAmount: number
   depositAmount: number
   rentalStart: string
   rentalEnd: string
+  customerAddress?: string
 }) {
   const itemRows = items
     .map(
       (item) => `
     <tr>
-      <td>${item.productName} ×${item.quantity}</td>
-      <td style="text-align: right;">₹${(item.unitPrice * item.quantity).toLocaleString()}</td>
+      <td style="padding: 10px 0; border-bottom: 1px solid #1a1a1a;">
+        <strong style="color: #FFFFFF;">${item.productName}</strong> ×${item.quantity}
+      </td>
+      <td style="text-align: right; padding: 10px 0; border-bottom: 1px solid #1a1a1a; font-family: monospace; color: #FFFFFF;">
+        ₹${(item.unitPrice * item.quantity).toLocaleString()}
+      </td>
     </tr>`
     )
     .join('')
 
+  const subtotal = totalAmount
+  const taxAmount = Math.round(subtotal * 0.18)
+  const totalPaid = subtotal + depositAmount
+
+  // Generate Computer-Generated Tax Invoice HTML Attachment
+  const invoiceAttachmentHtml = generateAmazonStyleInvoiceHtml({
+    orderNumber,
+    invoiceNumber,
+    orderDate: new Date().toLocaleDateString('en-IN', { dateStyle: 'medium' }),
+    customerName: userName,
+    customerEmail: userEmail,
+    customerAddress,
+    vendorAddress: 'Lease360 Central Vendor Warehouse, Gate 4, MIDC Industrial Area, Mumbai, MH - 400050',
+    items: items.map(i => ({
+      productName: i.productName,
+      sku: i.sku || 'EQP-2026-N1',
+      quantity: i.quantity,
+      unitPrice: i.unitPrice,
+      total: i.unitPrice * i.quantity,
+    })),
+    rentalStart,
+    rentalEnd,
+    subtotal,
+    depositAmount,
+    taxAmount,
+    totalPaid,
+    paymentMethod: 'Verified Credit / Debit Card',
+  })
+
   const content = `
-    <span class="badge badge-orange">Order Confirmed</span>
-    <h1 class="heading" style="margin-top: 12px;">Rental Order #${orderNumber}</h1>
-    <p class="subheading">Hello ${userName}, your rental order has been confirmed and reserved.</p>
+    <div style="background-color: #166534; color: #DCFCE7; border: 1px solid #22C55E; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; margin-bottom: 20px;">
+      ✓ PAYMENT VERIFIED — ORDER & TAX INVOICE CONFIRMED
+    </div>
+
+    <h1 class="heading" style="margin-top: 0;">Order Placed: #${orderNumber}</h1>
+    <p class="subheading">Hello ${userName}, thank you for renting with Lease360. Your payment has been processed and your official <strong>Tax Invoice (${invoiceNumber})</strong> is attached to this email as proof of payment and order contract.</p>
 
     <div class="card">
-      <div style="font-size: 12px; color: #888888; margin-bottom: 8px;">RENTAL PERIOD</div>
-      <div style="font-size: 15px; font-weight: 600; color: #FFFFFF;">
-        ${new Date(rentalStart).toLocaleDateString()} — ${new Date(rentalEnd).toLocaleDateString()}
+      <div style="font-size: 11px; font-weight: bold; color: #F26522; text-transform: uppercase; margin-bottom: 6px;">RENTAL DURATION</div>
+      <div style="font-size: 15px; font-weight: 700; color: #FFFFFF;">
+        ${new Date(rentalStart).toLocaleString()} — ${new Date(rentalEnd).toLocaleString()}
       </div>
     </div>
 
     <table class="table">
       <thead>
         <tr>
-          <th>Equipment</th>
-          <th style="text-align: right;">Price</th>
+          <th>EQUIPMENT DETAILS</th>
+          <th style="text-align: right;">AMOUNT</th>
         </tr>
       </thead>
       <tbody>
         ${itemRows}
         <tr>
-          <td>Security Deposit (Refundable)</td>
-          <td style="text-align: right; color: #3b82f6;">₹${depositAmount.toLocaleString()}</td>
+          <td style="color: #888888;">Escrow Security Deposit (Refundable)</td>
+          <td style="text-align: right; color: #3b82f6; font-family: monospace;">₹${depositAmount.toLocaleString()}</td>
         </tr>
         <tr class="total-row">
-          <td style="padding-top: 16px;">Total Reserved Amount</td>
-          <td style="text-align: right; padding-top: 16px; color: #F26522;">₹${totalAmount.toLocaleString()}</td>
+          <td style="padding-top: 16px;">Total Amount Paid</td>
+          <td style="text-align: right; padding-top: 16px; color: #F26522; font-family: monospace;">₹${totalPaid.toLocaleString()}</td>
         </tr>
       </tbody>
     </table>
 
+    <div style="background-color: rgba(255, 255, 255, 0.03); border: 1px border-dashed #333333; border-radius: 8px; padding: 16px; margin-top: 24px; font-size: 12px; color: #AAAAAA;">
+      <strong style="color: #FFFFFF;">📎 Attachment Included:</strong><br>
+      Your computer-generated tax invoice <code>Tax_Invoice_${orderNumber}.html</code> is attached to this email. Please keep it for your accounting and proof of equipment rental ownership.
+    </div>
+
     <div style="text-align: center; margin-top: 24px;">
-      <a href="http://localhost:3000/dashboard/orders" class="btn">View Order Details →</a>
+      <a href="http://localhost:3000/dashboard/orders" class="btn">Track Order & Pickup Schedule →</a>
     </div>
   `
 
   return sendMail({
     to: userEmail,
-    subject: `[Lease360] Rental Order #${orderNumber} Confirmed`,
+    subject: `[Lease360] Payment Verified — Tax Invoice & Order #${orderNumber}`,
     html: emailWrapper(`Order #${orderNumber} Confirmed`, content),
+    attachments: [
+      {
+        filename: `Tax_Invoice_${orderNumber}.html`,
+        content: Buffer.from(invoiceAttachmentHtml, 'utf-8'),
+        contentType: 'text/html',
+      },
+    ],
   })
 }
 

@@ -11,6 +11,7 @@ export interface IProduct extends Document {
   sku: string
   totalStock: number
   availableStock: number
+  dailyRate: number
   baseDepositAmt: number
   depositIsPercent: boolean
   accessoryList: string[]
@@ -31,6 +32,7 @@ const ProductSchema = new Schema<IProduct>(
     sku: { type: String, required: true, unique: true },
     totalStock: { type: Number, default: 1, min: 0 },
     availableStock: { type: Number, default: 1, min: 0 },
+    dailyRate: { type: Number, default: 500, min: 0 },
     baseDepositAmt: { type: Number, default: 0 },
     depositIsPercent: { type: Boolean, default: false },
     accessoryList: [{ type: String }],

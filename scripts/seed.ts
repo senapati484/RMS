@@ -35,7 +35,7 @@ const PRODUCTS = [
     description: 'Full-frame mirrorless with 24.2MP sensor, 4K video, and excellent low-light performance.',
     imageUrl: 'https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=600&q=80',
     category: 'Camera', brand: 'Sony', sku: 'CAM-SONY-A7III',
-    totalStock: 5, availableStock: 5, baseDepositAmt: 5000, depositIsPercent: false,
+    totalStock: 5, availableStock: 5, dailyRate: 1500, baseDepositAmt: 5000, depositIsPercent: false,
     accessoryList: ['Battery ×2', 'Charger', 'Body Cap', 'Strap'],
   },
   {
@@ -43,7 +43,7 @@ const PRODUCTS = [
     description: 'Classic nifty fifty prime lens with beautiful bokeh and fast aperture.',
     imageUrl: 'https://images.unsplash.com/photo-1617805856772-7fa2f97ed7e5?w=600&q=80',
     category: 'Lens', brand: 'Canon', sku: 'LENS-CANON-50F14',
-    totalStock: 8, availableStock: 8, baseDepositAmt: 1500, depositIsPercent: false,
+    totalStock: 8, availableStock: 8, dailyRate: 400, baseDepositAmt: 1500, depositIsPercent: false,
     accessoryList: ['Front Cap', 'Rear Cap', 'Case'],
   },
   {
@@ -51,7 +51,7 @@ const PRODUCTS = [
     description: '60W daylight-balanced continuous LED light for photography and video.',
     imageUrl: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&q=80',
     category: 'Lighting', brand: 'Godox', sku: 'LIGHT-GODOX-SL60',
-    totalStock: 10, availableStock: 10, baseDepositAmt: 1000, depositIsPercent: false,
+    totalStock: 10, availableStock: 10, dailyRate: 300, baseDepositAmt: 1000, depositIsPercent: false,
     accessoryList: ['Power Cable', 'Barn Doors', 'Carry Bag'],
   },
   {
@@ -59,7 +59,7 @@ const PRODUCTS = [
     description: 'On-camera directional microphone with built-in rechargeable battery.',
     imageUrl: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=600&q=80',
     category: 'Audio', brand: 'Rode', sku: 'AUD-RODE-VMICPRO',
-    totalStock: 6, availableStock: 6, baseDepositAmt: 800, depositIsPercent: false,
+    totalStock: 6, availableStock: 6, dailyRate: 350, baseDepositAmt: 800, depositIsPercent: false,
     accessoryList: ['Windshield', 'Dead Cat', '3.5mm Cable', 'USB-C Cable'],
   },
   {
@@ -67,7 +67,7 @@ const PRODUCTS = [
     description: 'Professional aluminum tripod with centre column that tilts 90°.',
     imageUrl: 'https://images.unsplash.com/photo-1582591539899-95878ab4e0c5?w=600&q=80',
     category: 'Support', brand: 'Manfrotto', sku: 'SUPP-MANF-MT055',
-    totalStock: 12, availableStock: 12, baseDepositAmt: 600, depositIsPercent: false,
+    totalStock: 12, availableStock: 12, dailyRate: 250, baseDepositAmt: 600, depositIsPercent: false,
     accessoryList: ['Ball Head', 'Carry Bag', 'Quick Release Plate'],
   },
   {
@@ -75,7 +75,7 @@ const PRODUCTS = [
     description: 'Lightweight 3-axis stabilizer for mirrorless cameras up to 2kg payload.',
     imageUrl: 'https://images.unsplash.com/photo-1527090526205-beaac8dc3c62?w=600&q=80',
     category: 'Support', brand: 'DJI', sku: 'SUPP-DJI-RONINSC',
-    totalStock: 4, availableStock: 4, baseDepositAmt: 3000, depositIsPercent: false,
+    totalStock: 4, availableStock: 4, dailyRate: 800, baseDepositAmt: 3000, depositIsPercent: false,
     accessoryList: ['Charging Cable', 'Phone Holder', 'Focus Motor'],
   },
   {
@@ -83,7 +83,7 @@ const PRODUCTS = [
     description: 'Professional zoom lens with constant f/2.8 aperture for versatile shooting.',
     imageUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80',
     category: 'Lens', brand: 'Sigma', sku: 'LENS-SIGMA-2470',
-    totalStock: 3, availableStock: 3, baseDepositAmt: 2500, depositIsPercent: false,
+    totalStock: 3, availableStock: 3, dailyRate: 900, baseDepositAmt: 2500, depositIsPercent: false,
     accessoryList: ['Front Cap', 'Rear Cap', 'UV Filter', 'Case'],
   },
   {
@@ -91,7 +91,7 @@ const PRODUCTS = [
     description: '5" HDR monitor-recorder for 4K ProRes recording from camera HDMI out.',
     imageUrl: 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=600&q=80',
     category: 'Camera', brand: 'Atomos', sku: 'CAM-ATOM-NINJAV',
-    totalStock: 4, availableStock: 4, baseDepositAmt: 2000, depositIsPercent: false,
+    totalStock: 4, availableStock: 4, dailyRate: 700, baseDepositAmt: 2000, depositIsPercent: false,
     accessoryList: ['SSD Drive', 'HDMI Cable', 'Battery', 'Mounting Arm'],
   },
 ]

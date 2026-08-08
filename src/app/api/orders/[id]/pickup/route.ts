@@ -4,6 +4,7 @@ import { Order } from '@/models/Order'
 import { Notification } from '@/models/Notification'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAdmin, apiOk, apiError } from '@/lib/api-helpers'
+import { sendPickupNotificationEmail } from '@/lib/mailer'
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUserFromRequest(req)
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   await connectDB()
   const { id } = await params
 
-  const order = await Order.findById(id)
+  const order = await Order.findById(id).populate('userId', 'name email')
   if (!order) return apiError('Order not found', 404)
   if (order.status !== 'CONFIRMED') {
     return apiError('Order must be in CONFIRMED status to mark pickup')
@@ -36,13 +37,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   await order.save()
 
   await Notification.create({
-    userId: order.userId,
+    userId: order.userId._id || order.userId,
     type: 'PICKUP_REMINDER',
     title: 'Equipment Picked Up',
     message: `Your order ${order.orderNumber} has been marked as picked up. Rental started!`,
     linkHref: `/orders/${order._id}`,
     relatedOrderId: order._id,
   })
+
+  // Send email
+  const customer = order.userId as unknown as { name: string; email: string }
+  if (customer?.email) {
+    sendPickupNotificationEmail({
+      userEmail: customer.email,
+      userName: customer.name || 'Valued Customer',
+      orderNumber: order.orderNumber,
+      rentalEnd: String(order.rentalEnd),
+    }).catch((e) => console.error('[MAILER ERROR]', e))
+  }
 
   return apiOk({ success: true, order })
 }

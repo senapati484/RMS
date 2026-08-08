@@ -7,6 +7,7 @@ import { Notification } from '@/models/Notification'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAdmin, apiOk, apiError } from '@/lib/api-helpers'
 import { calculateLateFee } from '@/lib/fee-calculator'
+import { sendReturnSettlementEmail } from '@/lib/mailer'
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUserFromRequest(req)
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   await connectDB()
   const { id } = await params
 
-  const order = await Order.findById(id)
+  const order = await Order.findById(id).populate('userId', 'name email')
   if (!order) return apiError('Order not found', 404)
   if (!['PICKED_UP', 'RETURN_PENDING'].includes(order.status)) {
     return apiError('Order must be in PICKED_UP or RETURN_PENDING status to process return')
@@ -116,15 +117,32 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   await order.save()
 
-  // Notify customer
+  // Notify customer in-app
+  const customerId = (order.userId._id || order.userId) as unknown as import('mongoose').Types.ObjectId
+  const customerObj = order.userId as unknown as { name: string; email: string }
+
   await Notification.create({
-    userId: order.userId,
+    userId: customerId,
     type: 'DEPOSIT_SETTLED',
     title: isLate ? 'Return Processed — Late Fee Applied' : 'Return Processed Successfully',
     message: `Order ${order.orderNumber}: ${feeResult.breakdown}. Refund: ₹${refundAmount}.`,
     linkHref: `/orders/${order._id}`,
     relatedOrderId: order._id,
   })
+
+  // Dispatch Nodemailer Email
+  if (customerObj?.email) {
+    sendReturnSettlementEmail({
+      userEmail: customerObj.email,
+      userName: customerObj.name || 'Valued Customer',
+      orderNumber: order.orderNumber,
+      status: order.status,
+      lateFee: feeResult.lateFee,
+      damageDeduction,
+      depositRefunded: refundAmount,
+      depositHeld: order.deposit.amount,
+    }).catch((e) => console.error('[MAILER ERROR]', e))
+  }
 
   return apiOk({
     order,

@@ -6,6 +6,7 @@ import { Notification } from '@/models/Notification'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
 import { generateOrderNumber } from '@/lib/order-number'
+import { sendOrderConfirmationEmail } from '@/lib/mailer'
 
 export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req)
@@ -118,7 +119,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Notify user
+    // Notify user in-app
     await Notification.create({
       userId: user!.userId,
       type: 'ORDER_CONFIRMED',
@@ -127,6 +128,18 @@ export async function POST(req: NextRequest) {
       linkHref: `/orders/${order._id}`,
       relatedOrderId: order._id,
     })
+
+    // Send confirmation email via Nodemailer
+    sendOrderConfirmationEmail({
+      userEmail: user!.email,
+      userName: user!.name || 'Valued Customer',
+      orderNumber: order.orderNumber,
+      items: resolvedItems,
+      totalAmount,
+      depositAmount,
+      rentalStart: String(rentalStart),
+      rentalEnd: String(rentalEnd),
+    }).catch((e) => console.error('[MAILER ERROR]', e))
 
     return apiOk(order, 201)
   } catch (err) {

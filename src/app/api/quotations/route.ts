@@ -5,6 +5,7 @@ import { Notification } from '@/models/Notification'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
 import { generateQuoteNumber } from '@/lib/order-number'
+import { sendQuotationEmail } from '@/lib/mailer'
 
 export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req)
@@ -52,6 +53,18 @@ export async function POST(req: NextRequest) {
       message: `Your quotation ${quote.quoteNumber} has been created and is valid for 7 days.`,
       linkHref: `/quotations/${quote._id}`,
     })
+
+    // Email customer
+    if (user!.email) {
+      sendQuotationEmail({
+        userEmail: body.customerEmail || user!.email,
+        userName: user!.name || 'Valued Customer',
+        quoteNumber: quote.quoteNumber,
+        totalAmount: quote.totalAmount || 0,
+        depositAmount: quote.depositAmount || 0,
+        validUntil: String(validUntil),
+      }).catch((e) => console.error('[MAILER ERROR]', e))
+    }
 
     return apiOk(quote, 201)
   } catch (err) {

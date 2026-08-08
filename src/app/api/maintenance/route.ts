@@ -6,6 +6,7 @@ import { Notification } from '@/models/Notification'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
 import { generateTicketNumber } from '@/lib/order-number'
+import { sendMaintenanceTicketEmail } from '@/lib/mailer'
 
 export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req)
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Notify admins (in production would fan-out to all admins)
+    // Notify user in-app
     await Notification.create({
       userId: user!.userId,
       type: 'MAINTENANCE_UPDATE',
@@ -82,6 +83,15 @@ export async function POST(req: NextRequest) {
       linkHref: `/maintenance/${ticket._id}`,
       relatedTicketId: ticket._id,
     })
+
+    // Email admin / staff
+    sendMaintenanceTicketEmail({
+      adminEmail: process.env.NEXT_PUBLIC_SMTP_EMAIL || 'admin@rentalos.dev',
+      ticketNumber: ticket.ticketNumber,
+      productName: product.name,
+      title: ticket.title,
+      priority: ticket.priority,
+    }).catch((e) => console.error('[MAILER ERROR]', e))
 
     return apiOk(ticket, 201)
   } catch (err) {

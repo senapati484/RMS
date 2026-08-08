@@ -7,8 +7,13 @@ const PUBLIC_PATHS = ['/login', '/register', '/api/auth/login', '/api/auth/regis
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Allow public paths
-  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith('/_next') || pathname.startsWith('/favicon'))) {
+// Allow public paths & static assets (images, favicons, next assets)
+  if (
+    PUBLIC_PATHS.some((p) => pathname === p) ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon') ||
+    /\.(png|jpg|jpeg|svg|webp|ico|json|pdf)$/i.test(pathname)
+  ) {
     return NextResponse.next()
   }
 

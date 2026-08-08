@@ -64,7 +64,7 @@ export default function AIAssistantPage() {
           <Bot size={20} className="text-[#F26522]" />
         </div>
         <div>
-          <h1 className="text-white text-2xl font-bold">RentalMind AI</h1>
+          <h1 className="text-white text-2xl font-bold">Lease360.ai</h1>
           <p className="text-white/40 text-sm">Powered by live operational data · Groq + Gemini</p>
         </div>
       </div>
@@ -100,11 +100,10 @@ export default function AIAssistantPage() {
                   </div>
                 )}
                 <div
-                  className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                    msg.role === 'user'
+                  className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user'
                       ? 'bg-[#F26522] text-white rounded-tr-sm'
                       : 'bg-white/10 text-white/80 rounded-tl-sm'
-                  }`}
+                    }`}
                 >
                   {msg.content}
                   {msg.context && (

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
 import { Package, Plus, Minus, Loader2, Calendar, Tag, ShieldCheck, Sparkles, ArrowLeft } from 'lucide-react'
@@ -40,20 +40,36 @@ const RENTAL_PRESETS = [
 export default function NewOrderPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const productParam = searchParams.get('product')
+  const periodParam = searchParams.get('period')
+
   const [products, setProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
   const [rentalStart, setRentalStart] = useState(() => new Date().toISOString().slice(0, 10))
   const [rentalEnd, setRentalEnd] = useState(() => {
     const d = new Date()
-    d.setDate(d.getDate() + 3)
+    const daysToAdd = periodParam === 'monthly' ? 29 : periodParam === 'weekly' ? 6 : 2
+    d.setDate(d.getDate() + daysToAdd)
     return d.toISOString().slice(0, 10)
   })
   const [deliveryMode, setDeliveryMode] = useState<'STORE_PICKUP' | 'SHIPPING'>('STORE_PICKUP')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetch('/api/products?limit=50').then(r => r.json()).then(d => setProducts(d.products || []))
-  }, [])
+    fetch('/api/products?limit=50')
+      .then(r => r.json())
+      .then(d => {
+        const list = d.products || []
+        setProducts(list)
+        if (productParam) {
+          const preselected = list.find((p: Product) => p._id === productParam)
+          if (preselected && preselected.availableStock > 0) {
+            setCart([{ product: preselected, quantity: 1 }])
+          }
+        }
+      })
+  }, [productParam])
 
   // Auto-calculated days count based on live start/end date selection
   const rentalDays = calculateRentalDays(rentalStart, rentalEnd)

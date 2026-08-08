@@ -82,6 +82,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true)
   const [showDLModal, setShowDLModal] = useState(false)
   const [dlVerified, setDlVerified] = useState(false)
+  const [selectedTier, setSelectedTier] = useState<'daily' | 'weekly' | 'monthly'>('daily')
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -109,13 +110,12 @@ export default function ProductDetailPage() {
       setShowDLModal(true)
       return
     }
-    router.push(`/dashboard/orders/new?product=${product._id}`)
+    router.push(`/dashboard/orders/new?product=${product._id}&period=${selectedTier}`)
   }
 
   const handleDLVerified = () => {
     setDlVerified(true)
     toast.success('Driving License verified! You can now rent this vehicle.')
-    // Don't close modal — let the user click "Continue to Rent"
   }
 
   if (loading) return (
@@ -211,23 +211,67 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Pricing tiers */}
+            {/* Pricing Tiers Selection */}
             <div>
-              <p className="text-white/40 text-xs font-medium uppercase tracking-wider mb-3">Rental Rates</p>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="liquid-glass border border-[#F26522]/30 rounded-xl p-3 text-center">
-                  <div className="text-[#F26522] font-bold text-lg">₹{product.dailyRate.toLocaleString()}</div>
-                  <div className="text-white/40 text-xs mt-0.5">/ day</div>
-                </div>
-                <div className="liquid-glass border border-white/10 rounded-xl p-3 text-center">
-                  <div className="text-white font-semibold text-lg">₹{weeklyRate.toLocaleString()}</div>
-                  <div className="text-white/40 text-xs mt-0.5">/ week <span className="text-green-400">−10%</span></div>
-                </div>
-                <div className="liquid-glass border border-white/10 rounded-xl p-3 text-center">
-                  <div className="text-white font-semibold text-lg">₹{monthlyRate.toLocaleString()}</div>
-                  <div className="text-white/40 text-xs mt-0.5">/ month <span className="text-green-400">−30%</span></div>
-                </div>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-white/40 text-xs font-medium uppercase tracking-wider">Select Rental Rate Plan</p>
+                <span className="text-[11px] text-[#F26522] font-semibold">
+                  {selectedTier === 'daily' && `Standard Rate: ₹${product.dailyRate}/day`}
+                  {selectedTier === 'weekly' && `Effective: ₹${Math.round(weeklyRate / 7)}/day (−10%)`}
+                  {selectedTier === 'monthly' && `Effective: ₹${Math.round(monthlyRate / 30)}/day (−30%)`}
+                </span>
               </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                {/* Daily Card */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTier('daily')}
+                  className={`p-3 rounded-xl text-center transition-all cursor-pointer border ${
+                    selectedTier === 'daily'
+                      ? 'border-[#F26522] bg-[#F26522]/15 shadow-lg shadow-[#F26522]/20 text-white font-bold ring-1 ring-[#F26522]'
+                      : 'border-white/10 bg-white/5 hover:border-white/20 text-white/70'
+                  }`}
+                >
+                  <div className={`font-bold text-lg ${selectedTier === 'daily' ? 'text-[#F26522]' : 'text-white'}`}>
+                    ₹{product.dailyRate.toLocaleString()}
+                  </div>
+                  <div className="text-white/40 text-xs mt-0.5">/ day</div>
+                </button>
+
+                {/* Weekly Card */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTier('weekly')}
+                  className={`p-3 rounded-xl text-center transition-all cursor-pointer border ${
+                    selectedTier === 'weekly'
+                      ? 'border-[#F26522] bg-[#F26522]/15 shadow-lg shadow-[#F26522]/20 text-white font-bold ring-1 ring-[#F26522]'
+                      : 'border-white/10 bg-white/5 hover:border-white/20 text-white/70'
+                  }`}
+                >
+                  <div className={`font-bold text-lg ${selectedTier === 'weekly' ? 'text-[#F26522]' : 'text-white'}`}>
+                    ₹{weeklyRate.toLocaleString()}
+                  </div>
+                  <div className="text-white/40 text-xs mt-0.5">/ week <span className="text-green-400 font-semibold">−10%</span></div>
+                </button>
+
+                {/* Monthly Card */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTier('monthly')}
+                  className={`p-3 rounded-xl text-center transition-all cursor-pointer border ${
+                    selectedTier === 'monthly'
+                      ? 'border-[#F26522] bg-[#F26522]/15 shadow-lg shadow-[#F26522]/20 text-white font-bold ring-1 ring-[#F26522]'
+                      : 'border-white/10 bg-white/5 hover:border-white/20 text-white/70'
+                  }`}
+                >
+                  <div className={`font-bold text-lg ${selectedTier === 'monthly' ? 'text-[#F26522]' : 'text-white'}`}>
+                    ₹{monthlyRate.toLocaleString()}
+                  </div>
+                  <div className="text-white/40 text-xs mt-0.5">/ month <span className="text-green-400 font-semibold">−30%</span></div>
+                </button>
+              </div>
+
               <p className="text-white/30 text-xs mt-2 flex items-center gap-1">
                 <Shield size={11} />
                 Refundable deposit: ₹{product.baseDepositAmt.toLocaleString()}
@@ -251,21 +295,21 @@ export default function ProductDetailPage() {
             {!isAdmin ? (
               <div className="flex gap-3">
                 <Link
-                  href={`/dashboard/quotations/new?product=${product._id}`}
-                  className="flex-1 text-center py-3 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-xl text-sm font-medium transition-all border border-white/10"
+                  href={`/dashboard/quotations/new?product=${product._id}&period=${selectedTier}`}
+                  className="flex-1 text-center py-3 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-xl text-sm font-medium transition-all border border-white/10 flex items-center justify-center cursor-pointer"
                 >
                   Get Quotation
                 </Link>
                 <button
                   onClick={handleRentNow}
                   disabled={product.availableStock === 0}
-                  className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
+                  className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                     product.availableStock === 0
                       ? 'bg-white/5 text-white/20 cursor-not-allowed'
                       : 'bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white shadow-lg shadow-[#F26522]/20'
                   }`}
                 >
-                  {product.availableStock === 0 ? 'Out of Stock' : isVehicle && !dlVerified ? '🔐 Verify DL & Rent' : 'Rent Now'}
+                  {product.availableStock === 0 ? 'Out of Stock' : isVehicle && !dlVerified ? '🔐 Verify DL & Rent' : `Rent Now (${selectedTier})`}
                 </button>
               </div>
             ) : (

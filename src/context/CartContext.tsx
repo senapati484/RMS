@@ -12,6 +12,10 @@ export interface CartItem {
   rentalEnd: string
   selectedVariants?: Record<string, string>
   lineId?: string
+  productType?: string
+  category?: string
+  driverOption?: 'SELF_DRIVE' | 'CHAUFFEUR'
+  drivingLicenseNo?: string
 }
 
 interface CartContextType {
@@ -19,8 +23,10 @@ interface CartContextType {
   cartCount: number
   cartTotal: number
   addToCart: (item: CartItem) => void
-  removeFromCart: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  removeFromCart: (lineIdOrProductId: string) => void
+  updateQuantity: (lineIdOrProductId: string, quantity: number) => void
+  updateItemDates: (lineIdOrProductId: string, rentalStart: string, rentalEnd: string) => void
+  updateGlobalDates: (rentalStart: string, rentalEnd: string) => void
   clearCart: () => void
 }
 
@@ -68,14 +74,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
-  const removeFromCart = (productId: string) => {
-    setCartItems(prev => prev.filter(i => (i.lineId || makeLineId(i)) !== productId))
+  const removeFromCart = (targetId: string) => {
+    setCartItems(prev => prev.filter(i => (i.lineId || makeLineId(i)) !== targetId && i.productId !== targetId))
   }
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (targetId: string, quantity: number) => {
     setCartItems(prev =>
-      prev.map(i => (i.lineId || makeLineId(i)) === productId ? { ...i, quantity } : i)
+      prev.map(i => ((i.lineId || makeLineId(i)) === targetId || i.productId === targetId) ? { ...i, quantity } : i)
     )
+  }
+
+  const updateItemDates = (targetId: string, rentalStart: string, rentalEnd: string) => {
+    setCartItems(prev =>
+      prev.map(i => ((i.lineId || makeLineId(i)) === targetId || i.productId === targetId) ? { ...i, rentalStart, rentalEnd } : i)
+    )
+  }
+
+  const updateGlobalDates = (rentalStart: string, rentalEnd: string) => {
+    setCartItems(prev => prev.map(i => ({ ...i, rentalStart, rentalEnd })))
   }
 
   const clearCart = () => setCartItems([])
@@ -101,6 +117,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addToCart,
         removeFromCart,
         updateQuantity,
+        updateItemDates,
+        updateGlobalDates,
         clearCart,
       }}
     >
@@ -120,8 +138,11 @@ export function useCart() {
       addToCart: () => {},
       removeFromCart: () => {},
       updateQuantity: () => {},
+      updateItemDates: () => {},
+      updateGlobalDates: () => {},
       clearCart: () => {},
     }
   }
   return ctx
 }
+

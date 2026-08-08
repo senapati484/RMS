@@ -1,13 +1,19 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useAuth, useCart } from '@/context'
+import { calculateRentalDays } from '@/lib/rental-pricing'
+import { buildUpiUri, UPI_ID } from '@/lib/upi'
+import QRCode from 'qrcode'
 import {
-  CreditCard, Loader2, MapPin, Building,
+  QrCode, Loader2, MapPin, Building, Smartphone,
+  Copy, CheckCircle2, ShieldCheck,
   User as UserCheckIcon, LogOut as LogoutIcon
 } from 'lucide-react'
+
+const inr = (n: number) => 'Rs. ' + n.toLocaleString('en-IN', { maximumFractionDigits: 2 })
 
 export default function CheckoutPaymentPage() {
   const router = useRouter()
@@ -15,17 +21,113 @@ export default function CheckoutPaymentPage() {
   const { cartItems, cartTotal, clearCart } = useCart()
 
   const [loading, setLoading] = useState(false)
-  const [saveCardDetails, setSaveCardDetails] = useState(true)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [paid, setPaid] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [qrDataUrl, setQrDataUrl] = useState('')
+  const [depositEstimate, setDepositEstimate] = useState(0)
+  const [depositLoading, setDepositLoading] = useState(true)
 
-  const [paymentForm, setPaymentForm] = useState({
-    cardNumber: '4532 •••• •••• 8892',
-    cardHolder: 'Aryan Sharma',
-    expiry: '08/28',
-    cvv: '•••',
+  // Read delivery/address state persisted by the address step
+  const [checkoutState] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('lease360_checkout') || '{}')
+    } catch {
+      return {}
+    }
+  })
+  const deliveryAddress = checkoutState.customerAddress || {}
+  const deliveryMethod = checkoutState.deliveryMethod || 'standard'
+  const rentalStart = cartItems[0]?.rentalStart || new Date().toISOString()
+  const rentalEnd = cartItems[0]?.rentalEnd || new Date(Date.now() + 5 * 86400000).toISOString()
+
+  // Mirror the server's deposit formula so the QR amount auto-fills correctly:
+  // deposit = (depositIsPercent ? baseDepositAmt% of line total : baseDepositAmt per unit) * qty
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await fetch('/api/products')
+        if (!res.ok) return
+        const data = await res.json()
+        const products = data.products || data.data || data || []
+        const map = new Map<string, any>(products.map((p: any) => [String(p._id), p]))
+        let est = 0
+        for (const item of cartItems) {
+          const p = map.get(item.productId)
+          if (!p) continue
+          const days = Math.max(1, calculateRentalDays(item.rentalStart, item.rentalEnd))
+          const lineTotal = item.dailyRate * days * item.quantity
+          est += p.depositIsPercent
+            ? (p.baseDepositAmt / 100) * lineTotal
+            : p.baseDepositAmt * item.quantity
+        }
+        if (mounted) setDepositEstimate(Math.round(est))
+      } catch {
+        // fall back to 0 estimate; server still computes the real deposit
+      } finally {
+        if (mounted) setDepositLoading(false)
+      }
+    })()
+    return () => { mounted = false }
+  }, [cartItems])
+
+  const totalAmount = cartTotal + depositEstimate
+  const upiUri = buildUpiUri({
+    amount: totalAmount,
+    note: `Lease360 rental order - ${cartItems.length} item(s)`,
   })
 
+  // Regenerate the QR whenever the payable amount changes
+  useEffect(() => {
+    let mounted = true
+    if (!upiUri) {
+      setQrDataUrl('')
+      return
+    }
+    QRCode.toDataURL(upiUri, {
+      width: 240,
+      margin: 2,
+      errorCorrectionLevel: 'M',
+      color: { dark: '#0a0a0a', light: '#ffffff' },
+    })
+      .then(url => { if (mounted) setQrDataUrl(url) })
+      .catch(() => { if (mounted) setQrDataUrl('') })
+    return () => { mounted = false }
+  }, [upiUri])
+
+  const payWithUpi = () => {
+    if (!UPI_ID) {
+      toast.error('UPI is not configured. Add NEXT_PUBLIC_UPI_ID to .env.local')
+      return
+    }
+    if (cartItems.length === 0) {
+      toast.error('Your cart is empty')
+      return
+    }
+    if (upiUri) {
+      try { window.location.href = upiUri } catch { /* desktop fallback below */ }
+    }
+    setPaid(true)
+    toast.info('Scan the QR or approve the payment in your UPI app, then confirm below.')
+  }
+
+  const copyUpiId = async () => {
+    try {
+      await navigator.clipboard.writeText(UPI_ID)
+      setCopied(true)
+      toast.success('UPI ID copied')
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error('Unable to copy UPI ID')
+    }
+  }
+
   const handleConfirmOrder = async () => {
+    if (!cartItems.length) {
+      toast.error('Your cart is empty')
+      return
+    }
     setLoading(true)
     try {
       const res = await fetch('/api/checkout/confirm', {
@@ -33,32 +135,30 @@ export default function CheckoutPaymentPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cartItems,
-          rentalStart: '2026-08-10T10:00',
-          rentalEnd: '2026-08-15T19:00',
-          deliveryMethod: 'standard',
-          customerAddress: {
-            name: 'Aryan Sharma (Customer)',
-            line1: '102 Apex Towers, Hill Road, Bandra West',
-            city: 'Mumbai',
-            state: 'Maharashtra',
-            pincode: '400050',
-          },
-          vendorWarehouseAddress: {
-            name: 'Lease360 Central Vendor Warehouse',
-            line1: 'Gate 4, MIDC Industrial Area, Tech Park Compound',
-            city: 'Mumbai',
-            state: 'Maharashtra',
-            pincode: '400050',
+          rentalStart,
+          rentalEnd,
+          deliveryMethod,
+          address: {
+            name: deliveryAddress.name || user?.name || '',
+            email: user?.email || '',
+            street: deliveryAddress.line1 || '',
+            city: deliveryAddress.city || '',
+            state: deliveryAddress.state || '',
+            pincode: deliveryAddress.pincode || '',
           },
         }),
       })
       const data = await res.json()
+      if (!res.ok || !data.success) {
+        toast.error(data.error || 'Order confirmation failed. Please try again.')
+        return
+      }
       clearCart()
+      sessionStorage.removeItem('lease360_checkout')
       toast.success('Rental Order Confirmed & Receipt Sent!')
-      router.push(`/checkout/success?orderNumber=${data.orderNumber || 'SO00010'}`)
+      router.push(`/checkout/success?orderId=${data.orderId}&orderNumber=${data.orderNumber}`)
     } catch {
-      clearCart()
-      router.push('/checkout/success?orderNumber=SO00010')
+      toast.error('Unable to reach the server. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -81,7 +181,7 @@ export default function CheckoutPaymentPage() {
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             className="w-9 h-9 rounded-full bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] flex items-center justify-center font-bold text-xs cursor-pointer shadow-md"
           >
-            {user ? user.name[0].toUpperCase() : <UserCheckIcon size={16} />}
+            {user ? (user.name?.[0] || 'U').toUpperCase() : <UserCheckIcon size={16} />}
           </button>
 
           {showProfileMenu && (
@@ -129,57 +229,106 @@ export default function CheckoutPaymentPage() {
       </div>
 
       <div className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Payment Method Card Form */}
+        {/* Left Column: UPI Payment */}
         <div className="lg:col-span-7 space-y-6">
           <div className="liquid-glass border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6">
             <h2 className="text-white font-bold text-base flex items-center gap-2 border-b border-white/10 pb-3">
-              <CreditCard size={18} className="text-[#F26522]" />
-              Payment Method
+              <QrCode size={18} className="text-[#F26522]" />
+              UPI Payment
             </h2>
 
-            <div className="space-y-4 text-xs">
-              <div>
-                <label className="block text-white/60 mb-1.5 font-medium">Card Number</label>
-                <input
-                  type="text"
-                  value={paymentForm.cardNumber}
-                  onChange={e => setPaymentForm({ ...paymentForm, cardNumber: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-[#F26522]"
-                />
+            {!UPI_ID ? (
+              <div className="text-xs text-amber-400 border border-amber-500/30 bg-amber-500/10 rounded-xl p-4">
+                UPI not configured. Add <code className="font-mono">NEXT_PUBLIC_UPI_ID</code> to .env.local and restart the dev server.
               </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  {/* QR Code — amount is encoded in the QR (am= param) so it auto-fills in the UPI app */}
+                  <div className="shrink-0">
+                    <div className="bg-white rounded-2xl p-3 shadow-lg shadow-[#F26522]/10 relative">
+                      {qrDataUrl ? (
+                        <img src={qrDataUrl} alt="UPI QR Code" width={240} height={240} className="rounded-lg block" />
+                      ) : (
+                        <div className="w-[240px] h-[240px] flex items-center justify-center text-white/30">
+                          <Loader2 size={28} className="animate-spin" />
+                        </div>
+                      )}
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#F26522] text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg">
+                        {depositLoading ? 'Calculating…' : inr(totalAmount)}
+                      </div>
+                    </div>
+                    <p className="text-center text-white/40 text-[10px] mt-4">Scan with any UPI app</p>
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-2">
-                  <label className="block text-white/60 mb-1.5 font-medium">Cardholder Name</label>
-                  <input
-                    type="text"
-                    value={paymentForm.cardHolder}
-                    onChange={e => setPaymentForm({ ...paymentForm, cardHolder: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#F26522]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-white/60 mb-1.5 font-medium">Expiry</label>
-                  <input
-                    type="text"
-                    value={paymentForm.expiry}
-                    onChange={e => setPaymentForm({ ...paymentForm, expiry: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-[#F26522]"
-                  />
-                </div>
-              </div>
+                  {/* Payment details + actions */}
+                  <div className="flex-1 w-full space-y-4 text-xs">
+                    <div className="liquid-glass border border-white/10 rounded-2xl p-4 space-y-2">
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="text-white/50 font-medium">Payee</span>
+                        <span className="text-white font-semibold">Lease360 Rentals</span>
+                      </div>
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="text-white/50 font-medium">Amount (auto-filled)</span>
+                        <span className="text-[#F26522] font-mono font-bold">{depositLoading ? '…' : inr(totalAmount)}</span>
+                      </div>
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="text-white/50 font-medium">UPI ID</span>
+                        <span className="text-white font-mono flex items-center gap-1.5">{UPI_ID}</span>
+                      </div>
+                    </div>
 
-              {/* Save Card Checkbox */}
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  checked={saveCardDetails}
-                  onChange={e => setSaveCardDetails(e.target.checked)}
-                  className="accent-[#F26522] cursor-pointer"
-                />
-                <label className="text-white/80 font-medium cursor-pointer">Save my payment details for future 1-click rentals</label>
+                    <p className="text-white/40 leading-relaxed">
+                      The amount is baked into the QR, so it <span className="text-white/70 font-semibold">auto-fills</span> in your UPI app
+                      (GPay, PhonePe, Paytm…). Tap below to open your UPI app directly.
+                    </p>
+
+                    <div className="space-y-2.5">
+                      <button
+                        onClick={payWithUpi}
+                        disabled={depositLoading}
+                        className="w-full py-3.5 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                      >
+                        <Smartphone size={16} />
+                        {depositLoading ? 'Calculating amount…' : `Pay ${inr(totalAmount)} via UPI`}
+                      </button>
+                      <button
+                        onClick={copyUpiId}
+                        className="w-full py-3 rounded-xl border border-white/15 hover:border-[#F26522]/50 hover:bg-white/5 text-white/80 text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        {copied ? <CheckCircle2 size={15} className="text-emerald-400" /> : <Copy size={15} />}
+                        {copied ? 'UPI ID Copied' : 'Copy UPI ID'}
+                      </button>
+                    </div>
+
+                    {paid && (
+                      <div className="liquid-glass border border-emerald-500/30 bg-emerald-500/5 rounded-2xl p-4 space-y-3">
+                        <div className="flex items-start gap-2 text-emerald-300 text-xs font-semibold">
+                          <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
+                          Payment initiated. Once you&apos;ve approved the payment in your UPI app, confirm your order:
+                        </div>
+                        <button
+                          onClick={handleConfirmOrder}
+                          disabled={loading}
+                          className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                        >
+                          {loading && <Loader2 size={16} className="animate-spin" />}
+                          {loading ? 'Confirming Order…' : "I've Completed the Payment — Confirm Order"}
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="flex items-start gap-2 text-white/30 text-[10px] leading-relaxed pt-1">
+                      <ShieldCheck size={14} className="shrink-0 mt-0.5 text-emerald-400/60" />
+                      <span>
+                        Demo mode — payments are simulated and no money is moved. In production this screen is replaced by a
+                        payment gateway (e.g. Razorpay / Cashfree) which issues its own QR and verifies the payment.
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Segregated Delivery Address & Vendor Warehouse Location matching spec */}
@@ -191,8 +340,10 @@ export default function CheckoutPaymentPage() {
                 Customer Delivery Address
               </div>
               <p className="text-white/60 text-xs font-mono leading-relaxed pt-1">
-                Aryan Sharma<br />
-                102 Apex Towers, Hill Road, Bandra West, Mumbai, MH - 400050
+                {deliveryAddress.name || user?.name || 'Customer'}<br />
+                {deliveryMethod === 'store'
+                  ? 'Pickup from Vendor Warehouse'
+                  : `${deliveryAddress.line1 || 'Delivery address'}, ${deliveryAddress.city || ''}, ${deliveryAddress.state || ''} - ${deliveryAddress.pincode || ''}`}
               </p>
             </div>
 
@@ -210,38 +361,29 @@ export default function CheckoutPaymentPage() {
           </div>
         </div>
 
-        {/* Right Column: Final Order Summary & Confirm CTA */}
+        {/* Right Column: Final Order Summary */}
         <div className="lg:col-span-5 space-y-6">
           <div className="liquid-glass border border-white/10 rounded-3xl p-6 space-y-6">
             <h3 className="text-white text-base font-bold border-b border-white/10 pb-3">Final Order Total</h3>
 
             <div className="space-y-3 text-xs">
               <div className="flex justify-between text-white/60">
-                <span>Equipment Subtotal:</span>
-                <span className="text-white font-mono">Rs. {cartTotal}</span>
+                <span>Equipment Subtotal ({new Date(rentalStart).toLocaleDateString()} → {new Date(rentalEnd).toLocaleDateString()}):</span>
+                <span className="text-white font-mono">{inr(cartTotal)}</span>
               </div>
               <div className="flex justify-between text-white/60">
-                <span>Security Deposit (Escrow):</span>
-                <span className="text-blue-400 font-mono">Rs. 200</span>
+                <span>Security Deposit (Escrow, Refundable):</span>
+                <span className="text-blue-400 font-mono">{depositLoading ? 'Calculating…' : inr(depositEstimate)}</span>
               </div>
               <div className="flex justify-between text-white/60">
                 <span>Delivery:</span>
                 <span className="text-emerald-400 font-bold">FREE</span>
               </div>
               <div className="flex justify-between text-white font-bold text-base border-t border-white/10 pt-3">
-                <span>Total Payable:</span>
-                <span className="text-[#F26522] font-mono">Rs. {cartTotal + 200}</span>
+                <span>Rental Total:</span>
+                <span className="text-[#F26522] font-mono">{depositLoading ? '…' : inr(totalAmount)}</span>
               </div>
             </div>
-
-            <button
-              onClick={handleConfirmOrder}
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-            >
-              {loading && <Loader2 size={16} className="animate-spin" />}
-              <span>{loading ? 'Authorizing Payment...' : `Pay & Confirm Order (Rs. ${cartTotal + 200})`}</span>
-            </button>
 
             <Link href="/checkout/address" className="block text-center text-xs text-white/40 hover:text-white pt-1">
               ‹ Back to Delivery Address

@@ -81,6 +81,7 @@ const OrderSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 const QuotationSchema = new mongoose.Schema({
+  quotationNumber: String,
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: { type: String, default: 'DRAFT' },
   deliveryMode: { type: String, default: 'STORE_PICKUP' },

@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion', 'sonner'],
     serverActions: { allowedOrigins: ['*'] },
   },
   async redirects() {

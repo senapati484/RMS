@@ -111,8 +111,8 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      {/* Header & Submenu Navigation */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-white text-2xl font-bold">
             {isAdmin ? 'Product Catalog' : 'Browse Equipment'}
@@ -123,7 +123,20 @@ export default function ProductsPage() {
               : 'Available for rent — real-time availability'}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Submenu Tabs */}
+          <div className="flex bg-white/5 border border-white/10 p-1.5 rounded-2xl gap-2 text-xs font-bold">
+            <Link href="/dashboard/products" className="px-4 py-2 rounded-xl bg-[#F26522] text-white shadow-md">
+              Products Catalog
+            </Link>
+            <Link href="/dashboard/products/pricelists" className="px-4 py-2 rounded-xl text-white/50 hover:text-white transition-all">
+              Price Lists
+            </Link>
+            <Link href="/dashboard/products/attributes" className="px-4 py-2 rounded-xl text-white/50 hover:text-white transition-all">
+              Attributes
+            </Link>
+          </div>
+
           {isAdmin && (
             <>
               <button

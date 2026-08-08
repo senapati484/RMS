@@ -210,7 +210,7 @@ const PRODUCTS = [
   {
     name: 'Aputure Light Storm LS 600d Pro LED', slug: 'aputure-ls-600d-pro',
     description: 'Monstrous 600W daylight COB LED fixture equivalent to 1200W HMI for professional sets.',
-    imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&q=80',
     productType: 'lighting', category: 'Lighting', brand: 'Aputure', sku: 'LIGHT-APUT-600D', condition: 'NEW',
     totalStock: 3, availableStock: 3, dailyRate: 2200, weeklyRate: 13860, monthlyRate: 46200, baseDepositAmt: 8000, depositIsPercent: false,
     accessoryList: ['Control Box', 'Hyper Reflector', 'Weatherproof Head Cable', 'Rolling Case'],
@@ -238,7 +238,7 @@ const PRODUCTS = [
   {
     name: 'Nanlite Pavotube II 30C RGBWW Tube Light Kit (Set of 4)', slug: 'nanlite-pavotube-30c-4kit',
     description: '4-foot RGBWW LED tube light 4-light kit with internal batteries, wireless DMX, and special effects.',
-    imageUrl: 'https://images.unsplash.com/photo-1565814636199-ae8133055c1c?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&q=80',
     productType: 'lighting', category: 'Lighting', brand: 'Nanlite', sku: 'LIGHT-NAN-PAVO30C-4K', condition: 'NEW',
     totalStock: 4, availableStock: 4, dailyRate: 1600, weeklyRate: 10080, monthlyRate: 33600, baseDepositAmt: 5000, depositIsPercent: false,
     accessoryList: ['PavoTube II 30C ×4', 'Power Adapters ×4', 'Transparent Mounting Clips ×8', 'Steel Safety Wires ×4', 'Padded Carrying Case'],
@@ -286,7 +286,7 @@ const PRODUCTS = [
   {
     name: '2023 Toyota Fortuner 4WD SUV', slug: 'toyota-fortuner-2023',
     description: '7-seater heavy-duty SUV with 4WD capability, leather seats, and high ground clearance.',
-    imageUrl: 'https://images.unsplash.com/photo-1532581291347-9c39cf10a73c?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80',
     productType: 'vehicle', category: 'Vehicle', brand: 'Toyota', sku: 'VEH-TOY-FOR-001', condition: 'EXCELLENT',
     totalStock: 3, availableStock: 3, dailyRate: 4500, weeklyRate: 28350, monthlyRate: 94500, baseDepositAmt: 15000, depositIsPercent: false,
     accessoryList: ['Full Tank Diesel', 'GPS Tracker', 'Dashcam Dual', 'Spare Wheel & Jack'],
@@ -314,7 +314,7 @@ const PRODUCTS = [
   {
     name: 'Mercedes-Benz V-Class Luxury Crew Van', slug: 'mercedes-v-class-van',
     description: 'Ultra-luxurious VIP crew transport van with executive reclining captain seats and ambient lighting.',
-    imageUrl: 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80',
     productType: 'vehicle', category: 'Vehicle', brand: 'Mercedes-Benz', sku: 'VEH-MB-VCLASS-VIP', condition: 'EXCELLENT',
     totalStock: 2, availableStock: 2, dailyRate: 8500, weeklyRate: 53550, monthlyRate: 178500, baseDepositAmt: 25000, depositIsPercent: false,
     accessoryList: ['Chauffeur Available', 'Wi-Fi Hotspot', 'Refreshments Bar', 'Privacy Partition'],

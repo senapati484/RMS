@@ -275,16 +275,16 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Link
-            href="/dashboard/orders/new"
-            className="bg-brand-orange hover:bg-brand-orange-dark active:scale-[0.96] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-brand-orange/20 flex items-center gap-1.5"
-          >
-            <ShoppingCart size={14} /> + New Order
-          </Link>
-          <Link
             href="/dashboard/products/new"
-            className="bg-purple-600 hover:bg-purple-500 active:scale-[0.96] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+            className="bg-[#F26522] hover:bg-[#e05510] active:scale-[0.96] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#F26522]/20 flex items-center gap-1.5"
           >
             <Package size={14} /> + Add Product
+          </Link>
+          <Link
+            href="/dashboard/quotations/new"
+            className="bg-purple-600 hover:bg-purple-500 active:scale-[0.96] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+          >
+            <FileText size={14} /> + New Proposal
           </Link>
           <Link
             href="/dashboard/ai"

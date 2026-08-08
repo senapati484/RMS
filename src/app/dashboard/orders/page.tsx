@@ -135,12 +135,19 @@ export default function OrdersPage() {
             </button>
           </div>
 
-          {user?.role !== 'PORTAL_USER' && (
+          {user?.role === 'ADMIN' || user?.role === 'STAFF' ? (
             <Link
-              href="/dashboard/orders/new"
-              className="flex items-center gap-2 bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#F26522]/20 cursor-pointer"
+              href="/dashboard/products/new"
+              className="bg-purple-600 hover:bg-purple-500 active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
             >
-              + New Order
+              + Add Product to Store
+            </Link>
+          ) : (
+            <Link
+              href="/products"
+              className="bg-brand-orange hover:bg-brand-orange-dark active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+            >
+              Browse Equipment Catalog →
             </Link>
           )}
         </div>

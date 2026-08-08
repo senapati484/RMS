@@ -160,6 +160,37 @@ function NewOrderPage() {
     }
   }
 
+  if (user?.role === 'ADMIN' || user?.role === 'STAFF') {
+    return (
+      <div className="max-w-2xl mx-auto py-12 text-center space-y-6">
+        <div className="liquid-glass border border-white/10 rounded-3xl p-8 space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold mx-auto text-2xl">
+            🏬
+          </div>
+          <h2 className="text-white text-xl font-bold">Vendor Admin Policy</h2>
+          <p className="text-white/60 text-sm leading-relaxed">
+            As a Vendor Admin, your role is to create and list equipment products in the store database.
+            Equipment orders are placed directly by customers through the storefront catalog.
+          </p>
+          <div className="flex justify-center gap-3 pt-2">
+            <button
+              onClick={() => router.push('/dashboard/products/new')}
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md"
+            >
+              + Add Product to Store
+            </button>
+            <button
+              onClick={() => router.push('/products')}
+              className="bg-white/5 hover:bg-white/10 text-white/80 font-bold px-5 py-2.5 rounded-xl text-xs transition-all border border-white/10"
+            >
+              Browse Store Catalog
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
       <div className="flex items-center gap-3">

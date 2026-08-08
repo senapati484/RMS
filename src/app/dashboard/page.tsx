@@ -273,18 +273,63 @@ export default function DashboardPage() {
           <h1 className="text-white text-2xl font-bold tracking-tight">Operations Dashboard</h1>
           <p className="text-white/40 text-sm mt-0.5">Welcome back, {user?.name}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/dashboard/orders/new"
-            className="bg-brand-orange hover:bg-brand-orange-dark active:scale-[0.96] text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-[background,transform,box-shadow] shadow-lg shadow-brand-orange/20"
+            className="bg-brand-orange hover:bg-brand-orange-dark active:scale-[0.96] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-brand-orange/20 flex items-center gap-1.5"
           >
-            + Create Order
+            <ShoppingCart size={14} /> + New Order
           </Link>
           <Link
-            href="/dashboard/quotations/new"
-            className="bg-white/5 hover:bg-white/10 active:scale-[0.96] text-white/70 hover:text-white px-4 py-2.5 rounded-xl text-xs font-medium transition-[background,color,border-color,transform] border border-white/10"
+            href="/dashboard/products/new"
+            className="bg-purple-600 hover:bg-purple-500 active:scale-[0.96] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
           >
-            + New Proposal
+            <Package size={14} /> + Add Product
+          </Link>
+          <Link
+            href="/dashboard/ai"
+            className="bg-blue-600 hover:bg-blue-500 active:scale-[0.96] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+          >
+            <ShieldCheck size={14} /> AI Inspection
+          </Link>
+          <Link
+            href="/dashboard/schedule"
+            className="bg-white/5 hover:bg-white/10 active:scale-[0.96] text-white/80 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border border-white/10 flex items-center gap-1.5"
+          >
+            <Clock size={14} /> Calendar
+          </Link>
+        </div>
+      </div>
+
+      {/* Admin 4-Step Operations Quick-Guide Banner */}
+      <div className="liquid-glass border border-white/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden bg-gradient-to-r from-orange-500/10 via-purple-500/5 to-transparent">
+        <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2.5">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#F26522] animate-pulse" />
+            <h3 className="text-white text-xs sm:text-sm font-bold uppercase tracking-wider">Lease360 Admin Operations Guide</h3>
+          </div>
+          <span className="text-[10px] text-white/40 font-mono">4-Stage Enterprise Workflow</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <Link href="/dashboard/quotations" className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 space-y-1 transition-all">
+            <div className="text-[#F26522] font-bold text-[11px] uppercase">1. Quotations</div>
+            <div className="text-white font-medium">Draft & Send Rates</div>
+            <div className="text-white/40 text-[10px]">Create & send customer quotes</div>
+          </Link>
+          <Link href="/dashboard/orders" className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 space-y-1 transition-all">
+            <div className="text-blue-400 font-bold text-[11px] uppercase">2. Order & Payment</div>
+            <div className="text-white font-medium">Confirm & Issue Invoice</div>
+            <div className="text-white/40 text-[10px]">Verify payment & tax invoice</div>
+          </Link>
+          <Link href="/dashboard/schedule" className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 space-y-1 transition-all">
+            <div className="text-purple-400 font-bold text-[11px] uppercase">3. Dispatch & Pickup</div>
+            <div className="text-white font-medium">Equipment Handover</div>
+            <div className="text-white/40 text-[10px]">Track logistics schedule</div>
+          </Link>
+          <Link href="/dashboard/ai" className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-3 space-y-1 transition-all">
+            <div className="text-emerald-400 font-bold text-[11px] uppercase">4. Return & Deposit</div>
+            <div className="text-white font-medium">AI Damage & Refund</div>
+            <div className="text-white/40 text-[10px]">Vision triage & escrow refund</div>
           </Link>
         </div>
       </div>

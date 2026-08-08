@@ -324,6 +324,16 @@ export default function OrderDetailPage() {
             </>
           )}
 
+          {isAdmin && ['PICKED_UP', 'RETURN_PENDING'].includes(order.status) && (
+            <button
+              onClick={() => setShowReturnModal(true)}
+              className="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 cursor-pointer animate-pulse"
+            >
+              <ShieldCheck size={15} />
+              <span>Process Return (AI Inspection)</span>
+            </button>
+          )}
+
           <button
             onClick={() => window.print()}
             className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all border border-white/10 cursor-pointer"

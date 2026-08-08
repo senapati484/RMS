@@ -21,7 +21,7 @@ import {
   Menu,
   X,
 } from 'lucide-react'
-import { NotificationBell, PwaInstallButton } from '@/components'
+import { NotificationBell, PwaInstallButton, CartHeaderIcon } from '@/components'
 import SubscriptionBanner from '@/components/SubscriptionBanner'
 
 const navItems = [
@@ -177,6 +177,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex-1" />
+          <CartHeaderIcon />
           <NotificationBell />
 
           {/* Top Right Header Profile Dropdown */}

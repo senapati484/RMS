@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { toast } from 'sonner'
 import { useCart } from '@/context'
 import { useAuth } from '@/context/AuthContext'
+import { CartHeaderIcon } from '@/components'
 import {
   ArrowLeft, Heart, Scale, ShoppingBag, Calendar as CalendarIcon,
   Sliders, X
@@ -107,7 +108,8 @@ export default function ProductDetailPage() {
         </Link>
 
         <div className="flex items-center gap-3 text-xs font-semibold">
-          <Link href="/cart" className="bg-[#F26522] text-white px-4 py-2 rounded-xl shadow-md">
+          <CartHeaderIcon />
+          <Link href="/cart" className="bg-[#F26522] hover:bg-[#e05510] text-white px-4 py-2 rounded-xl shadow-md transition-all">
             Go to Cart →
           </Link>
         </div>

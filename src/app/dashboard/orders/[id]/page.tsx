@@ -8,7 +8,7 @@ import {
   ArrowLeft, Package, AlertTriangle,
   Truck, RefreshCw, Loader2, Navigation, MapPin,
   PhoneCall, ShieldCheck, CheckCircle2, Clock, QrCode, Sparkles,
-  CreditCard, DollarSign, X
+  CreditCard, DollarSign, X, Building
 } from 'lucide-react'
 
 interface Order {
@@ -61,6 +61,10 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
   const [showReturnModal, setShowReturnModal] = useState(false)
+  const [showCustomerReturnModal, setShowCustomerReturnModal] = useState(false)
+  const [customerReturnMode, setCustomerReturnMode] = useState<'STORE_DROP' | 'COURIER_PICKUP'>('STORE_DROP')
+  const [customerReturnNotes, setCustomerReturnNotes] = useState('')
+  const [requestReturnLoading, setRequestReturnLoading] = useState(false)
   const [showPayModal, setShowPayModal] = useState(false)
   const [payLoading, setPayLoading] = useState(false)
   const [selectedPayMethod, setSelectedPayMethod] = useState<'UPI' | 'CARD' | 'NETBANKING'>('UPI')
@@ -72,6 +76,33 @@ export default function OrderDetailPage() {
     const res = await fetch(`/api/orders/${params.id}`)
     if (res.ok) setOrder(await res.json())
     setLoading(false)
+  }
+
+  const handleCustomerReturnSubmit = async () => {
+    if (!order) return
+    setRequestReturnLoading(true)
+    try {
+      const res = await fetch(`/api/orders/${order._id}/request-return`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          returnMode: customerReturnMode,
+          returnNotes: customerReturnNotes,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast.success(data.message || 'Equipment return request initiated successfully!')
+        setShowCustomerReturnModal(false)
+        fetchOrder()
+      } else {
+        toast.error(data.error || 'Failed to initiate return request')
+      }
+    } catch {
+      toast.error('Unable to reach server. Please try again.')
+    } finally {
+      setRequestReturnLoading(false)
+    }
   }
 
   const handlePayNow = async () => {
@@ -218,6 +249,24 @@ export default function OrderDetailPage() {
               <CreditCard size={15} />
               <span>Pay Now (₹{order.totalAmount.toLocaleString()})</span>
             </button>
+          )}
+
+          {/* Customer Return Button */}
+          {!isAdmin && ['CONFIRMED', 'PICKED_UP'].includes(order.status) && (
+            <button
+              onClick={() => setShowCustomerReturnModal(true)}
+              className="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
+            >
+              <RefreshCw size={14} />
+              <span>Return Equipment to Vendor</span>
+            </button>
+          )}
+
+          {!isAdmin && order.status === 'RETURN_PENDING' && (
+            <span className="bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5">
+              <Clock size={14} />
+              <span>Return Initiated — Handover Pending</span>
+            </span>
           )}
 
           {order.status === 'QUOTATION' && (
@@ -958,6 +1007,126 @@ export default function OrderDetailPage() {
                 >
                   {payLoading && <Loader2 size={14} className="animate-spin" />}
                   <span>Pay ₹{order.totalAmount.toLocaleString()} Now</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          CUSTOMER EQUIPMENT RETURN MODAL
+         ======================================================== */}
+      {showCustomerReturnModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="liquid-glass border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-6 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+                  <RefreshCw size={18} />
+                </div>
+                <div>
+                  <h3 className="text-white text-base font-bold">Initiate Equipment Return</h3>
+                  <p className="text-white/40 text-xs font-mono">{order.orderNumber}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCustomerReturnModal(false)}
+                className="text-white/40 hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Select Return Dispatch Mode */}
+              <div className="space-y-2">
+                <label className="block text-white/50 text-xs font-bold uppercase tracking-wider">
+                  Select Return Dispatch Method
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCustomerReturnMode('STORE_DROP')}
+                    className={`p-3 rounded-2xl border text-xs font-bold transition-all text-left space-y-1 cursor-pointer ${
+                      customerReturnMode === 'STORE_DROP'
+                        ? 'bg-blue-500/20 border-blue-500 text-blue-300'
+                        : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="font-bold flex items-center gap-1.5">
+                      <Building size={14} /> Store Dropoff
+                    </div>
+                    <div className="text-[10px] font-normal text-white/40">Self-drop at Vendor Warehouse HQ</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCustomerReturnMode('COURIER_PICKUP')}
+                    className={`p-3 rounded-2xl border text-xs font-bold transition-all text-left space-y-1 cursor-pointer ${
+                      customerReturnMode === 'COURIER_PICKUP'
+                        ? 'bg-blue-500/20 border-blue-500 text-blue-300'
+                        : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="font-bold flex items-center gap-1.5">
+                      <Truck size={14} /> Courier Pickup
+                    </div>
+                    <div className="text-[10px] font-normal text-white/40">Schedule Blue Dart Courier Doorstep</div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Warehouse Location Info */}
+              {customerReturnMode === 'STORE_DROP' ? (
+                <div className="bg-blue-950/30 border border-blue-500/30 rounded-2xl p-4 space-y-1 text-xs">
+                  <div className="text-blue-400 font-bold">Lease360 Central Vendor Warehouse HQ</div>
+                  <div className="text-white/60 text-[11px] leading-relaxed">
+                    Gate 4, MIDC Industrial Area, Tech Park Compound, Mumbai, MH - 400050<br />
+                    Hours: Mon–Sat 9:00 AM to 8:00 PM
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-purple-950/30 border border-purple-500/30 rounded-2xl p-4 space-y-1 text-xs">
+                  <div className="text-purple-300 font-bold">Blue Dart Reverse Pickup Request</div>
+                  <div className="text-white/60 text-[11px] leading-relaxed">
+                    Courier agent will arrive at your registered delivery address within 24 hours to collect equipment.
+                  </div>
+                </div>
+              )}
+
+              {/* Optional Return Notes */}
+              <div>
+                <label className="block text-white/50 text-xs mb-1.5 font-medium">Return Condition / Handover Notes (Optional)</label>
+                <textarea
+                  value={customerReturnNotes}
+                  onChange={(e) => setCustomerReturnNotes(e.target.value)}
+                  rows={3}
+                  placeholder="e.g. Returned with all original accessories, charger, and protective hard case..."
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-2.5 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-blue-400 resize-none"
+                />
+              </div>
+
+              <div className="text-[11px] text-white/40 leading-relaxed text-center">
+                Upon handover, vendor team performs damage & missing parts inspection and settles your refundable deposit.
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCustomerReturnModal(false)}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white/60 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCustomerReturnSubmit}
+                  disabled={requestReturnLoading}
+                  className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                >
+                  {requestReturnLoading && <Loader2 size={14} className="animate-spin" />}
+                  <span>Initiate Return Request →</span>
                 </button>
               </div>
             </div>

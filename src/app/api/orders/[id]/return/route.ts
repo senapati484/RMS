@@ -3,6 +3,7 @@
 import { NextRequest } from 'next/server'
 import { Order } from '@/models/Order'
 import { Product } from '@/models/Product'
+import { User } from '@/models/User'
 import { Notification } from '@/models/Notification'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAdmin, apiOk, apiError } from '@/lib/api-helpers'
@@ -117,16 +118,57 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   await order.save()
 
-  // Notify customer in-app
+  // ─────────────────────────────────────────────────────────────────────────
+  // TRUST SCORE UPDATE LOGIC
+  // ─────────────────────────────────────────────────────────────────────────
+  let trustDelta = 0
+  if (!isLate && !damageNoted && damageDeduction === 0) {
+    // On-time return bonus: +5 points
+    trustDelta += 5
+    if (conditionScore === 'EXCELLENT' || conditionScore === 'NEW') {
+      trustDelta += 2 // Pristine equipment care bonus: +2 points
+    }
+  } else {
+    if (isLate) {
+      trustDelta -= 10 // Delay penalty: -10 points
+    }
+    if (damageNoted || damageDeduction > 0) {
+      trustDelta -= 15 // Equipment damage penalty: -15 points
+    }
+  }
+
   const customerId = (order.userId._id || order.userId) as unknown as import('mongoose').Types.ObjectId
   const customerObj = order.userId as unknown as { name: string; email: string }
 
+  const targetUser = await User.findById(customerId)
+  let newTrustScore = 50
+  if (targetUser) {
+    const currentTrust = targetUser.trustScore ?? 50
+    newTrustScore = Math.min(100, Math.max(0, currentTrust + trustDelta))
+    targetUser.trustScore = newTrustScore
+    await targetUser.save()
+  }
+
+  // Notify customer in-app for Return & Trust Score
   await Notification.create({
     userId: customerId,
     type: 'DEPOSIT_SETTLED',
     title: isLate ? 'Return Processed — Late Fee Applied' : 'Return Processed Successfully',
     message: `Order ${order.orderNumber}: ${feeResult.breakdown}. Refund: ₹${refundAmount}.`,
-    linkHref: `/orders/${order._id}`,
+    linkHref: `/dashboard/orders/${order._id}`,
+    relatedOrderId: order._id,
+  })
+
+  await Notification.create({
+    userId: customerId,
+    type: 'TRUST_SCORE_UPDATE',
+    title: trustDelta >= 0 ? `Trust Score Increased (+${trustDelta} pts)` : `Trust Score Adjusted (${trustDelta} pts)`,
+    message: `Your Trust Score is now ${newTrustScore}/100. ${
+      trustDelta >= 0
+        ? `+${trustDelta} trust points awarded for returning Order ${order.orderNumber} on time in ${conditionScore} condition!`
+        : `${trustDelta} trust points deducted due to return delay/damage.`
+    }`,
+    linkHref: `/dashboard/profile`,
     relatedOrderId: order._id,
   })
 

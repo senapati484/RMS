@@ -172,24 +172,89 @@ export default function UsersManagementPage() {
                 </span>
               </div>
 
-              {/* DigiLocker eKYC Status */}
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={16} className={u.isGovIdVerified ? 'text-green-400' : 'text-amber-400'} />
-                  <div>
-                    <div className="text-white font-medium">
-                      {u.isGovIdVerified ? 'DigiLocker Verified' : 'Pending Verification'}
+              {/* DigiLocker eKYC Status & Trust Score Tier */}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={16} className={u.isGovIdVerified ? 'text-green-400' : 'text-amber-400'} />
+                    <div>
+                      <div className="text-white font-medium">
+                        {u.isGovIdVerified ? 'DigiLocker Verified' : 'Pending Verification'}
+                      </div>
+                      <div className="text-white/40 text-[10px]">
+                        {u.aadhaarMasked || 'UIDAI Aadhaar eKYC'}
+                      </div>
                     </div>
-                    <div className="text-white/40 text-[10px]">
-                      {u.aadhaarMasked || 'UIDAI Aadhaar eKYC'}
-                    </div>
+                  </div>
+
+                  {/* Trust Level Tier Badge */}
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-bold text-[11px] ${
+                    u.trustScore >= 90 ? 'bg-amber-400/10 text-amber-300 border-amber-400/30' :
+                    u.trustScore >= 75 ? 'bg-emerald-400/10 text-emerald-300 border-emerald-400/30' :
+                    u.trustScore >= 50 ? 'bg-blue-400/10 text-blue-300 border-blue-400/30' :
+                    'bg-red-400/10 text-red-300 border-red-400/30'
+                  }`}>
+                    <Award size={12} />
+                    <span>{u.trustScore} Pts ({
+                      u.trustScore >= 90 ? 'Platinum 🌟' :
+                      u.trustScore >= 75 ? 'Gold 🥇' :
+                      u.trustScore >= 50 ? 'Silver 🥈' :
+                      'Risk Flagged ⚠️'
+                    })</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 text-green-400 font-bold bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20 text-[11px]">
-                  <Award size={12} />
-                  <span>{u.trustScore} Trust</span>
+                {/* Trust Score Visual Progress Bar */}
+                <div className="space-y-1 pt-1">
+                  <div className="flex justify-between text-[10px] text-white/40">
+                    <span>Trust Progress</span>
+                    <span>{u.trustScore}/100</span>
+                  </div>
+                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        u.trustScore >= 90 ? 'bg-gradient-to-r from-amber-400 to-yellow-300' :
+                        u.trustScore >= 75 ? 'bg-gradient-to-r from-emerald-400 to-green-300' :
+                        u.trustScore >= 50 ? 'bg-gradient-to-r from-blue-400 to-cyan-300' :
+                        'bg-red-500'
+                      }`}
+                      style={{ width: `${u.trustScore}%` }}
+                    />
+                  </div>
                 </div>
+
+                {/* Admin Quick Trust Adjustment */}
+                {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
+                  <div className="flex items-center justify-between border-t border-white/5 pt-2">
+                    <span className="text-[10px] text-white/40">Admin Controls</span>
+                    <button
+                      onClick={async () => {
+                        const input = prompt(`Adjust Trust Score for ${u.name} (Current: ${u.trustScore}):`, u.trustScore.toString())
+                        if (input !== null) {
+                          const val = parseInt(input, 10)
+                          if (!isNaN(val) && val >= 0 && val <= 100) {
+                            const res = await fetch(`/api/users/${u._id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ trustScore: val }),
+                            })
+                            if (res.ok) {
+                              toast.success(`Updated ${u.name}'s Trust Score to ${val}!`)
+                              fetchUsers()
+                            } else {
+                              toast.error('Failed to update trust score')
+                            }
+                          } else {
+                            toast.error('Please enter a valid score between 0 and 100')
+                          }
+                        }
+                      }}
+                      className="text-[11px] bg-white/5 hover:bg-white/10 text-white/70 hover:text-white px-2.5 py-1 rounded-lg transition-colors border border-white/10 cursor-pointer"
+                    >
+                      ⚡ Adjust Score
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Role specific info */}

@@ -142,18 +142,43 @@ export default function ProfilePage() {
               {profile.phone && <span className="flex items-center gap-1.5"><Phone size={13} className="text-white/40" />{profile.phone}</span>}
             </div>
 
-            {/* Trust Score */}
-            <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Award size={16} className="text-yellow-400" />
-                <span className="text-white/60 text-xs font-medium">Rental Trust Score:</span>
-                <span className="text-white font-bold text-sm">{profile.trustScore}/100</span>
+            {/* Trust Score & Level Tier */}
+            <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <Award size={18} className="text-yellow-400" />
+                  <span className="text-white/70 text-xs font-semibold">Rental Trust Level:</span>
+                  <span className="text-white font-bold text-sm">{profile.trustScore}/100 Pts</span>
+                </div>
+                <span className={`text-xs px-3 py-1 rounded-full font-bold uppercase border ${
+                  profile.trustScore >= 90 ? 'bg-amber-400/15 text-amber-300 border-amber-400/30' :
+                  profile.trustScore >= 75 ? 'bg-emerald-400/15 text-emerald-300 border-emerald-400/30' :
+                  profile.trustScore >= 50 ? 'bg-blue-400/15 text-blue-300 border-blue-400/30' :
+                  'bg-red-400/15 text-red-300 border-red-400/30'
+                }`}>
+                  {profile.trustScore >= 90 ? 'Platinum Tier 🌟 (0% Security Deposit)' :
+                   profile.trustScore >= 75 ? 'Gold Tier 🥇 (50% Deposit Discount)' :
+                   profile.trustScore >= 50 ? 'Silver Tier 🥈 (Standard Deposit)' :
+                   'Risk Flagged ⚠️ (100% Deposit Required)'}
+                </span>
               </div>
-              <div className="flex-1 max-w-xs h-2 bg-white/10 rounded-full overflow-hidden">
+
+              <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-yellow-400 to-emerald-400 rounded-full transition-all duration-500"
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    profile.trustScore >= 90 ? 'bg-gradient-to-r from-amber-400 to-yellow-300' :
+                    profile.trustScore >= 75 ? 'bg-gradient-to-r from-emerald-400 to-green-300' :
+                    profile.trustScore >= 50 ? 'bg-gradient-to-r from-blue-400 to-cyan-300' :
+                    'bg-red-500'
+                  }`}
                   style={{ width: `${profile.trustScore}%` }}
                 />
+              </div>
+
+              {/* Point Rules Footer */}
+              <div className="flex items-center justify-between text-[11px] text-white/40 pt-1">
+                <span>Earn +5 pts on every on-time return</span>
+                <span>Pristine Care Bonus +2 pts</span>
               </div>
             </div>
           </div>

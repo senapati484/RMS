@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs'
 
 export type UserRole = 'ADMIN' | 'STAFF' | 'PORTAL_USER'
 
+export type DLStatus = 'NOT_SUBMITTED' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED'
+
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId
   email: string
@@ -11,7 +13,7 @@ export interface IUser extends Document {
   phone?: string
   role: UserRole
   profileImage?: string
-  trustScore: number // 0-100, computed from rental history
+  trustScore: number
   isGovIdVerified: boolean
   aadhaarMasked?: string
   digiLockerTxnId?: string
@@ -20,6 +22,16 @@ export interface IUser extends Document {
   gstin?: string
   employeeId?: string
   addressLine?: string
+  // Driving License KYC (required for vehicle rentals)
+  drivingLicense: {
+    number?: string
+    expiry?: string
+    status: DLStatus
+    docUrl?: string
+    rejectionReason?: string
+    submittedAt?: Date
+    verifiedAt?: Date
+  }
   createdAt: Date
   updatedAt: Date
   comparePassword(candidate: string): Promise<boolean>
@@ -42,6 +54,19 @@ const UserSchema = new Schema<IUser>(
     gstin: { type: String },
     employeeId: { type: String },
     addressLine: { type: String },
+    drivingLicense: {
+      number: { type: String },
+      expiry: { type: String },
+      status: {
+        type: String,
+        enum: ['NOT_SUBMITTED', 'PENDING_REVIEW', 'VERIFIED', 'REJECTED'],
+        default: 'NOT_SUBMITTED',
+      },
+      docUrl: { type: String },
+      rejectionReason: { type: String },
+      submittedAt: { type: Date },
+      verifiedAt: { type: Date },
+    },
   },
   { timestamps: true }
 )

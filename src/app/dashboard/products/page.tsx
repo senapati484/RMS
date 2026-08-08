@@ -203,93 +203,97 @@ export default function ProductsPage() {
             return (
               <div
                 key={product._id}
-                className={`liquid-glass border rounded-2xl overflow-hidden group transition-all duration-200 hover:border-white/25 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/30 ${
+                className={`liquid-glass border rounded-2xl overflow-hidden group transition-all duration-200 hover:border-white/25 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/30 flex flex-col justify-between ${
                   !product.isPublished ? 'border-white/5 opacity-75' : 'border-white/10'
                 }`}
               >
-                {/* Image */}
-                <div className="relative aspect-video bg-white/5 overflow-hidden">
-                  {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Package size={32} className="text-white/15" />
-                    </div>
-                  )}
-
-                  {/* Overlay badges */}
-                  <div className="absolute top-2 left-2 right-2 flex items-start justify-between gap-1">
-                    {!product.isPublished && (
-                      <span className="text-xs bg-black/60 backdrop-blur-sm text-white/60 px-2 py-0.5 rounded-lg border border-white/10">
-                        Draft
-                      </span>
-                    )}
-                    {product.availableStock === 0 && (
-                      <span className="text-xs bg-red-950/80 backdrop-blur-sm text-red-400 px-2 py-0.5 rounded-lg border border-red-500/20 ml-auto">
-                        Out of Stock
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Condition badge */}
-                  {product.condition && (
-                    <span className={`absolute bottom-2 left-2 text-xs px-2 py-0.5 rounded-lg font-medium ${CONDITION_COLORS[product.condition] || 'text-white/40 bg-white/10'}`}>
-                      {product.condition}
-                    </span>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="p-4 space-y-3">
-                  <div>
-                    <h3 className="text-white text-sm font-semibold line-clamp-1 group-hover:text-[#F26522] transition-colors">
-                      {product.name}
-                    </h3>
-                    <p className="text-white/30 text-xs mt-0.5">
-                      {product.brand && `${product.brand} · `}{product.category} · {product.sku}
-                    </p>
-                  </div>
-
-                  {/* Stock */}
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <StockBadge available={product.availableStock} total={product.totalStock} />
-                    </div>
-                    <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          product.availableStock === 0 ? 'bg-red-500' :
-                          product.availableStock <= 2 ? 'bg-yellow-500' : 'bg-[#F26522]'
-                        }`}
-                        style={{ width: `${stockPct}%` }}
+                <Link href={`/dashboard/products/${product._id}`} className="block flex-1">
+                  {/* Image */}
+                  <div className="relative aspect-video bg-white/5 overflow-hidden">
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package size={32} className="text-white/15" />
+                      </div>
+                    )}
+
+                    {/* Overlay badges */}
+                    <div className="absolute top-2 left-2 right-2 flex items-start justify-between gap-1">
+                      {!product.isPublished && (
+                        <span className="text-xs bg-black/60 backdrop-blur-sm text-white/60 px-2 py-0.5 rounded-lg border border-white/10">
+                          Draft
+                        </span>
+                      )}
+                      {product.availableStock === 0 && (
+                        <span className="text-xs bg-red-950/80 backdrop-blur-sm text-red-400 px-2 py-0.5 rounded-lg border border-red-500/20 ml-auto">
+                          Out of Stock
+                        </span>
+                      )}
                     </div>
+
+                    {/* Condition badge */}
+                    {product.condition && (
+                      <span className={`absolute bottom-2 left-2 text-xs px-2 py-0.5 rounded-lg font-medium ${CONDITION_COLORS[product.condition] || 'text-white/40 bg-white/10'}`}>
+                        {product.condition}
+                      </span>
+                    )}
                   </div>
 
-                  {/* Rate */}
-                  <div className="flex items-center justify-between">
+                  {/* Info */}
+                  <div className="p-4 space-y-3">
                     <div>
-                      <span className="text-white font-bold text-base">₹{product.dailyRate.toLocaleString()}</span>
-                      <span className="text-white/30 text-xs">/day</span>
+                      <h3 className="text-white text-sm font-semibold line-clamp-1 group-hover:text-[#F26522] transition-colors">
+                        {product.name}
+                      </h3>
+                      <p className="text-white/30 text-xs mt-0.5">
+                        {product.brand && `${product.brand} · `}{product.category} · {product.sku}
+                      </p>
                     </div>
-                    <span className="text-white/30 text-xs">
-                      Dep: ₹{product.baseDepositAmt.toLocaleString()}
-                    </span>
-                  </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-1">
+                    {/* Stock */}
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <StockBadge available={product.availableStock} total={product.totalStock} />
+                      </div>
+                      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            product.availableStock === 0 ? 'bg-red-500' :
+                            product.availableStock <= 2 ? 'bg-yellow-500' : 'bg-[#F26522]'
+                          }`}
+                          style={{ width: `${stockPct}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Rate */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-white font-bold text-base">₹{product.dailyRate.toLocaleString()}</span>
+                        <span className="text-white/30 text-xs">/day</span>
+                      </div>
+                      <span className="text-[#F26522] text-xs font-semibold group-hover:underline flex items-center gap-0.5">
+                        View Details →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Actions */}
+                <div className="p-4 pt-0">
+                  <div className="flex gap-2 pt-2 border-t border-white/5">
                     {isAdmin ? (
                       <>
                         <Link
                           href={`/dashboard/products/${product._id}`}
                           className="flex-1 text-center text-xs py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-lg transition-colors"
                         >
-                          Edit
+                          Details & Edit
                         </Link>
                         <button
                           onClick={() => togglePublish(product._id, product.isPublished)}
@@ -301,10 +305,10 @@ export default function ProductsPage() {
                     ) : (
                       <>
                         <Link
-                          href={`/dashboard/quotations/new?product=${product._id}`}
-                          className="flex-1 text-center text-xs py-2.5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-lg transition-colors"
+                          href={`/dashboard/products/${product._id}`}
+                          className="flex-1 text-center text-xs py-2.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-lg transition-colors font-medium"
                         >
-                          Quote
+                          View Details
                         </Link>
                         <Link
                           href={`/dashboard/orders/new?product=${product._id}`}

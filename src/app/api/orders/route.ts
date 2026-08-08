@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 import { Order } from '@/models/Order'
 import { Product } from '@/models/Product'
 import { Notification } from '@/models/Notification'
+import { User } from '@/models/User'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
 import { generateOrderNumber } from '@/lib/order-number'
@@ -71,6 +72,19 @@ export async function POST(req: NextRequest) {
       if (product.availableStock < item.quantity) {
         return apiError(`Insufficient stock for ${product.name}`, 400)
       }
+
+      // ── Vehicle KYC gate ──────────────────────────────────────────────
+      if (product.productType === 'vehicle') {
+        const dbUser = await User.findById(user!.userId).select('drivingLicense').lean()
+        const dlStatus = dbUser?.drivingLicense?.status
+        if (dlStatus !== 'VERIFIED') {
+          return apiError(
+            'Vehicle rental requires a verified Driving License. Please complete KYC in your profile.',
+            403
+          )
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────
 
       const lineTotal = item.unitPrice * item.quantity
       subTotal += lineTotal

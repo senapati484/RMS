@@ -33,8 +33,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="antialiased selection:bg-[#F26522] selection:text-white">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className="antialiased selection:bg-[#F26522] selection:text-white" suppressHydrationWarning>
         <AuthProvider>
           {children}
           <Toaster

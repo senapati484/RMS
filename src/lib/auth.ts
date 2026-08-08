@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose'
 
-const JWT_SECRET = process.env.JWT_SECRET!
+const JWT_SECRET = process.env.JWT_SECRET || 'lease360-enterprise-jwt-secret-key-2026-production'
 const secret = new TextEncoder().encode(JWT_SECRET)
 
 export interface JWTPayload {

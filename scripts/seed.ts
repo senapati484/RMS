@@ -116,7 +116,7 @@ const PRODUCTS = [
   {
     name: 'RED Komodo 6K Cinema Camera Package', slug: 'red-komodo-6k',
     description: 'Compact 6K global shutter cinema camera with Canon RF mount and REDCODE RAW codec.',
-    imageUrl: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1579165466741-7f35e4755660?w=800&q=80',
     productType: 'camera', category: 'Camera', brand: 'RED Digital Cinema', sku: 'CAM-RED-KOMODO6K', condition: 'NEW',
     totalStock: 2, availableStock: 2, dailyRate: 5000, weeklyRate: 31500, monthlyRate: 105000, baseDepositAmt: 20000, depositIsPercent: false,
     accessoryList: ['Outrigger Handle', '512GB CFAST Card ×2', 'V-Mount Adapter', 'Pelican Case'],
@@ -210,7 +210,7 @@ const PRODUCTS = [
   {
     name: 'Aputure Light Storm LS 600d Pro LED', slug: 'aputure-ls-600d-pro',
     description: 'Monstrous 600W daylight COB LED fixture equivalent to 1200W HMI for professional sets.',
-    imageUrl: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1527066579998-dbbae57f45ce?w=800&q=80',
     productType: 'lighting', category: 'Lighting', brand: 'Aputure', sku: 'LIGHT-APUT-600D', condition: 'NEW',
     totalStock: 3, availableStock: 3, dailyRate: 2200, weeklyRate: 13860, monthlyRate: 46200, baseDepositAmt: 8000, depositIsPercent: false,
     accessoryList: ['Control Box', 'Hyper Reflector', 'Weatherproof Head Cable', 'Rolling Case'],
@@ -224,7 +224,7 @@ const PRODUCTS = [
   {
     name: 'ARRI Skypanel S60-C RGBW LED Softlight', slug: 'arri-skypanel-s60c',
     description: 'Industry benchmark RGBW LED softlight with fully tuneable correlated color temperature from 2800K to 10,000K.',
-    imageUrl: 'https://images.unsplash.com/photo-1533683013754-9d4bc1d4a5e6?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&q=80',
     productType: 'lighting', category: 'Lighting', brand: 'ARRI', sku: 'LIGHT-ARRI-SKYPANEL-S60C', condition: 'EXCELLENT',
     totalStock: 2, availableStock: 2, dailyRate: 4500, weeklyRate: 28350, monthlyRate: 94500, baseDepositAmt: 20000, depositIsPercent: false,
     accessoryList: ['S60 Power Supply Unit', 'Header Cable 10m', 'Standard Diffusion Panel', 'Intensity Barndoors', 'Flight Case'],
@@ -269,7 +269,7 @@ const PRODUCTS = [
   {
     name: 'Sound Devices 833 8-Channel Field Recorder', slug: 'sound-devices-833',
     description: 'Compact 8-channel, 12-track field audio recorder/mixer with 6 ultra-low noise microphone preamps.',
-    imageUrl: 'https://images.unsplash.com/photo-1593698054498-56c2ef5bff9c?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=80',
     productType: 'audio', category: 'Audio', brand: 'Sound Devices', sku: 'AUD-SD-833-REC', condition: 'EXCELLENT',
     totalStock: 2, availableStock: 2, dailyRate: 2800, weeklyRate: 17640, monthlyRate: 58800, baseDepositAmt: 12000, depositIsPercent: false,
     accessoryList: ['XL-1394 Power Supply', 'Dual SanDisk 128GB SD Cards', 'L-Mount Battery Sled', 'Orca Harness Bag'],
@@ -358,7 +358,7 @@ const PRODUCTS = [
   {
     name: 'DJI Ronin 4D 4-Axis Cinema Camera Gimbal System', slug: 'dji-ronin-4d-6k',
     description: 'Revolutionary 4-axis cinema camera featuring Zenmuse X9 6K full-frame camera and LiDAR focusing.',
-    imageUrl: 'https://images.unsplash.com/photo-1567767292278-a4f21aa2d36e?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1533561052604-c3beb6d55b8d?w=800&q=80',
     productType: 'support', category: 'Support', brand: 'DJI', sku: 'GIMBAL-DJI-RONIN4D-6K', condition: 'EXCELLENT',
     totalStock: 3, availableStock: 3, dailyRate: 4200, weeklyRate: 26460, monthlyRate: 88200, baseDepositAmt: 15000, depositIsPercent: false,
     accessoryList: ['Zenmuse X9-6K Gimbal Camera', 'LiDAR Range Finder', 'High-Bright Remote Monitor', 'TB50 Battery ×4', 'Hand Grips Kit'],

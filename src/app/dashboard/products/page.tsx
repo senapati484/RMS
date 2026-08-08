@@ -24,6 +24,7 @@ interface Product {
   dailyRate: number
   baseDepositAmt: number
   isPublished: boolean
+  isArchived?: boolean
   tags?: string[]
 }
 
@@ -310,7 +311,12 @@ export default function ProductsPage() {
 
                     {/* Overlay badges */}
                     <div className="absolute top-2 left-2 right-2 flex items-start justify-between gap-1">
-                      {!product.isPublished && (
+                      {product.isArchived && (
+                        <span className="text-xs bg-red-950/80 backdrop-blur-sm text-red-400 px-2 py-0.5 rounded-lg border border-red-500/30">
+                          Archived
+                        </span>
+                      )}
+                      {!product.isArchived && !product.isPublished && (
                         <span className="text-xs bg-black/60 backdrop-blur-sm text-white/60 px-2 py-0.5 rounded-lg border border-white/10">
                           Draft
                         </span>
@@ -383,9 +389,14 @@ export default function ProductsPage() {
                         </Link>
                         <button
                           onClick={() => togglePublish(product._id, product.isPublished)}
-                          className="flex-1 text-xs py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-lg transition-colors flex items-center justify-center gap-1"
+                          disabled={product.isArchived}
+                          className={`flex-1 text-xs py-2 rounded-lg transition-colors flex items-center justify-center gap-1 ${
+                            product.isArchived
+                              ? 'bg-white/5 text-white/25 cursor-not-allowed'
+                              : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white cursor-pointer'
+                          }`}
                         >
-                          {product.isPublished ? <><EyeOff size={11} /> Hide</> : <><Eye size={11} /> Publish</>}
+                          {product.isArchived ? <>Archived</> : product.isPublished ? <><EyeOff size={11} /> Hide</> : <><Eye size={11} /> Publish</>}
                         </button>
                       </>
                     ) : (

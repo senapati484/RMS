@@ -21,6 +21,8 @@ export interface IProduct extends Document {
   totalStock: number
   availableStock: number
   dailyRate: number
+  weeklyRate?: number
+  monthlyRate?: number
   costPrice?: number
   salesPrice?: number
   baseDepositAmt: number
@@ -34,6 +36,7 @@ export interface IProduct extends Document {
   tags: string[]
   specifications: Map<string, string>  // type-specific key-value specs
   isPublished: boolean
+  isArchived: boolean
   variants: Array<{ attribute: string; value: string }>
   createdAt: Date
   updatedAt: Date
@@ -66,6 +69,8 @@ const ProductSchema = new Schema<IProduct>(
     totalStock: { type: Number, default: 1, min: 0 },
     availableStock: { type: Number, default: 1, min: 0 },
     dailyRate: { type: Number, default: 500, min: 0 },
+    weeklyRate: { type: Number, default: 0 },
+    monthlyRate: { type: Number, default: 0 },
     costPrice: { type: Number, default: 0 },
     salesPrice: { type: Number, default: 500 },
     baseDepositAmt: { type: Number, default: 0 },
@@ -83,6 +88,7 @@ const ProductSchema = new Schema<IProduct>(
       default: {},
     },
     isPublished: { type: Boolean, default: true },
+    isArchived: { type: Boolean, default: false },
     variants: [
       {
         attribute: { type: String },

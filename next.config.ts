@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: { allowedOrigins: ['*'] },
   },
+  async redirects() {
+    return [
+      {
+        source: '/products/:path*',
+        destination: '/dashboard/products',
+        permanent: false,
+      },
+    ]
+  },
   async headers() {
     return [
       {

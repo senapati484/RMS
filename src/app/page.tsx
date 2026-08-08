@@ -267,7 +267,7 @@ export default function Lease360LandingPage() {
               for instant rental dispatch.
             </h2>
             <Link
-              href="/products"
+              href="/dashboard/products"
               className="bg-gray-900 hover:bg-black text-white text-xs font-semibold px-5 py-3 rounded-full flex items-center gap-2 w-fit transition-colors shadow-md"
             >
               View Storefront Catalog →

@@ -27,6 +27,11 @@ export async function GET(req: NextRequest) {
     filter.isPublished = { $ne: false }
   }
 
+  // Archived (soft-deleted) products are hidden everywhere unless an admin requests all
+  if (!showAll) {
+    filter.isArchived = { $ne: true }
+  }
+
   if (category && category !== 'All') filter.category = category
   if (productType && productType !== 'all') filter.productType = productType
   if (q) {

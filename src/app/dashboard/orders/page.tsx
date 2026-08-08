@@ -144,7 +144,7 @@ export default function OrdersPage() {
             </Link>
           ) : (
             <Link
-              href="/products"
+              href="/dashboard/products"
               className="bg-brand-orange hover:bg-brand-orange-dark active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
             >
               Browse Equipment Catalog →

@@ -54,7 +54,7 @@ function OrderSuccessContent() {
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
       {/* Top Header Bar matching Excalidraw */}
       <header className="sticky top-0 z-40 bg-[#111111]/90 backdrop-blur-xl border-b border-white/10 px-4 sm:px-8 h-16 flex items-center justify-between print:hidden">
-        <Link href="/products" className="flex items-center gap-3">
+        <Link href="/dashboard/products" className="flex items-center gap-3">
           <img src="/logo.png" alt="Lease360" className="w-8 h-8 object-contain p-1 bg-white/10 ring-1 ring-white/20 rounded-xl" />
           <span className="text-white font-bold text-lg tracking-tight">Lease360</span>
         </Link>
@@ -230,7 +230,7 @@ function OrderSuccessContent() {
 
           {/* Action CTAs */}
           <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
-            <Link href="/products" className="text-white/60 hover:text-white text-xs font-semibold flex items-center gap-1.5">
+            <Link href="/dashboard/products" className="text-white/60 hover:text-white text-xs font-semibold flex items-center gap-1.5">
               ‹ Back to Store Catalog
             </Link>
 

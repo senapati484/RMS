@@ -28,11 +28,11 @@ export default function EditProductPage() {
     condition: 'EXCELLENT',
     imageUrl: '',
     description: '',
-    salesPrice: 0,
+    salesPrice: '', // blank = bill at dailyRate
     costPrice: 0,
     dailyRate: 500,
-    weeklyRate: 3000,
-    monthlyRate: 10000,
+    weeklyRate: 3150,
+    monthlyRate: 10500,
     totalStock: 1,
     availableStock: 1,
     baseDepositAmt: 200,
@@ -73,11 +73,11 @@ export default function EditProductPage() {
             condition: p.condition || 'EXCELLENT',
             imageUrl: p.imageUrl || '',
             description: p.description || '',
-            salesPrice: p.salesPrice || p.dailyRate || 0,
+            salesPrice: p.salesPrice ? String(p.salesPrice) : '',
             costPrice: p.costPrice || 0,
             dailyRate: p.dailyRate || 500,
-            weeklyRate: p.weeklyRate || 3000,
-            monthlyRate: p.monthlyRate || 10000,
+            weeklyRate: p.weeklyRate || Math.round((p.dailyRate || 500) * 7 * 0.9),
+            monthlyRate: p.monthlyRate || Math.round((p.dailyRate || 500) * 30 * 0.7),
             totalStock: p.totalStock ?? 1,
             availableStock: p.availableStock ?? 1,
             baseDepositAmt: p.baseDepositAmt ?? 200,
@@ -114,6 +114,14 @@ export default function EditProductPage() {
       toast.error('Product Name is required')
       return
     }
+    if (formData.totalStock < 0 || formData.availableStock < 0) {
+      toast.error('Stock values cannot be negative')
+      return
+    }
+    if (formData.availableStock > formData.totalStock) {
+      toast.error('Available stock cannot exceed total stock')
+      return
+    }
 
     setSaving(true)
     try {
@@ -126,6 +134,10 @@ export default function EditProductPage() {
         ...formData,
         variants,
         specifications: specObj,
+        // Blank sales price clears the override → billing falls back to dailyRate
+        salesPrice: formData.salesPrice === '' ? null : Number(formData.salesPrice),
+        totalStock: Math.floor(formData.totalStock),
+        availableStock: Math.min(Math.floor(formData.availableStock), Math.floor(formData.totalStock)),
       }
 
       const res = await fetch(`/api/products/${productId}`, {
@@ -246,6 +258,27 @@ export default function EditProductPage() {
                 <input type="radio" checked={formData.itemKind === 'SERVICE'} readOnly className="accent-[#F26522]" />
               </label>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-white/70 text-xs font-bold uppercase tracking-wider">Item Condition</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {(['NEW', 'EXCELLENT', 'GOOD', 'FAIR'] as const).map(c => (
+                <label
+                  key={c}
+                  onClick={() => setFormData({ ...formData, condition: c })}
+                  className={`p-3 rounded-2xl border flex items-center justify-center gap-2 cursor-pointer transition-all text-xs font-bold ${
+                    formData.condition === c
+                      ? 'bg-[#F26522]/15 border-[#F26522] text-white'
+                      : 'bg-white/5 border-white/10 text-white/50 hover:text-white'
+                  }`}
+                >
+                  <input type="radio" checked={formData.condition === c} readOnly className="accent-[#F26522]" />
+                  {c === 'NEW' ? '🆕' : c === 'EXCELLENT' ? '✨' : c === 'GOOD' ? '👍' : '🔧'} {c}
+                </label>
+              ))}
+            </div>
+            <p className="text-white/30 text-[11px]">Drives the return-inspection AI and catalog badge</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -502,13 +535,54 @@ export default function EditProductPage() {
             </div>
 
             <div>
+              <label className="block text-white/70 font-semibold mb-1">Sales Price (₹/day — override)</label>
+              <input
+                type="number"
+                value={formData.salesPrice}
+                onChange={e => setFormData({ ...formData, salesPrice: e.target.value })}
+                placeholder="Auto = daily rate"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-[#F26522]"
+              />
+              <p className="text-white/30 text-[11px] mt-1">
+                Leave blank to bill customers at the daily rate. Effective rate: ₹{formData.salesPrice === '' ? formData.dailyRate : Number(formData.salesPrice).toLocaleString()}/day
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-white/70 font-semibold mb-1">Cost Price (₹ / day)</label>
+              <input
+                type="number"
+                value={formData.costPrice}
+                onChange={e => setFormData({ ...formData, costPrice: Number(e.target.value) })}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-[#F26522]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-white/70 font-semibold mb-1">Total Inventory Stock</label>
+              <input
+                type="number"
+                value={formData.totalStock}
+                onChange={e => setFormData(f => {
+                  const total = Math.max(0, Math.floor(Number(e.target.value) || 0))
+                  return { ...f, totalStock: total, availableStock: Math.min(f.availableStock, total) }
+                })}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-[#F26522]"
+              />
+            </div>
+
+            <div>
               <label className="block text-white/70 font-semibold mb-1">Available Inventory Stock</label>
               <input
                 type="number"
                 value={formData.availableStock}
-                onChange={e => setFormData({ ...formData, availableStock: Number(e.target.value) })}
+                onChange={e => setFormData(f => ({
+                  ...f,
+                  availableStock: Math.min(Math.max(0, Math.floor(Number(e.target.value) || 0)), f.totalStock),
+                }))}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-[#F26522]"
               />
+              <p className="text-white/30 text-[11px] mt-1">Decremented by confirmed rentals — keep ≤ total stock</p>
             </div>
           </div>
         </div>

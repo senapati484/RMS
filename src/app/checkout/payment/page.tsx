@@ -176,7 +176,7 @@ export default function CheckoutPaymentPage() {
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
       {/* Top Header Bar with Profile Dropdown matching spec */}
       <header className="sticky top-0 z-40 bg-[#111111]/90 backdrop-blur-xl border-b border-white/10 px-4 sm:px-8 h-16 flex items-center justify-between">
-        <Link href="/products" className="text-[#F26522] font-bold text-lg tracking-tight flex items-center gap-2">
+        <Link href="/dashboard/products" className="text-[#F26522] font-bold text-lg tracking-tight flex items-center gap-2">
           <img src="/logo.png" alt="Lease360" className="w-8 h-8 object-contain p-1 bg-white/10 ring-1 ring-white/20 rounded-xl" />
           <span>Lease360 Store</span>
         </Link>

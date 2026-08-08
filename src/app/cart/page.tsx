@@ -159,7 +159,7 @@ export default function CartPage() {
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[#111111]/90 backdrop-blur-xl border-b border-white/10 px-4 sm:px-8 h-16 flex items-center justify-between">
-        <Link href="/products" className="text-[#F26522] font-bold text-lg tracking-tight">
+        <Link href="/dashboard/products" className="text-[#F26522] font-bold text-lg tracking-tight">
           Lease360 Store
         </Link>
         <span className="text-white/40 text-xs">Customer Rental Checkout</span>
@@ -371,14 +371,14 @@ export default function CartPage() {
               <div className="liquid-glass border border-white/10 rounded-2xl p-12 text-center text-white/40 space-y-2">
                 <ShoppingBag size={32} className="mx-auto text-white/20" />
                 <p>Your rental cart is currently empty</p>
-                <Link href="/products" className="text-[#F26522] font-bold text-xs hover:underline block pt-2">
+                <Link href="/dashboard/products" className="text-[#F26522] font-bold text-xs hover:underline block pt-2">
                   Browse Equipment Catalog →
                 </Link>
               </div>
             )}
           </div>
 
-          <Link href="/products" className="inline-flex items-center gap-2 text-white/60 hover:text-white text-xs font-semibold pt-4">
+          <Link href="/dashboard/products" className="inline-flex items-center gap-2 text-white/60 hover:text-white text-xs font-semibold pt-4">
             <span>‹ Continue Shopping</span>
           </Link>
         </div>

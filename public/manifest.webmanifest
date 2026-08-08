@@ -34,7 +34,7 @@
       "name": "Catalog & Gear",
       "short_name": "Catalog",
       "description": "Browse available rental equipment",
-      "url": "/products",
+      "url": "/dashboard/products",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {

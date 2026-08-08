@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import {
   ArrowLeft, Package, Tag, CheckCircle2, AlertCircle, XCircle,
-  Car, Calendar, Layers, Info, Star, Shield
+  Car, Calendar, Layers, Info, Star, Shield, Trash2
 } from 'lucide-react'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
@@ -34,6 +34,7 @@ interface Product {
   baseDepositAmt: number
   depositIsPercent?: boolean
   isPublished: boolean
+  isArchived?: boolean
   tags?: string[]
   specifications?: Record<string, string>
   accessories?: string[]
@@ -118,6 +119,34 @@ export default function ProductDetailPage() {
     toast.success('Driving License verified! You can now rent this vehicle.')
   }
 
+  const handleDelete = async () => {
+    if (!product) return
+    if (!window.confirm(`Remove "${product.name}"? It will be hidden from the storefront and can be restored later.`)) return
+    const res = await fetch(`/api/products/${product._id}`, { method: 'DELETE' })
+    if (res.ok) {
+      toast.success('Product removed from catalog')
+      router.push('/dashboard/products')
+    } else {
+      const data = await res.json().catch(() => ({}))
+      toast.error(data.error || 'Failed to remove product')
+    }
+  }
+
+  const handleRestore = async () => {
+    if (!product) return
+    const res = await fetch(`/api/products/${product._id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isArchived: false, isPublished: true }),
+    })
+    if (res.ok) {
+      toast.success('Product restored to the catalog')
+      setProduct({ ...product, isArchived: false, isPublished: true })
+    } else {
+      toast.error('Failed to restore product')
+    }
+  }
+
   if (loading) return (
     <div className="flex items-center justify-center min-h-64">
       <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
@@ -166,7 +195,12 @@ export default function ProductDetailPage() {
 
             {/* Badges overlay */}
             <div className="absolute top-3 left-3 flex flex-col gap-2">
-              {!product.isPublished && (
+              {product.isArchived && (
+                <span className="text-xs bg-red-950/80 backdrop-blur text-red-400 px-2.5 py-1 rounded-lg border border-red-500/30">
+                  Archived — removed from storefront
+                </span>
+              )}
+              {!product.isArchived && !product.isPublished && (
                 <span className="text-xs bg-black/70 backdrop-blur text-white/50 px-2.5 py-1 rounded-lg border border-white/10">
                   Draft
                 </span>
@@ -320,6 +354,23 @@ export default function ProductDetailPage() {
                 >
                   Edit Product
                 </Link>
+                {product.isArchived ? (
+                  <button
+                    onClick={handleRestore}
+                    className="py-3 px-4 rounded-xl text-sm font-medium transition-colors border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5"
+                  >
+                    <CheckCircle2 size={14} />
+                    Restore
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleDelete}
+                    className="py-3 px-4 rounded-xl text-sm font-medium transition-colors border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 flex items-center gap-1.5"
+                  >
+                    <Trash2 size={14} />
+                    Remove
+                  </button>
+                )}
               </div>
             )}
           </div>

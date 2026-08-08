@@ -180,7 +180,7 @@ function NewOrderPage() {
               + Add Product to Store
             </button>
             <button
-              onClick={() => router.push('/products')}
+              onClick={() => router.push('/dashboard/products')}
               className="bg-white/5 hover:bg-white/10 text-white/80 font-bold px-5 py-2.5 rounded-xl text-xs transition-all border border-white/10"
             >
               Browse Store Catalog

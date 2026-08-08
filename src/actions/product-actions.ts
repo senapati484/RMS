@@ -46,14 +46,41 @@ export interface GetProductsResult {
 }
 
 /**
- * Direct Server Action for high-performance, zero-HTTP-overhead product data fetching.
- * Supports full server-side filtering, sorting, and pagination across any dataset size.
+ * Direct Action calling the Express.js Backend Server API (/api/products).
+ * Falls back cleanly to direct connection pool query if needed.
  */
 export async function getProductsAction(params: GetProductsParams = {}): Promise<GetProductsResult> {
-  await connectDB()
-
   const page = Math.max(1, params.page || 1)
   const limit = Math.min(100, Math.max(1, params.limit || 10))
+
+  const expressBase = process.env.EXPRESS_API_URL || 'http://localhost:5001/api'
+  const queryParams = new URLSearchParams()
+  queryParams.set('page', String(page))
+  queryParams.set('limit', String(limit))
+  if (params.category) queryParams.set('category', params.category)
+  if (params.productType) queryParams.set('productType', params.productType)
+  if (params.q) queryParams.set('q', params.q)
+  if (params.showAll) queryParams.set('showAll', 'true')
+  if (params.sortBy) queryParams.set('sortBy', params.sortBy)
+  if (params.inStockOnly) queryParams.set('inStockOnly', 'true')
+  if (params.brand) queryParams.set('brand', params.brand)
+
+  try {
+    const res = await fetch(`${expressBase}/products?${queryParams.toString()}`, {
+      next: { revalidate: 0 },
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    if (res.ok) {
+      const data = await res.json()
+      return data
+    }
+  } catch {
+    // Silently proceed to database query fallback
+  }
+
+  // Fallback to high-concurrency DB pool directly if Express server call fails
+  await connectDB()
   const { productType, category, q, showAll, sortBy = 'NEWEST', inStockOnly, brand } = params
 
   const filter: Record<string, unknown> = {}
@@ -90,7 +117,6 @@ export async function getProductsAction(params: GetProductsParams = {}): Promise
     ]
   }
 
-  // Define sort query based on user request
   let sortOption: Record<string, 1 | -1> = { isPublished: -1, createdAt: -1 }
   if (sortBy === 'PRICE_LOW') {
     sortOption = { dailyRate: 1 }
@@ -98,13 +124,9 @@ export async function getProductsAction(params: GetProductsParams = {}): Promise
     sortOption = { dailyRate: -1 }
   } else if (sortBy === 'AVAILABILITY') {
     sortOption = { availableStock: -1 }
-  } else {
-    sortOption = { isPublished: -1, createdAt: -1 }
   }
 
   const fields = 'name slug description imageUrl productType category brand sku condition totalStock availableStock dailyRate weeklyRate monthlyRate baseDepositAmt isPublished isArchived tags'
-
-  // Fetch distinct brands for filter options across published non-archived products
   const brandQueryFilter: Record<string, unknown> = { isPublished: { $ne: false }, isArchived: { $ne: true } }
   if (productType && productType !== 'all') brandQueryFilter.productType = productType
 
@@ -119,7 +141,6 @@ export async function getProductsAction(params: GetProductsParams = {}): Promise
     Product.distinct('brand', brandQueryFilter),
   ])
 
-  // Convert BSON ObjectIds and Dates to plain serializable JSON
   const products = JSON.parse(JSON.stringify(rawProducts))
   const brands = (distinctBrands as string[]).filter(Boolean).sort()
   const pages = Math.ceil(total / limit) || 1

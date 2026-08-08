@@ -1,8 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/context/AuthContext'
-import { useCart } from '@/context/CartContext'
+import { useAuth, useCart } from '@/context'
 import {
   Search as SearchIcon, Heart as HeartIcon, ShoppingCart as CartIcon,
   User as UserCheckIcon, LogOut as LogoutIcon, SlidersHorizontal,

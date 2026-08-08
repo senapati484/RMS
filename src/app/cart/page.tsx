@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { useCart, type CartItem } from '@/context/CartContext'
+import { useCart, type CartItem } from '@/context'
 import {
   ShoppingBag, Trash2, Bookmark, ArrowRight,
   Calendar as CalendarIcon, CreditCard, X

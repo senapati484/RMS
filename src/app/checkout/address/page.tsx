@@ -3,8 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { useAuth } from '@/context/AuthContext'
-import { useCart } from '@/context/CartContext'
+import { useAuth, useCart } from '@/context'
 import {
   Truck, Store, MapPin, Edit2, Building,
   User as UserCheckIcon, LogOut as LogoutIcon

@@ -238,7 +238,7 @@ const PRODUCTS = [
   {
     name: 'Nanlite Pavotube II 30C RGBWW Tube Light Kit (Set of 4)', slug: 'nanlite-pavotube-30c-4kit',
     description: '4-foot RGBWW LED tube light 4-light kit with internal batteries, wireless DMX, and special effects.',
-    imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
     productType: 'lighting', category: 'Lighting', brand: 'Nanlite', sku: 'LIGHT-NAN-PAVO30C-4K', condition: 'NEW',
     totalStock: 4, availableStock: 4, dailyRate: 1600, weeklyRate: 10080, monthlyRate: 33600, baseDepositAmt: 5000, depositIsPercent: false,
     accessoryList: ['PavoTube II 30C ×4', 'Power Adapters ×4', 'Transparent Mounting Clips ×8', 'Steel Safety Wires ×4', 'Padded Carrying Case'],

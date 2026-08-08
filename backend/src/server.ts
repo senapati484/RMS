@@ -7,6 +7,8 @@ import { authMiddleware } from './middleware/auth'
 import authRoutes from './routes/auth.routes'
 import productRoutes from './routes/product.routes'
 
+import orderRoutes from './routes/order.routes'
+
 dotenv.config({ path: path.resolve(__dirname, '../../.env.local') })
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
@@ -24,6 +26,7 @@ app.use(authMiddleware)
 // Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
+app.use('/api/orders', orderRoutes)
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

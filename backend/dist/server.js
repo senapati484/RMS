@@ -11,6 +11,7 @@ const db_1 = require("./db");
 const auth_1 = require("./middleware/auth");
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const product_routes_1 = __importDefault(require("./routes/product.routes"));
+const order_routes_1 = __importDefault(require("./routes/order.routes"));
 dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../.env.local') });
 dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../.env') });
 const app = (0, express_1.default)();
@@ -25,6 +26,7 @@ app.use(auth_1.authMiddleware);
 // Routes
 app.use('/api/auth', auth_routes_1.default);
 app.use('/api/products', product_routes_1.default);
+app.use('/api/orders', order_routes_1.default);
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({

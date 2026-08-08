@@ -76,9 +76,15 @@ export async function getSubscriptionSummary(userId: string): Promise<Subscripti
 
 /**
  * Route guard: blocks order creation once the free trial ends until the user
- * pays for the platform. Returns a 402 response, or null to continue.
+ * pays for the platform. Only platform operators (ADMIN / STAFF) pay — the
+ * customer portal (PORTAL_USER) is always free, so it bypasses the gate.
+ * Returns a 402 response, or null to continue.
  */
-export async function requirePlatformAccess(userId: string): Promise<NextResponse | null> {
+export async function requirePlatformAccess(
+  userId: string,
+  role?: string
+): Promise<NextResponse | null> {
+  if (role === 'PORTAL_USER') return null
   const summary = await getSubscriptionSummary(userId)
   if (!summary) {
     return NextResponse.json({ error: 'Subscription unavailable. Please contact support.' }, { status: 500 })
@@ -87,7 +93,7 @@ export async function requirePlatformAccess(userId: string): Promise<NextRespons
     return NextResponse.json(
       {
         error:
-          'Your 90-day free trial has ended. Subscribe to continue renting equipment on Lease360.',
+          'Your 90-day free trial has ended. Subscribe to continue using the Lease360 platform.',
         code: 'PAYMENT_REQUIRED',
       },
       { status: 402 }
@@ -98,9 +104,16 @@ export async function requirePlatformAccess(userId: string): Promise<NextRespons
 
 /**
  * Route guard: AI features require the AI add-on (free during trial, paid
- * afterwards — platform access alone is not enough).
+ * afterwards — platform access alone is not enough). PORTAL_USER never has
+ * AI access — the AI is an operator-only feature.
  */
-export async function requireAiAccess(userId: string): Promise<NextResponse | null> {
+export async function requireAiAccess(userId: string, role?: string): Promise<NextResponse | null> {
+  if (role === 'PORTAL_USER') {
+    return NextResponse.json(
+      { error: 'AI features are available to platform operators only.', code: 'FORBIDDEN' },
+      { status: 403 }
+    )
+  }
   const summary = await getSubscriptionSummary(userId)
   if (!summary) {
     return NextResponse.json({ error: 'Subscription unavailable. Please contact support.' }, { status: 500 })

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   const authErr = requireAdmin(user)
   if (authErr) return authErr
 
-  const aiGate = await requireAiAccess(user!.userId)
+  const aiGate = await requireAiAccess(user!.userId, user!.role)
   if (aiGate) return aiGate
 
   await connectDB()

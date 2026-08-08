@@ -300,7 +300,11 @@ export default function UsersManagementPage() {
                     <span className="text-[10px] px-2.5 py-0.5 rounded-md font-bold uppercase shrink-0 border bg-white/5 text-white/70 border-white/15">
                       {u.role.replace('_', ' ')}
                     </span>
-                    {u.plan && (
+                    {u.role === 'PORTAL_USER' ? (
+                      <span className="text-[9px] px-2 py-0.5 rounded-full font-semibold border bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
+                        FREE ACCESS
+                      </span>
+                    ) : u.plan && (
                       <span
                         className={`text-[9px] px-2 py-0.5 rounded-full font-semibold border ${
                           u.plan.status === 'TRIAL'

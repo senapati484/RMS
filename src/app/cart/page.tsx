@@ -286,10 +286,10 @@ export default function CartPage() {
                 <>
                   <button
                     onClick={() => setShowExpressModal(true)}
-                    className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <CreditCard size={15} />
-                    <span>Express Checkout (Pay with Saved Card)</span>
+                    <QrCode size={15} />
+                    <span>Pay Now via UPI QR</span>
                   </button>
 
                   <button

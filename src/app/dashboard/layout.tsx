@@ -35,7 +35,7 @@ const navItems = [
   { href: '/dashboard/maintenance', label: 'Maintenance', icon: Wrench, roles: ['ADMIN', 'STAFF'] },
   { href: '/dashboard/ai', label: 'AI Assistant', icon: Bot, roles: ['ADMIN', 'STAFF'] },
   { href: '/dashboard/users', label: 'Users & eKYC', icon: Users, roles: ['ADMIN', 'STAFF'] },
-  { href: '/dashboard/billing', label: 'Billing & Plans', icon: CreditCard, roles: ['ADMIN', 'STAFF', 'PORTAL_USER'] },
+  { href: '/dashboard/billing', label: 'Billing & Plans', icon: CreditCard, roles: ['ADMIN', 'STAFF'] },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -218,7 +218,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page children content */}
-        <SubscriptionBanner />
+        <SubscriptionBanner role={user.role} />
         <main className="flex-1 p-4 sm:p-6">{children}</main>
 
         <PwaInstallButton />

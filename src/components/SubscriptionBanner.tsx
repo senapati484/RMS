@@ -13,12 +13,15 @@ interface Sub {
   daysLeft: number
 }
 
-/** Slim status bar shown on every dashboard page: trial countdown / paywall. */
-export default function SubscriptionBanner() {
+/** Slim status bar shown on every dashboard page: trial countdown / paywall.
+ *  Only platform operators (ADMIN / STAFF) pay — the customer portal
+ *  (PORTAL_USER) is free, so it never sees the banner. */
+export default function SubscriptionBanner({ role }: { role?: string }) {
   const [sub, setSub] = useState<Sub | null>(null)
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
+    if (role === 'PORTAL_USER') return
     let mounted = true
     ;(async () => {
       try {

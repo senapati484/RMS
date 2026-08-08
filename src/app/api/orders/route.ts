@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   const authErr = requireAuth(user)
   if (authErr) return authErr
 
-  const planGate = await requirePlatformAccess(user!.userId)
+  const planGate = await requirePlatformAccess(user!.userId, user!.role)
   if (planGate) return planGate
 
   await connectDB()

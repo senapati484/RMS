@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     return apiError('Admins cannot place storefront orders — create the order for your customer from the dashboard instead.', 403)
   }
 
-  const planGate = await requirePlatformAccess(user!.userId)
+  const planGate = await requirePlatformAccess(user!.userId, user!.role)
   if (planGate) return planGate
 
   try {

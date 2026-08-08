@@ -14,6 +14,10 @@ const product_routes_1 = __importDefault(require("./routes/product.routes"));
 const order_routes_1 = __importDefault(require("./routes/order.routes"));
 const quotation_routes_1 = __importDefault(require("./routes/quotation.routes"));
 const admin_routes_1 = __importDefault(require("./routes/admin.routes"));
+const user_routes_1 = __importDefault(require("./routes/user.routes"));
+const attribute_routes_1 = __importDefault(require("./routes/attribute.routes"));
+const notification_routes_1 = __importDefault(require("./routes/notification.routes"));
+const maintenance_routes_1 = __importDefault(require("./routes/maintenance.routes"));
 dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../.env.local') });
 dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../.env') });
 const app = (0, express_1.default)();
@@ -31,6 +35,10 @@ app.use('/api/products', product_routes_1.default);
 app.use('/api/orders', order_routes_1.default);
 app.use('/api/quotations', quotation_routes_1.default);
 app.use('/api/admin', admin_routes_1.default);
+app.use('/api/users', user_routes_1.default);
+app.use('/api/attributes', attribute_routes_1.default);
+app.use('/api/notifications', notification_routes_1.default);
+app.use('/api/maintenance', maintenance_routes_1.default);
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({

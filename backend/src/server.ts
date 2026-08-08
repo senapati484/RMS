@@ -9,6 +9,10 @@ import productRoutes from './routes/product.routes'
 import orderRoutes from './routes/order.routes'
 import quotationRoutes from './routes/quotation.routes'
 import adminRoutes from './routes/admin.routes'
+import userRoutes from './routes/user.routes'
+import attributeRoutes from './routes/attribute.routes'
+import notificationRoutes from './routes/notification.routes'
+import maintenanceRoutes from './routes/maintenance.routes'
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env.local') })
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
@@ -30,6 +34,10 @@ app.use('/api/products', productRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/quotations', quotationRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/users', userRoutes)
+app.use('/api/attributes', attributeRoutes)
+app.use('/api/notifications', notificationRoutes)
+app.use('/api/maintenance', maintenanceRoutes)
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

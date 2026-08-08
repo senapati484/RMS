@@ -18,6 +18,19 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return apiOk(product)
 }
 
+// Build a proper $set payload — handles specifications (Map field) correctly
+function buildSetPayload(body: Record<string, unknown>) {
+  const { specifications, ...rest } = body
+  const $set: Record<string, unknown> = { ...rest }
+
+  // Replace the entire specifications map at once
+  if (specifications !== undefined) {
+    $set['specifications'] = specifications ?? {}
+  }
+
+  return { $set }
+}
+
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUserFromRequest(req)
   const authErr = requireAdmin(user)
@@ -26,9 +39,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   await connectDB()
   const { id } = await params
   const body = await req.json()
-  const updated = await Product.findByIdAndUpdate(id, body, { new: true, runValidators: true })
-  if (!updated) return apiError('Product not found', 404)
-  return apiOk(updated)
+
+  try {
+    const updated = await Product.findByIdAndUpdate(id, buildSetPayload(body), { new: true, runValidators: false })
+    if (!updated) return apiError('Product not found', 404)
+    return apiOk(updated.toObject())
+  } catch (err) {
+    console.error('[PRODUCT UPDATE]', err)
+    return apiError('Failed to update product')
+  }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -39,9 +58,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   await connectDB()
   const { id } = await params
   const body = await req.json()
-  const updated = await Product.findByIdAndUpdate(id, body, { new: true, runValidators: true })
-  if (!updated) return apiError('Product not found', 404)
-  return apiOk(updated)
+
+  try {
+    const updated = await Product.findByIdAndUpdate(id, buildSetPayload(body), { new: true, runValidators: false })
+    if (!updated) return apiError('Product not found', 404)
+    return apiOk(updated.toObject())
+  } catch (err) {
+    console.error('[PRODUCT PATCH]', err)
+    return apiError('Failed to update product')
+  }
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -51,6 +76,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   await connectDB()
   const { id } = await params
-  await Product.findByIdAndUpdate(id, { isPublished: false })
+  await Product.findByIdAndUpdate(id, { $set: { isPublished: false } })
   return apiOk({ success: true })
 }

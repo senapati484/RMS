@@ -260,10 +260,10 @@ export default function EditProductPage() {
             </div>
 
             <div>
-              <label className="block text-white/70 font-semibold mb-1">Category</label>
+              <label className="block text-white/70 font-semibold mb-1">Product Type</label>
               <select
-                value={formData.category}
-                onChange={e => setFormData({ ...formData, category: e.target.value })}
+                value={formData.productType}
+                onChange={e => setFormData({ ...formData, productType: e.target.value, category: e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1) })}
                 className="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#F26522]"
               >
                 <option value="camera">Camera</option>
@@ -273,6 +273,9 @@ export default function EditProductPage() {
                 <option value="monitor">Monitor</option>
                 <option value="vehicle">Vehicle</option>
                 <option value="support">Support Gear</option>
+                <option value="furniture">Furniture</option>
+                <option value="event">Event</option>
+                <option value="other">Other</option>
               </select>
             </div>
 
@@ -336,51 +339,110 @@ export default function EditProductPage() {
       {/* Tab 2: Attributes & Variants */}
       {activeTab === 'variants' && (
         <div className="liquid-glass border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6">
-          <div className="flex justify-between items-center border-b border-white/10 pb-3">
-            <h2 className="text-white font-bold text-sm">Product Variants (Display Swatches)</h2>
-            <button
-              type="button"
-              onClick={() => setVariants([...variants, { attribute: 'Color', value: 'New Variant', extraPrice: 0 }])}
-              className="bg-white/10 hover:bg-white/20 text-white text-xs px-3.5 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5 cursor-pointer"
-            >
-              <Plus size={14} /> Add Variant Row
-            </button>
+          {/* Variants */}
+          <div>
+            <div className="flex justify-between items-center border-b border-white/10 pb-3 mb-4">
+              <h2 className="text-white font-bold text-sm">Product Variants (Display Swatches)</h2>
+              <button
+                type="button"
+                onClick={() => setVariants([...variants, { attribute: 'Color', value: 'New Variant', extraPrice: 0 }])}
+                className="bg-white/10 hover:bg-white/20 text-white text-xs px-3.5 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus size={14} /> Add Variant Row
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {variants.map((v, idx) => (
+                <div key={idx} className="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl">
+                  <input
+                    type="text"
+                    value={v.attribute}
+                    onChange={e => {
+                      const copy = [...variants]
+                      copy[idx].attribute = e.target.value
+                      setVariants(copy)
+                    }}
+                    placeholder="Attribute (e.g. Color)"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none"
+                  />
+                  <input
+                    type="text"
+                    value={v.value}
+                    onChange={e => {
+                      const copy = [...variants]
+                      copy[idx].value = e.target.value
+                      setVariants(copy)
+                    }}
+                    placeholder="Value (e.g. Blue)"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setVariants(variants.filter((_, i) => i !== idx))}
+                    className="p-2 text-white/40 hover:text-red-400 cursor-pointer"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="space-y-3">
-            {variants.map((v, idx) => (
-              <div key={idx} className="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl">
-                <input
-                  type="text"
-                  value={v.attribute}
-                  onChange={e => {
-                    const copy = [...variants]
-                    copy[idx].attribute = e.target.value
-                    setVariants(copy)
-                  }}
-                  placeholder="Attribute (e.g. Color)"
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none"
-                />
-                <input
-                  type="text"
-                  value={v.value}
-                  onChange={e => {
-                    const copy = [...variants]
-                    copy[idx].value = e.target.value
-                    setVariants(copy)
-                  }}
-                  placeholder="Value (e.g. Blue)"
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setVariants(variants.filter((_, i) => i !== idx))}
-                  className="p-2 text-white/40 hover:text-red-400 cursor-pointer"
-                >
-                  <Trash2 size={16} />
-                </button>
+          {/* Specifications */}
+          <div>
+            <div className="flex justify-between items-center border-b border-white/10 pb-3 mb-4">
+              <div>
+                <h2 className="text-white font-bold text-sm flex items-center gap-2"><Sliders size={14} className="text-[#F26522]" /> Technical Specifications</h2>
+                <p className="text-white/30 text-[11px] mt-0.5">These appear as the specs grid on the product detail page</p>
               </div>
-            ))}
+              <button
+                type="button"
+                onClick={() => setSpecs([...specs, { key: '', value: '' }])}
+                className="bg-white/10 hover:bg-white/20 text-white text-xs px-3.5 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus size={14} /> Add Spec Row
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {specs.map((s, idx) => (
+                <div key={idx} className="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl">
+                  <input
+                    type="text"
+                    value={s.key}
+                    onChange={e => {
+                      const copy = [...specs]
+                      copy[idx].key = e.target.value
+                      setSpecs(copy)
+                    }}
+                    placeholder="Spec Name (e.g. Resolution)"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none font-medium"
+                  />
+                  <input
+                    type="text"
+                    value={s.value}
+                    onChange={e => {
+                      const copy = [...specs]
+                      copy[idx].value = e.target.value
+                      setSpecs(copy)
+                    }}
+                    placeholder="Value (e.g. 4K UHD 30fps)"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSpecs(specs.filter((_, i) => i !== idx))}
+                    className="p-2 text-white/40 hover:text-red-400 cursor-pointer"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+              {specs.length === 0 && (
+                <p className="text-white/20 text-xs text-center py-4">No specifications yet. Click &quot;Add Spec Row&quot; to add technical details.</p>
+              )}
+            </div>
           </div>
         </div>
       )}

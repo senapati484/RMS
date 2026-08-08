@@ -373,33 +373,13 @@ export default function Lease360LandingPage() {
                     </div>
                   </div>
 
-                  <div className="pt-4 flex gap-2">
-                    <button
-                      onClick={() => {
-                        addToCart({
-                          productId: p._id,
-                          productName: p.name,
-                          productImage: p.imageUrl,
-                          dailyRate: p.dailyRate,
-                          quantity: 1,
-                          rentalStart: new Date().toISOString().slice(0, 10),
-                          rentalEnd: new Date(Date.now() + 86400000 * 3).toISOString().slice(0, 10),
-                          productType: p.productType,
-                          category: p.category,
-                        })
-                        toast.success(`Added ${p.name} to cart!`)
-                      }}
-                      className="flex-1 bg-[#F26522] hover:bg-[#e05a1a] active:scale-95 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-[#F26522]/20 flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <ShoppingCart size={14} />
-                      <span>+ Add to Cart</span>
-                    </button>
-
+                  <div className="pt-4">
                     <Link
                       href={`/products/${p._id}`}
-                      className="bg-white border border-gray-200 hover:border-gray-300 text-gray-700 text-xs font-bold px-3 py-2.5 rounded-xl transition-colors flex items-center justify-center"
+                      className="w-full bg-gray-900 hover:bg-[#F26522] text-white text-xs font-bold py-3 rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2 group/btn cursor-pointer"
                     >
-                      Details
+                      <span>View Details & Specifications</span>
+                      <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </div>

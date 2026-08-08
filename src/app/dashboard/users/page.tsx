@@ -125,10 +125,10 @@ export default function UsersManagementPage() {
   const adminStaffCount = users.filter(u => u.role === 'ADMIN' || u.role === 'STAFF').length
 
   const getTierInfo = (score: number) => {
-    if (score >= 90) return { label: 'Platinum Tier', badge: 'bg-amber-400/10 text-amber-300 border-amber-400/30', color: 'from-amber-400 to-yellow-300' }
-    if (score >= 75) return { label: 'Gold Tier', badge: 'bg-emerald-400/10 text-emerald-300 border-emerald-400/30', color: 'from-emerald-400 to-green-300' }
-    if (score >= 50) return { label: 'Silver Tier', badge: 'bg-blue-400/10 text-blue-300 border-blue-400/30', color: 'from-blue-400 to-cyan-300' }
-    return { label: 'Risk Flagged', badge: 'bg-red-400/10 text-red-300 border-red-400/30', color: 'from-red-500 to-rose-400' }
+    if (score >= 90) return { label: 'Platinum Tier', badge: 'bg-amber-400/10 text-amber-300 border-amber-400/30', bar: 'bg-amber-400/80' }
+    if (score >= 75) return { label: 'Gold Tier',     badge: 'bg-amber-400/10 text-amber-300 border-amber-400/30', bar: 'bg-amber-400/80' }
+    if (score >= 50) return { label: 'Silver Tier',   badge: 'bg-white/10 text-white/70 border-white/15',          bar: 'bg-white/40' }
+    return                  { label: 'Risk Flagged', badge: 'bg-red-400/10 text-red-300 border-red-400/30',     bar: 'bg-red-400/80' }
   }
 
   return (
@@ -138,7 +138,7 @@ export default function UsersManagementPage() {
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-white text-2xl font-bold tracking-tight">Identity & eKYC Governance</h1>
-            <span className="text-[10px] bg-[#F26522]/15 text-[#F26522] border border-[#F26522]/30 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+            <span className="text-[10px] bg-brand-orange/15 text-brand-orange border border-brand-orange/30 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
               DigiLocker Verified
             </span>
           </div>
@@ -147,10 +147,12 @@ export default function UsersManagementPage() {
 
         {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
           <button
+            type="button"
             onClick={() => setShowCreateModal(true)}
-            className="bg-gradient-to-r from-[#F26522] to-[#FF8C42] hover:from-[#e05510] hover:to-[#f26522] active:scale-95 text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-[#F26522]/20 flex items-center gap-2 cursor-pointer"
+            aria-label="Create verified account"
+            className="bg-brand-orange hover:bg-brand-orange-light text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-[background,transform,box-shadow] duration-200 ease-[cubic-bezier(0.2,0,0,1)] shadow-lg shadow-brand-orange/20 hover:shadow-orange-glow active:scale-[0.96] flex items-center gap-2 cursor-pointer"
           >
-            <UserPlus size={15} />
+            <UserPlus size={15} aria-hidden="true" />
             <span>Create Verified Account</span>
           </button>
         )}
@@ -161,7 +163,7 @@ export default function UsersManagementPage() {
         <div className="liquid-glass border border-white/10 rounded-2xl p-4 space-y-1">
           <div className="flex items-center justify-between text-white/40 text-xs">
             <span>Total Accounts</span>
-            <Users size={16} className="text-[#F26522]" />
+            <Users size={16} className="text-brand-orange" />
           </div>
           <div className="text-white text-2xl font-bold tracking-tight">{users.length}</div>
           <div className="text-white/30 text-[10px]">Registered & Active</div>
@@ -206,39 +208,52 @@ export default function UsersManagementPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name, email or company..."
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-white text-xs focus:outline-none focus:border-[#F26522]"
+            aria-label="Search users by name, email, or company"
+            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-white text-xs focus:outline-none focus:border-brand-orange transition-colors duration-200 ease-out"
           />
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
           <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 gap-1">
-            {['ALL', 'PORTAL_USER', 'STAFF', 'ADMIN'].map(r => (
+            {[
+              { key: 'ALL', label: 'All Roles' },
+              { key: 'PORTAL_USER', label: 'Portal User' },
+              { key: 'STAFF', label: 'Staff' },
+              { key: 'ADMIN', label: 'Admin' },
+            ].map(({ key: r, label }) => (
               <button
                 key={r}
+                type="button"
                 onClick={() => setRoleFilter(r)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
-                  roleFilter === r ? 'bg-[#F26522] text-white shadow-md' : 'text-white/40 hover:text-white'
+                aria-pressed={roleFilter === r}
+                aria-label={`Filter by ${label}`}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition-[background,color] duration-200 ease-out whitespace-nowrap cursor-pointer ${
+                  roleFilter === r ? 'bg-brand-orange text-white shadow-md' : 'text-white/40 hover:text-white'
                 }`}
               >
-                {r === 'ALL' ? 'All Roles' : r.replace('_', ' ')}
+                {label}
               </button>
             ))}
           </div>
 
-          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 gap-1">
+          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 gap-1" role="group" aria-label="View mode">
             <button
+              type="button"
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${viewMode === 'grid' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white'}`}
-              title="Grid View"
+              aria-label="Grid view"
+              aria-pressed={viewMode === 'grid'}
+              className={`p-1.5 rounded-lg text-xs transition-[background,color] duration-200 ease-out cursor-pointer ${viewMode === 'grid' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white'}`}
             >
-              <LayoutGrid size={15} />
+              <LayoutGrid size={15} aria-hidden="true" />
             </button>
             <button
+              type="button"
               onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${viewMode === 'table' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white'}`}
-              title="Table View"
+              aria-label="Table view"
+              aria-pressed={viewMode === 'table'}
+              className={`p-1.5 rounded-lg text-xs transition-[background,color] duration-200 ease-out cursor-pointer ${viewMode === 'table' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white'}`}
             >
-              <List size={15} />
+              <List size={15} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -246,8 +261,9 @@ export default function UsersManagementPage() {
 
       {/* User Content Rendering */}
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 text-[#F26522] animate-spin" />
+        <div className="flex justify-center py-20" role="status" aria-live="polite" aria-label="Loading users">
+          <Loader2 className="w-8 h-8 text-brand-orange animate-spin" aria-hidden="true" />
+          <span className="sr-only">Loading users…</span>
         </div>
       ) : viewMode === 'grid' ? (
         /* Sleek Grid View */
@@ -257,20 +273,16 @@ export default function UsersManagementPage() {
             return (
               <div
                 key={u._id}
-                className="liquid-glass border border-white/10 hover:border-white/20 rounded-2xl p-5 space-y-4 transition-all hover:shadow-xl hover:shadow-black/40 group relative overflow-hidden"
+                className="liquid-glass border border-white/10 hover:border-white/20 rounded-2xl p-5 space-y-4 transition-[border-color,box-shadow] duration-200 ease-out hover:shadow-[0_8px_20px_rgba(0,0,0,0.35)] group relative overflow-hidden"
               >
                 {/* User Top Row */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-sm text-white shrink-0 shadow-lg border ${
-                      u.role === 'ADMIN' ? 'bg-gradient-to-br from-purple-600 to-indigo-600 border-purple-400/30' :
-                      u.role === 'STAFF' ? 'bg-gradient-to-br from-amber-600 to-orange-600 border-amber-400/30' :
-                      'bg-gradient-to-br from-[#F26522] to-[#FF8C42] border-[#F26522]/30'
-                    }`}>
+                    <div className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-sm text-white shrink-0 shadow-lg bg-white/10 border border-white/15">
                       {u.name[0].toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-white text-sm font-bold truncate group-hover:text-[#F26522] transition-colors">{u.name}</h3>
+                      <h3 className="text-white text-sm font-bold truncate group-hover:text-brand-orange transition-colors duration-200 ease-out">{u.name}</h3>
                       <div className="text-white/40 text-xs truncate flex items-center gap-1.5 mt-0.5">
                         <Mail size={12} className="text-white/30 shrink-0" />
                         <span className="truncate">{u.email}</span>
@@ -278,11 +290,7 @@ export default function UsersManagementPage() {
                     </div>
                   </div>
 
-                  <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase shrink-0 border ${
-                    u.role === 'ADMIN' ? 'bg-purple-500/10 text-purple-400 border-purple-500/30' :
-                    u.role === 'STAFF' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' :
-                    'bg-blue-500/10 text-blue-400 border-blue-500/30'
-                  }`}>
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-md font-bold uppercase shrink-0 border bg-white/5 text-white/70 border-white/15">
                     {u.role.replace('_', ' ')}
                   </span>
                 </div>
@@ -306,11 +314,18 @@ export default function UsersManagementPage() {
                   <div className="space-y-1">
                     <div className="flex justify-between text-[10px]">
                       <span className="text-white/40">Rental Trust Score</span>
-                      <span className="text-white font-bold font-mono">{u.trustScore}/100 Pts</span>
+                      <span className="text-white font-bold font-mono tabular-nums">{u.trustScore}/100 Pts</span>
                     </div>
-                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-1.5 bg-white/10 rounded-full overflow-hidden"
+                      role="progressbar"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={u.trustScore}
+                      aria-label={`${u.name} rental trust score: ${u.trustScore} of 100`}
+                    >
                       <div
-                        className={`h-full rounded-full bg-gradient-to-r ${tier.color} transition-all duration-500`}
+                        className={`h-full rounded-full ${tier.bar} transition-[width] duration-500 ease-out`}
                         style={{ width: `${u.trustScore}%` }}
                       />
                     </div>
@@ -322,7 +337,7 @@ export default function UsersManagementPage() {
                   <div className="truncate">
                     {u.companyName ? (
                       <span className="text-white/70 font-medium flex items-center gap-1">
-                        <Building2 size={12} className="text-[#F26522]" /> {u.companyName}
+                        <Building2 size={12} className="text-brand-orange" /> {u.companyName}
                       </span>
                     ) : u.phone ? (
                       <span className="flex items-center gap-1"><Phone size={12} /> {u.phone}</span>
@@ -333,13 +348,15 @@ export default function UsersManagementPage() {
 
                   {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
                     <button
+                      type="button"
                       onClick={() => {
                         setSelectedUserForScore(u)
                         setScoreInput(u.trustScore)
                       }}
-                      className="text-[11px] bg-white/5 hover:bg-white/10 text-white/70 hover:text-white px-2.5 py-1 rounded-lg transition-all border border-white/10 flex items-center gap-1 cursor-pointer shrink-0"
+                      aria-label={`Adjust trust score for ${u.name}`}
+                      className="text-[11px] bg-white/5 hover:bg-white/10 text-white/70 hover:text-white px-2.5 py-1 rounded-lg transition-[background,color,border-color] duration-200 ease-out border border-white/10 flex items-center gap-1 cursor-pointer shrink-0"
                     >
-                      <SlidersHorizontal size={11} className="text-yellow-400" />
+                      <SlidersHorizontal size={11} className="text-yellow-400" aria-hidden="true" />
                       <span>Adjust Score</span>
                     </button>
                   )}
@@ -369,7 +386,7 @@ export default function UsersManagementPage() {
                     <tr key={u._id} className="hover:bg-white/[0.03] transition-colors">
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-[#F26522]/20 text-[#F26522] font-bold flex items-center justify-center border border-[#F26522]/30 shrink-0">
+                          <div className="w-8 h-8 rounded-xl bg-white/10 text-white font-bold flex items-center justify-center border border-white/15 shrink-0">
                             {u.name[0].toUpperCase()}
                           </div>
                           <div>
@@ -379,11 +396,7 @@ export default function UsersManagementPage() {
                         </div>
                       </td>
                       <td className="py-3.5 px-4">
-                        <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase border ${
-                          u.role === 'ADMIN' ? 'bg-purple-500/10 text-purple-400 border-purple-500/30' :
-                          u.role === 'STAFF' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' :
-                          'bg-blue-500/10 text-blue-400 border-blue-500/30'
-                        }`}>
+                        <span className="text-[10px] px-2.5 py-0.5 rounded-md font-bold uppercase border bg-white/5 text-white/70 border-white/15">
                           {u.role.replace('_', ' ')}
                         </span>
                       </td>
@@ -398,17 +411,19 @@ export default function UsersManagementPage() {
                           <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${tier.badge}`}>
                             {tier.label}
                           </span>
-                          <span className="font-mono text-white font-bold">{u.trustScore}/100</span>
+                          <span className="font-mono text-white font-bold tabular-nums">{u.trustScore}/100</span>
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
                           <button
+                            type="button"
                             onClick={() => {
                               setSelectedUserForScore(u)
                               setScoreInput(u.trustScore)
                             }}
-                            className="bg-white/5 hover:bg-white/10 text-white/70 hover:text-white px-2.5 py-1 rounded-lg text-xs transition-colors border border-white/10 cursor-pointer"
+                            aria-label={`Adjust trust score for ${u.name}`}
+                            className="bg-white/5 hover:bg-white/10 text-white/70 hover:text-white px-2.5 py-1 rounded-lg text-xs transition-[background,color] duration-200 ease-out border border-white/10 cursor-pointer"
                           >
                             Adjust Score
                           </button>
@@ -426,17 +441,24 @@ export default function UsersManagementPage() {
       {/* Score Adjustment Modal */}
       {selectedUserForScore && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-          <div className="liquid-glass border border-white/15 rounded-3xl p-6 sm:p-7 w-full max-w-md shadow-2xl space-y-5 relative">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="score-modal-title"
+            className="liquid-glass border border-white/10 rounded-3xl p-6 sm:p-7 w-full max-w-md shadow-2xl space-y-5 relative"
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal size={18} className="text-yellow-400" />
-                <h3 className="text-white font-bold text-base">Adjust Rental Trust Score</h3>
+                <h3 id="score-modal-title" className="text-white font-bold text-base">Adjust Rental Trust Score</h3>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedUserForScore(null)}
-                className="text-white/40 hover:text-white text-xs cursor-pointer"
+                aria-label="Close trust score dialog"
+                className="text-white/40 hover:text-white p-2 -m-2 rounded-lg transition-colors duration-200 ease-out cursor-pointer"
               >
-                ✕
+                <span aria-hidden="true">✕</span>
               </button>
             </div>
 
@@ -464,7 +486,8 @@ export default function UsersManagementPage() {
                   max="100"
                   value={scoreInput}
                   onChange={e => setScoreInput(Number(e.target.value))}
-                  className="flex-1 accent-[#F26522] cursor-pointer"
+                  aria-label="New trust score value"
+                  className="flex-1 accent-brand-orange cursor-pointer"
                 />
                 <input
                   type="number"
@@ -472,7 +495,8 @@ export default function UsersManagementPage() {
                   max="100"
                   value={scoreInput}
                   onChange={e => setScoreInput(Math.min(100, Math.max(0, Number(e.target.value))))}
-                  className="w-16 bg-white/5 border border-white/10 rounded-xl px-2 py-1.5 text-center text-white font-mono font-bold text-sm focus:outline-none focus:border-[#F26522]"
+                  aria-label="Numeric trust score"
+                  className="w-16 bg-white/5 border border-white/10 rounded-xl px-2 py-1.5 text-center text-white font-mono font-bold text-sm tabular-nums focus:outline-none focus:border-brand-orange transition-colors duration-200 ease-out"
                 />
               </div>
 
@@ -496,9 +520,10 @@ export default function UsersManagementPage() {
                 type="button"
                 onClick={handleScoreUpdate}
                 disabled={updatingScore}
-                className="flex-1 py-2.5 bg-[#F26522] hover:bg-[#e05510] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#F26522]/20"
+                aria-busy={updatingScore}
+                className="flex-1 py-2.5 bg-brand-orange hover:bg-brand-orange-light text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-brand-orange/20 transition-[background,transform,box-shadow] duration-200 ease-[cubic-bezier(0.2,0,0,1)] active:scale-[0.96] disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {updatingScore && <Loader2 size={14} className="animate-spin" />}
+                {updatingScore && <Loader2 size={14} className="animate-spin" aria-hidden="true" />}
                 Save Trust Score
               </button>
             </div>
@@ -509,8 +534,13 @@ export default function UsersManagementPage() {
       {/* Create User Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
-          <div className="liquid-glass border border-white/15 rounded-3xl p-6 sm:p-8 w-full max-w-lg shadow-2xl relative">
-            <h2 className="text-white text-xl font-bold mb-4">Create New Account with DigiLocker eKYC</h2>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-modal-title"
+            className="liquid-glass border border-white/10 rounded-3xl p-6 sm:p-8 w-full max-w-lg shadow-2xl relative"
+          >
+            <h2 id="create-modal-title" className="text-white text-xl font-bold mb-4">Create New Account with DigiLocker eKYC</h2>
 
             <form onSubmit={handleCreateUser} className="space-y-4">
               <div className="grid grid-cols-3 gap-2 bg-white/5 p-1 rounded-xl">
@@ -519,8 +549,10 @@ export default function UsersManagementPage() {
                     key={r}
                     type="button"
                     onClick={() => setNewForm({ ...newForm, role: r })}
-                    className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                      newForm.role === r ? 'bg-[#F26522] text-white' : 'text-white/40'
+                    aria-pressed={newForm.role === r}
+                    aria-label={`Assign role: ${r.replace('_', ' ')}`}
+                    className={`py-2 text-xs font-semibold rounded-lg transition-[background,color] duration-200 ease-out cursor-pointer ${
+                      newForm.role === r ? 'bg-brand-orange text-white' : 'text-white/40 hover:text-white/70'
                     }`}
                   >
                     {r.replace('_', ' ')}
@@ -555,7 +587,7 @@ export default function UsersManagementPage() {
                     value={newForm.name}
                     onChange={e => setNewForm({ ...newForm, name: e.target.value })}
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#F26522]"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-orange transition-colors duration-200 ease-out"
                   />
                 </div>
                 <div>
@@ -565,7 +597,7 @@ export default function UsersManagementPage() {
                     value={newForm.email}
                     onChange={e => setNewForm({ ...newForm, email: e.target.value })}
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#F26522]"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-orange transition-colors duration-200 ease-out"
                   />
                 </div>
               </div>
@@ -578,7 +610,7 @@ export default function UsersManagementPage() {
                     value={newForm.password}
                     onChange={e => setNewForm({ ...newForm, password: e.target.value })}
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#F26522]"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-orange transition-colors duration-200 ease-out"
                   />
                 </div>
                 <div>
@@ -587,7 +619,7 @@ export default function UsersManagementPage() {
                     type="tel"
                     value={newForm.phone}
                     onChange={e => setNewForm({ ...newForm, phone: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#F26522]"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-orange transition-colors duration-200 ease-out"
                   />
                 </div>
               </div>
@@ -603,9 +635,10 @@ export default function UsersManagementPage() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-[#F26522] hover:bg-[#e05510] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#F26522]/20"
+                  aria-busy={actionLoading}
+                  className="flex-1 py-2.5 bg-brand-orange hover:bg-brand-orange-light text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-brand-orange/20 transition-[background,transform,box-shadow] duration-200 ease-[cubic-bezier(0.2,0,0,1)] active:scale-[0.96] disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {actionLoading && <Loader2 size={14} className="animate-spin" />}
+                  {actionLoading && <Loader2 size={14} className="animate-spin" aria-hidden="true" />}
                   Create Account
                 </button>
               </div>

@@ -1,11 +1,13 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useAuth, useCart, type CartItem } from '@/context'
+import { buildUpiUri, UPI_ID } from '@/lib/upi'
+import QRCode from 'qrcode'
 import {
-  ShoppingBag, Trash2, Bookmark,
+  ShoppingBag, Trash2, Bookmark, QrCode, Smartphone, Copy, CheckCircle2, ShieldCheck,
   Calendar as CalendarIcon, CreditCard, X, Loader2
 } from 'lucide-react'
 
@@ -21,7 +23,6 @@ export default function CartPage() {
 
   // Express Checkout Form State
   const [expressForm, setExpressForm] = useState({
-    cardNumber: '4532 •••• •••• 8892',
     name: 'Aryan Sharma',
     email: 'aryan@domain.com',
     address: '102 Apex Towers, Bandra West',
@@ -30,11 +31,37 @@ export default function CartPage() {
     zipCode: '400050',
     country: 'India',
   })
+  const [expressPaid, setExpressPaid] = useState(false)
+  const [expressTxnRef, setExpressTxnRef] = useState('')
+  const [expressCopied, setExpressCopied] = useState(false)
+  const [expressQr, setExpressQr] = useState('')
 
   const discountAmount = discountApplied ? Math.round(cartTotal * 0.1) : 0
   const finalTotal = Math.max(0, cartTotal - discountAmount)
   const rentalStart = cartItems[0]?.rentalStart
   const rentalEnd = cartItems[0]?.rentalEnd
+
+  const expressUpiUri = buildUpiUri({
+    amount: finalTotal,
+    note: `Lease360 express checkout - ${cartItems.length} item(s)`,
+  })
+
+  useEffect(() => {
+    let mounted = true
+    if (!expressUpiUri) {
+      setExpressQr('')
+      return
+    }
+    QRCode.toDataURL(expressUpiUri, {
+      width: 200,
+      margin: 2,
+      errorCorrectionLevel: 'M',
+      color: { dark: '#0a0a0a', light: '#ffffff' },
+    })
+      .then((url) => { if (mounted) setExpressQr(url) })
+      .catch(() => { if (mounted) setExpressQr('') })
+    return () => { mounted = false }
+  }, [expressUpiUri])
 
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) {
@@ -48,6 +75,10 @@ export default function CartPage() {
   const handleExpressPayment = async () => {
     if (!cartItems.length) {
       toast.error('Your cart is empty')
+      return
+    }
+    if (!expressPaid) {
+      toast.error('Complete the UPI payment first to confirm your order.')
       return
     }
     setExpressLoading(true)
@@ -71,6 +102,11 @@ export default function CartPage() {
             city: expressForm.city,
             state: expressForm.state || expressForm.country,
             pincode: expressForm.zipCode,
+          },
+          payment: {
+            method: 'UPI',
+            confirmed: expressPaid,
+            upiTxnRef: expressTxnRef.trim() || undefined,
           },
         }),
       })
@@ -278,92 +314,153 @@ export default function CartPage() {
             </button>
 
             <h2 className="text-white text-base font-bold flex items-center gap-2 border-b border-white/10 pb-3">
-              <CreditCard size={18} className="text-purple-400" />
-              Express Checkout
+              <QrCode size={18} className="text-[#F26522]" />
+              Express Checkout — Pay via UPI
             </h2>
 
-            <div className="space-y-4 text-xs">
-              <div>
-                <label className="block text-white/60 mb-1.5 font-medium">Card Details</label>
-                <input
-                  type="text"
-                  value={expressForm.cardNumber}
-                  onChange={e => setExpressForm({ ...expressForm, cardNumber: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-purple-400"
-                />
+            {!UPI_ID ? (
+              <div className="text-xs text-amber-400 border border-amber-500/30 bg-amber-500/10 rounded-xl p-4">
+                UPI not configured. Add <code className="font-mono">NEXT_PUBLIC_UPI_ID</code> to .env.local and restart.
               </div>
+            ) : (
+              <div className="space-y-5">
+                <div className="flex flex-col sm:flex-row items-center gap-5">
+                  <div className="shrink-0">
+                    <div className="bg-white rounded-2xl p-2.5 shadow-lg shadow-[#F26522]/10 relative">
+                      {expressQr ? (
+                        <img src={expressQr} alt="UPI QR Code" width={200} height={200} className="rounded-lg block" />
+                      ) : (
+                        <div className="w-[200px] h-[200px] flex items-center justify-center">
+                          <Loader2 size={26} className="animate-spin text-[#F26522]" />
+                        </div>
+                      )}
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#F26522] text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg whitespace-nowrap">
+                        ₹{finalTotal.toLocaleString()}
+                      </div>
+                    </div>
+                    <p className="text-center text-white/40 text-[10px] mt-4">Scan with any UPI app</p>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-white/60 mb-1.5 font-medium">Name</label>
-                  <input
-                    type="text"
-                    value={expressForm.name}
-                    onChange={e => setExpressForm({ ...expressForm, name: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-purple-400"
-                  />
+                  <div className="flex-1 w-full space-y-3 text-xs">
+                    <div className="liquid-glass border border-white/10 rounded-2xl p-3.5 space-y-2">
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="text-white/50">Payee</span>
+                        <span className="text-white font-semibold">Lease360 Rentals</span>
+                      </div>
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="text-white/50">Amount (auto-filled)</span>
+                        <span className="text-[#F26522] font-mono font-bold">₹{finalTotal.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="text-white/50">UPI ID</span>
+                        <span className="text-white font-mono">{UPI_ID}</span>
+                      </div>
+                    </div>
+
+                    <a
+                      href={expressUpiUri || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        setExpressPaid(true)
+                        toast.info('Approve the payment in your UPI app, then confirm below.')
+                      }}
+                      className="w-full py-3 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Smartphone size={15} />
+                      Pay ₹{finalTotal.toLocaleString()} via UPI
+                    </a>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(UPI_ID)
+                          setExpressCopied(true)
+                          toast.success('UPI ID copied')
+                          setTimeout(() => setExpressCopied(false), 2000)
+                        } catch {
+                          toast.error('Unable to copy UPI ID')
+                        }
+                      }}
+                      className="w-full py-2.5 rounded-xl border border-white/15 hover:border-[#F26522]/50 hover:bg-white/5 text-white/80 text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    >
+                      {expressCopied ? <CheckCircle2 size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                      {expressCopied ? 'UPI ID Copied' : 'Copy UPI ID'}
+                    </button>
+
+                    <div className="text-white/30 text-[10px] leading-relaxed flex items-start gap-1.5 pt-1">
+                      <ShieldCheck size={13} className="shrink-0 mt-0.5 text-emerald-400/60" />
+                      <span>Demo mode — payments are simulated. Amount is baked into the QR and auto-fills in your UPI app.</span>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-white/60 mb-1.5 font-medium">Email</label>
-                  <input
-                    type="email"
-                    value={expressForm.email}
-                    onChange={e => setExpressForm({ ...expressForm, email: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-purple-400"
-                  />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-white/10 pt-4">
+                  <div>
+                    <label className="block text-white/60 mb-1.5 font-medium">Address</label>
+                    <input
+                      type="text"
+                      value={expressForm.address}
+                      onChange={e => setExpressForm({ ...expressForm, address: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#F26522]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white/60 mb-1.5 font-medium">City</label>
+                    <input
+                      type="text"
+                      value={expressForm.city}
+                      onChange={e => setExpressForm({ ...expressForm, city: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#F26522]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white/60 mb-1.5 font-medium">State</label>
+                    <input
+                      type="text"
+                      value={expressForm.state}
+                      onChange={e => setExpressForm({ ...expressForm, state: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#F26522]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white/60 mb-1.5 font-medium">Zip Code</label>
+                    <input
+                      type="text"
+                      value={expressForm.zipCode}
+                      onChange={e => setExpressForm({ ...expressForm, zipCode: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-[#F26522]"
+                    />
+                  </div>
                 </div>
+
+                {expressPaid && (
+                  <div className="border border-emerald-500/30 bg-emerald-500/5 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-start gap-2 text-emerald-300 text-xs font-semibold">
+                      <CheckCircle2 size={15} className="shrink-0 mt-0.5" />
+                      <span>
+                        Payment initiated — approve it in your UPI app (or scan the QR). Optionally paste the UPI
+                        transaction ID / UTR below, then confirm.
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={expressTxnRef}
+                      onChange={e => setExpressTxnRef(e.target.value)}
+                      placeholder="UPI Transaction ID / UTR (optional)"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-400 font-mono"
+                    />
+                    <button
+                      onClick={handleExpressPayment}
+                      disabled={expressLoading}
+                      className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                    >
+                      {expressLoading && <Loader2 size={15} className="animate-spin" />}
+                      {expressLoading ? 'Placing Order…' : "I've Completed the Payment — Place Order"}
+                    </button>
+                  </div>
+                )}
               </div>
-
-              <div>
-                <label className="block text-white/60 mb-1.5 font-medium">Address</label>
-                <input
-                  type="text"
-                  value={expressForm.address}
-                  onChange={e => setExpressForm({ ...expressForm, address: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-purple-400"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-white/60 mb-1.5 font-medium">State</label>
-                  <input
-                    type="text"
-                    value={expressForm.state}
-                    onChange={e => setExpressForm({ ...expressForm, state: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-purple-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-white/60 mb-1.5 font-medium">Zip Code</label>
-                  <input
-                    type="text"
-                    value={expressForm.zipCode}
-                    onChange={e => setExpressForm({ ...expressForm, zipCode: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white font-mono focus:outline-none focus:border-purple-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-white/60 mb-1.5 font-medium">City</label>
-                  <input
-                    type="text"
-                    value={expressForm.city}
-                    onChange={e => setExpressForm({ ...expressForm, city: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-purple-400"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-white/10 flex justify-end gap-3">
-              <button onClick={() => setShowExpressModal(false)} className="px-4 py-2 rounded-xl text-xs text-white/50 hover:text-white bg-white/5">
-                Cancel
-              </button>
-              <button onClick={handleExpressPayment} disabled={expressLoading} className="px-6 py-2.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-md cursor-pointer disabled:opacity-60 flex items-center gap-2">
-                {expressLoading && <Loader2 size={13} className="animate-spin" />}
-                Pay Now (Rs. {finalTotal})
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}

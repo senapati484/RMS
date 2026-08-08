@@ -133,6 +133,8 @@ export async function POST(req: NextRequest) {
     }
 
     const totalAmount = subTotal + depositAmount
+    const paymentConfirmed = body?.payment?.confirmed === true
+    const upiTxnRef = body?.payment?.upiTxnRef || ''
     const order = await Order.create({
       orderNumber: generateOrderNumber(),
       userId: user!.userId,
@@ -146,6 +148,14 @@ export async function POST(req: NextRequest) {
       rentalStart: start,
       rentalEnd: end,
       lateFeeCharged: 0,
+      payment: {
+        method: 'UPI',
+        status: paymentConfirmed ? 'PAID' : 'PENDING',
+        amount: totalAmount,
+        upiTxnRef: upiTxnRef || undefined,
+        paidAt: paymentConfirmed ? new Date() : undefined,
+        note: paymentConfirmed ? 'UPI payment via QR (simulated)' : 'Awaiting UPI payment',
+      },
       deposit: {
         amount: depositAmount,
         status: 'HELD',

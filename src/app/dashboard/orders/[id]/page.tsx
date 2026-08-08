@@ -347,11 +347,11 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Deposit ledger */}
-          {order.deposit.transactions.length > 0 && (
+          {(order.deposit?.transactions?.length ?? 0) > 0 && (
             <div className="liquid-glass border border-white/10 rounded-2xl p-5">
               <h2 className="text-white/60 text-xs font-medium mb-4 uppercase tracking-wider">Deposit Ledger & Reconciliation</h2>
               <div className="space-y-2">
-                {order.deposit.transactions.map((tx, i) => (
+                {(order.deposit?.transactions ?? []).map((tx, i) => (
                   <div key={i} className="flex items-start gap-3 text-sm">
                     <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
                       tx.type === 'REFUND' ? 'bg-green-400' :
@@ -370,20 +370,20 @@ export default function OrderDetailPage() {
               <div className="mt-4 pt-3 border-t border-white/10 flex justify-between text-sm">
                 <span className="text-white/50">Deposit Status</span>
                 <span className={`font-medium ${
-                  order.deposit.status === 'FULLY_REFUNDED' ? 'text-green-400' :
-                  order.deposit.status === 'FORFEITED' ? 'text-red-400' :
-                  order.deposit.status === 'PARTIALLY_REFUNDED' ? 'text-yellow-400' : 'text-blue-400'
-                }`}>{order.deposit.status.replace(/_/g, ' ')}</span>
+                  order.deposit?.status === 'FULLY_REFUNDED' ? 'text-green-400' :
+                  order.deposit?.status === 'FORFEITED' ? 'text-red-400' :
+                  order.deposit?.status === 'PARTIALLY_REFUNDED' ? 'text-yellow-400' : 'text-blue-400'
+                }`}>{(order.deposit?.status ?? 'HELD').replace(/_/g, ' ')}</span>
               </div>
             </div>
           )}
 
           {/* Activity Timeline */}
-          {order.pickupReturnLogs.length > 0 && (
+          {(order.pickupReturnLogs?.length ?? 0) > 0 && (
             <div className="liquid-glass border border-white/10 rounded-2xl p-5">
               <h2 className="text-white/60 text-xs font-medium mb-4 uppercase tracking-wider">Transit & Activity Log</h2>
               <div className="space-y-4">
-                {order.pickupReturnLogs.map((log, i) => (
+                {(order.pickupReturnLogs ?? []).map((log, i) => (
                   <div key={i} className="flex gap-3">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
                       log.type === 'PICKUP' ? 'bg-[#F26522]/20' : 'bg-green-500/20'
@@ -441,15 +441,15 @@ export default function OrderDetailPage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-white/50">Held Balance</span>
-                <span className="text-white font-semibold">₹{order.deposit.amount.toLocaleString()}</span>
+                <span className="text-white font-semibold">₹{(order.deposit?.amount ?? 0).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-red-400">Total Deductions</span>
-                <span className="text-red-400">₹{order.deposit.deductedAmount.toLocaleString()}</span>
+                <span className="text-red-400">₹{(order.deposit?.deductedAmount ?? 0).toLocaleString()}</span>
               </div>
               <div className="flex justify-between font-medium pt-2 border-t border-white/10">
                 <span className="text-green-400 font-semibold">Refund Credited</span>
-                <span className="text-green-400 font-bold">₹{order.deposit.refundedAmount.toLocaleString()}</span>
+                <span className="text-green-400 font-bold">₹{(order.deposit?.refundedAmount ?? 0).toLocaleString()}</span>
               </div>
             </div>
           </div>

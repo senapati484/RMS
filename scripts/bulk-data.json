@@ -1,0 +1,2232 @@
+[
+  {
+    "name": "Dell Inspiron Laptop 1",
+    "slug": "dell-inspiron-laptop-1",
+    "description": "Rental-ready inspiron laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-001",
+    "totalStock": 3,
+    "availableStock": 3,
+    "dailyRate": 200,
+    "weeklyRate": 1260,
+    "monthlyRate": 4200,
+    "baseDepositAmt": 500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "HP Pavilion Laptop 2",
+    "slug": "hp-pavilion-laptop-2",
+    "description": "Rental-ready pavilion laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-002",
+    "totalStock": 4,
+    "availableStock": 4,
+    "dailyRate": 400,
+    "weeklyRate": 2520,
+    "monthlyRate": 8400,
+    "baseDepositAmt": 1000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo ThinkPad Laptop 3",
+    "slug": "lenovo-thinkpad-laptop-3",
+    "description": "Rental-ready thinkpad laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-003",
+    "totalStock": 5,
+    "availableStock": 5,
+    "dailyRate": 600,
+    "weeklyRate": 3780,
+    "monthlyRate": 12600,
+    "baseDepositAmt": 1500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS VivoBook Laptop 4",
+    "slug": "asus-vivobook-laptop-4",
+    "description": "Rental-ready vivobook laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-004",
+    "totalStock": 6,
+    "availableStock": 6,
+    "dailyRate": 800,
+    "weeklyRate": 5040,
+    "monthlyRate": 16800,
+    "baseDepositAmt": 2000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer Aspire Laptop 5",
+    "slug": "acer-aspire-laptop-5",
+    "description": "Rental-ready aspire laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-005",
+    "totalStock": 7,
+    "availableStock": 7,
+    "dailyRate": 1000,
+    "weeklyRate": 6300,
+    "monthlyRate": 21000,
+    "baseDepositAmt": 2500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Dell Latitude Laptop 6",
+    "slug": "dell-latitude-laptop-6",
+    "description": "Rental-ready latitude laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-006",
+    "totalStock": 8,
+    "availableStock": 8,
+    "dailyRate": 1200,
+    "weeklyRate": 7560,
+    "monthlyRate": 25200,
+    "baseDepositAmt": 3000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "HP Inspiron Laptop 7",
+    "slug": "hp-inspiron-laptop-7",
+    "description": "Rental-ready inspiron laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-007",
+    "totalStock": 9,
+    "availableStock": 9,
+    "dailyRate": 1400,
+    "weeklyRate": 8820,
+    "monthlyRate": 29400,
+    "baseDepositAmt": 3500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo Pavilion Laptop 8",
+    "slug": "lenovo-pavilion-laptop-8",
+    "description": "Rental-ready pavilion laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-008",
+    "totalStock": 10,
+    "availableStock": 10,
+    "dailyRate": 1600,
+    "weeklyRate": 10080,
+    "monthlyRate": 33600,
+    "baseDepositAmt": 4000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS ThinkPad Laptop 9",
+    "slug": "asus-thinkpad-laptop-9",
+    "description": "Rental-ready thinkpad laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-009",
+    "totalStock": 11,
+    "availableStock": 11,
+    "dailyRate": 1800,
+    "weeklyRate": 11340,
+    "monthlyRate": 37800,
+    "baseDepositAmt": 4500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer VivoBook Laptop 10",
+    "slug": "acer-vivobook-laptop-10",
+    "description": "Rental-ready vivobook laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-010",
+    "totalStock": 2,
+    "availableStock": 2,
+    "dailyRate": 2000,
+    "weeklyRate": 12600,
+    "monthlyRate": 42000,
+    "baseDepositAmt": 5000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Dell Aspire Laptop 11",
+    "slug": "dell-aspire-laptop-11",
+    "description": "Rental-ready aspire laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-011",
+    "totalStock": 3,
+    "availableStock": 3,
+    "dailyRate": 200,
+    "weeklyRate": 1260,
+    "monthlyRate": 4200,
+    "baseDepositAmt": 500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "HP Latitude Laptop 12",
+    "slug": "hp-latitude-laptop-12",
+    "description": "Rental-ready latitude laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-012",
+    "totalStock": 4,
+    "availableStock": 4,
+    "dailyRate": 400,
+    "weeklyRate": 2520,
+    "monthlyRate": 8400,
+    "baseDepositAmt": 1000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo Inspiron Laptop 13",
+    "slug": "lenovo-inspiron-laptop-13",
+    "description": "Rental-ready inspiron laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-013",
+    "totalStock": 5,
+    "availableStock": 5,
+    "dailyRate": 600,
+    "weeklyRate": 3780,
+    "monthlyRate": 12600,
+    "baseDepositAmt": 1500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS Pavilion Laptop 14",
+    "slug": "asus-pavilion-laptop-14",
+    "description": "Rental-ready pavilion laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-014",
+    "totalStock": 6,
+    "availableStock": 6,
+    "dailyRate": 800,
+    "weeklyRate": 5040,
+    "monthlyRate": 16800,
+    "baseDepositAmt": 2000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer ThinkPad Laptop 15",
+    "slug": "acer-thinkpad-laptop-15",
+    "description": "Rental-ready thinkpad laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-015",
+    "totalStock": 7,
+    "availableStock": 7,
+    "dailyRate": 1000,
+    "weeklyRate": 6300,
+    "monthlyRate": 21000,
+    "baseDepositAmt": 2500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "Dell VivoBook Laptop 16",
+    "slug": "dell-vivobook-laptop-16",
+    "description": "Rental-ready vivobook laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-016",
+    "totalStock": 8,
+    "availableStock": 8,
+    "dailyRate": 1200,
+    "weeklyRate": 7560,
+    "monthlyRate": 25200,
+    "baseDepositAmt": 3000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "HP Aspire Laptop 17",
+    "slug": "hp-aspire-laptop-17",
+    "description": "Rental-ready aspire laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-017",
+    "totalStock": 9,
+    "availableStock": 9,
+    "dailyRate": 1400,
+    "weeklyRate": 8820,
+    "monthlyRate": 29400,
+    "baseDepositAmt": 3500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo Latitude Laptop 18",
+    "slug": "lenovo-latitude-laptop-18",
+    "description": "Rental-ready latitude laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-018",
+    "totalStock": 10,
+    "availableStock": 10,
+    "dailyRate": 1600,
+    "weeklyRate": 10080,
+    "monthlyRate": 33600,
+    "baseDepositAmt": 4000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS Inspiron Laptop 19",
+    "slug": "asus-inspiron-laptop-19",
+    "description": "Rental-ready inspiron laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-019",
+    "totalStock": 11,
+    "availableStock": 11,
+    "dailyRate": 1800,
+    "weeklyRate": 11340,
+    "monthlyRate": 37800,
+    "baseDepositAmt": 4500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer Pavilion Laptop 20",
+    "slug": "acer-pavilion-laptop-20",
+    "description": "Rental-ready pavilion laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-020",
+    "totalStock": 2,
+    "availableStock": 2,
+    "dailyRate": 2000,
+    "weeklyRate": 12600,
+    "monthlyRate": 42000,
+    "baseDepositAmt": 5000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Dell ThinkPad Laptop 21",
+    "slug": "dell-thinkpad-laptop-21",
+    "description": "Rental-ready thinkpad laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-021",
+    "totalStock": 3,
+    "availableStock": 3,
+    "dailyRate": 200,
+    "weeklyRate": 1260,
+    "monthlyRate": 4200,
+    "baseDepositAmt": 500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "HP VivoBook Laptop 22",
+    "slug": "hp-vivobook-laptop-22",
+    "description": "Rental-ready vivobook laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-022",
+    "totalStock": 4,
+    "availableStock": 4,
+    "dailyRate": 400,
+    "weeklyRate": 2520,
+    "monthlyRate": 8400,
+    "baseDepositAmt": 1000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo Aspire Laptop 23",
+    "slug": "lenovo-aspire-laptop-23",
+    "description": "Rental-ready aspire laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-023",
+    "totalStock": 5,
+    "availableStock": 5,
+    "dailyRate": 600,
+    "weeklyRate": 3780,
+    "monthlyRate": 12600,
+    "baseDepositAmt": 1500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS Latitude Laptop 24",
+    "slug": "asus-latitude-laptop-24",
+    "description": "Rental-ready latitude laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-024",
+    "totalStock": 6,
+    "availableStock": 6,
+    "dailyRate": 800,
+    "weeklyRate": 5040,
+    "monthlyRate": 16800,
+    "baseDepositAmt": 2000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer Inspiron Laptop 25",
+    "slug": "acer-inspiron-laptop-25",
+    "description": "Rental-ready inspiron laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-025",
+    "totalStock": 7,
+    "availableStock": 7,
+    "dailyRate": 1000,
+    "weeklyRate": 6300,
+    "monthlyRate": 21000,
+    "baseDepositAmt": 2500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Dell Pavilion Laptop 26",
+    "slug": "dell-pavilion-laptop-26",
+    "description": "Rental-ready pavilion laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-026",
+    "totalStock": 8,
+    "availableStock": 8,
+    "dailyRate": 1200,
+    "weeklyRate": 7560,
+    "monthlyRate": 25200,
+    "baseDepositAmt": 3000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "HP ThinkPad Laptop 27",
+    "slug": "hp-thinkpad-laptop-27",
+    "description": "Rental-ready thinkpad laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-027",
+    "totalStock": 9,
+    "availableStock": 9,
+    "dailyRate": 1400,
+    "weeklyRate": 8820,
+    "monthlyRate": 29400,
+    "baseDepositAmt": 3500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo VivoBook Laptop 28",
+    "slug": "lenovo-vivobook-laptop-28",
+    "description": "Rental-ready vivobook laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-028",
+    "totalStock": 10,
+    "availableStock": 10,
+    "dailyRate": 1600,
+    "weeklyRate": 10080,
+    "monthlyRate": 33600,
+    "baseDepositAmt": 4000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS Aspire Laptop 29",
+    "slug": "asus-aspire-laptop-29",
+    "description": "Rental-ready aspire laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-029",
+    "totalStock": 11,
+    "availableStock": 11,
+    "dailyRate": 1800,
+    "weeklyRate": 11340,
+    "monthlyRate": 37800,
+    "baseDepositAmt": 4500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer Latitude Laptop 30",
+    "slug": "acer-latitude-laptop-30",
+    "description": "Rental-ready latitude laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-030",
+    "totalStock": 2,
+    "availableStock": 2,
+    "dailyRate": 2000,
+    "weeklyRate": 12600,
+    "monthlyRate": 42000,
+    "baseDepositAmt": 5000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "Dell Inspiron Laptop 31",
+    "slug": "dell-inspiron-laptop-31",
+    "description": "Rental-ready inspiron laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-031",
+    "totalStock": 3,
+    "availableStock": 3,
+    "dailyRate": 200,
+    "weeklyRate": 1260,
+    "monthlyRate": 4200,
+    "baseDepositAmt": 500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "HP Pavilion Laptop 32",
+    "slug": "hp-pavilion-laptop-32",
+    "description": "Rental-ready pavilion laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-032",
+    "totalStock": 4,
+    "availableStock": 4,
+    "dailyRate": 400,
+    "weeklyRate": 2520,
+    "monthlyRate": 8400,
+    "baseDepositAmt": 1000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo ThinkPad Laptop 33",
+    "slug": "lenovo-thinkpad-laptop-33",
+    "description": "Rental-ready thinkpad laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-033",
+    "totalStock": 5,
+    "availableStock": 5,
+    "dailyRate": 600,
+    "weeklyRate": 3780,
+    "monthlyRate": 12600,
+    "baseDepositAmt": 1500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS VivoBook Laptop 34",
+    "slug": "asus-vivobook-laptop-34",
+    "description": "Rental-ready vivobook laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-034",
+    "totalStock": 6,
+    "availableStock": 6,
+    "dailyRate": 800,
+    "weeklyRate": 5040,
+    "monthlyRate": 16800,
+    "baseDepositAmt": 2000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer Aspire Laptop 35",
+    "slug": "acer-aspire-laptop-35",
+    "description": "Rental-ready aspire laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-035",
+    "totalStock": 7,
+    "availableStock": 7,
+    "dailyRate": 1000,
+    "weeklyRate": 6300,
+    "monthlyRate": 21000,
+    "baseDepositAmt": 2500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Dell Latitude Laptop 36",
+    "slug": "dell-latitude-laptop-36",
+    "description": "Rental-ready latitude laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-036",
+    "totalStock": 8,
+    "availableStock": 8,
+    "dailyRate": 1200,
+    "weeklyRate": 7560,
+    "monthlyRate": 25200,
+    "baseDepositAmt": 3000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "HP Inspiron Laptop 37",
+    "slug": "hp-inspiron-laptop-37",
+    "description": "Rental-ready inspiron laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-037",
+    "totalStock": 9,
+    "availableStock": 9,
+    "dailyRate": 1400,
+    "weeklyRate": 8820,
+    "monthlyRate": 29400,
+    "baseDepositAmt": 3500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo Pavilion Laptop 38",
+    "slug": "lenovo-pavilion-laptop-38",
+    "description": "Rental-ready pavilion laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-038",
+    "totalStock": 10,
+    "availableStock": 10,
+    "dailyRate": 1600,
+    "weeklyRate": 10080,
+    "monthlyRate": 33600,
+    "baseDepositAmt": 4000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS ThinkPad Laptop 39",
+    "slug": "asus-thinkpad-laptop-39",
+    "description": "Rental-ready thinkpad laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-039",
+    "totalStock": 11,
+    "availableStock": 11,
+    "dailyRate": 1800,
+    "weeklyRate": 11340,
+    "monthlyRate": 37800,
+    "baseDepositAmt": 4500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer VivoBook Laptop 40",
+    "slug": "acer-vivobook-laptop-40",
+    "description": "Rental-ready vivobook laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-040",
+    "totalStock": 2,
+    "availableStock": 2,
+    "dailyRate": 2000,
+    "weeklyRate": 12600,
+    "monthlyRate": 42000,
+    "baseDepositAmt": 5000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Dell Aspire Laptop 41",
+    "slug": "dell-aspire-laptop-41",
+    "description": "Rental-ready aspire laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-041",
+    "totalStock": 3,
+    "availableStock": 3,
+    "dailyRate": 200,
+    "weeklyRate": 1260,
+    "monthlyRate": 4200,
+    "baseDepositAmt": 500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "HP Latitude Laptop 42",
+    "slug": "hp-latitude-laptop-42",
+    "description": "Rental-ready latitude laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-042",
+    "totalStock": 4,
+    "availableStock": 4,
+    "dailyRate": 400,
+    "weeklyRate": 2520,
+    "monthlyRate": 8400,
+    "baseDepositAmt": 1000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo Inspiron Laptop 43",
+    "slug": "lenovo-inspiron-laptop-43",
+    "description": "Rental-ready inspiron laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-043",
+    "totalStock": 5,
+    "availableStock": 5,
+    "dailyRate": 600,
+    "weeklyRate": 3780,
+    "monthlyRate": 12600,
+    "baseDepositAmt": 1500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS Pavilion Laptop 44",
+    "slug": "asus-pavilion-laptop-44",
+    "description": "Rental-ready pavilion laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-044",
+    "totalStock": 6,
+    "availableStock": 6,
+    "dailyRate": 800,
+    "weeklyRate": 5040,
+    "monthlyRate": 16800,
+    "baseDepositAmt": 2000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer ThinkPad Laptop 45",
+    "slug": "acer-thinkpad-laptop-45",
+    "description": "Rental-ready thinkpad laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-045",
+    "totalStock": 7,
+    "availableStock": 7,
+    "dailyRate": 1000,
+    "weeklyRate": 6300,
+    "monthlyRate": 21000,
+    "baseDepositAmt": 2500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "Dell VivoBook Laptop 46",
+    "slug": "dell-vivobook-laptop-46",
+    "description": "Rental-ready vivobook laptop from Dell, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Dell",
+    "sku": "E-046",
+    "totalStock": 8,
+    "availableStock": 8,
+    "dailyRate": 1200,
+    "weeklyRate": 7560,
+    "monthlyRate": 25200,
+    "baseDepositAmt": 3000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "HP Aspire Laptop 47",
+    "slug": "hp-aspire-laptop-47",
+    "description": "Rental-ready aspire laptop from HP, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "HP",
+    "sku": "E-047",
+    "totalStock": 9,
+    "availableStock": 9,
+    "dailyRate": 1400,
+    "weeklyRate": 8820,
+    "monthlyRate": 29400,
+    "baseDepositAmt": 3500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Lenovo Latitude Laptop 48",
+    "slug": "lenovo-latitude-laptop-48",
+    "description": "Rental-ready latitude laptop from Lenovo, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Lenovo",
+    "sku": "E-048",
+    "totalStock": 10,
+    "availableStock": 10,
+    "dailyRate": 1600,
+    "weeklyRate": 10080,
+    "monthlyRate": 33600,
+    "baseDepositAmt": 4000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      },
+      {
+        "attribute": "RAM",
+        "value": "32GB"
+      }
+    ]
+  },
+  {
+    "name": "ASUS Inspiron Laptop 49",
+    "slug": "asus-inspiron-laptop-49",
+    "description": "Rental-ready inspiron laptop from ASUS, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "ASUS",
+    "sku": "E-049",
+    "totalStock": 11,
+    "availableStock": 11,
+    "dailyRate": 1800,
+    "weeklyRate": 11340,
+    "monthlyRate": 37800,
+    "baseDepositAmt": 4500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      },
+      {
+        "attribute": "RAM",
+        "value": "8GB"
+      }
+    ]
+  },
+  {
+    "name": "Acer Pavilion Laptop 50",
+    "slug": "acer-pavilion-laptop-50",
+    "description": "Rental-ready pavilion laptop from Acer, suitable for temporary use, events, offices, homes and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80",
+    "category": "Electronics",
+    "productType": "other",
+    "brand": "Acer",
+    "sku": "E-050",
+    "totalStock": 2,
+    "availableStock": 2,
+    "dailyRate": 2000,
+    "weeklyRate": 12600,
+    "monthlyRate": 42000,
+    "baseDepositAmt": 5000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Cable",
+      "Laptop Bag"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      },
+      {
+        "attribute": "RAM",
+        "value": "16GB"
+      }
+    ]
+  },
+  {
+    "name": "Sony Mirrorless Camera 1",
+    "slug": "sony-mirrorless-camera-1",
+    "description": "Rental-ready mirrorless camera from Sony, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "camera",
+    "brand": "Sony",
+    "sku": "CP-001",
+    "totalStock": 3,
+    "availableStock": 3,
+    "dailyRate": 250,
+    "weeklyRate": 1575,
+    "monthlyRate": 5250,
+    "baseDepositAmt": 500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      }
+    ]
+  },
+  {
+    "name": "Canon DSLR Camera 2",
+    "slug": "canon-dslr-camera-2",
+    "description": "Rental-ready dslr camera from Canon, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "camera",
+    "brand": "Canon",
+    "sku": "CP-002",
+    "totalStock": 4,
+    "availableStock": 4,
+    "dailyRate": 500,
+    "weeklyRate": 3150,
+    "monthlyRate": 10500,
+    "baseDepositAmt": 1000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      }
+    ]
+  },
+  {
+    "name": "Nikon Prime Lens 3",
+    "slug": "nikon-prime-lens-3",
+    "description": "Rental-ready prime lens from Nikon, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "lens",
+    "brand": "Nikon",
+    "sku": "CP-003",
+    "totalStock": 5,
+    "availableStock": 5,
+    "dailyRate": 750,
+    "weeklyRate": 4725,
+    "monthlyRate": 15750,
+    "baseDepositAmt": 1500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      }
+    ]
+  },
+  {
+    "name": "Fujifilm Zoom Lens 4",
+    "slug": "fujifilm-zoom-lens-4",
+    "description": "Rental-ready zoom lens from Fujifilm, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "lens",
+    "brand": "Fujifilm",
+    "sku": "CP-004",
+    "totalStock": 6,
+    "availableStock": 6,
+    "dailyRate": 1000,
+    "weeklyRate": 6300,
+    "monthlyRate": 21000,
+    "baseDepositAmt": 2000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      }
+    ]
+  },
+  {
+    "name": "Panasonic Tripod 5",
+    "slug": "panasonic-tripod-5",
+    "description": "Rental-ready tripod from Panasonic, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "support",
+    "brand": "Panasonic",
+    "sku": "CP-005",
+    "totalStock": 2,
+    "availableStock": 2,
+    "dailyRate": 1250,
+    "weeklyRate": 7875,
+    "monthlyRate": 26250,
+    "baseDepositAmt": 2500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      }
+    ]
+  },
+  {
+    "name": "Sony Gimbal 6",
+    "slug": "sony-gimbal-6",
+    "description": "Rental-ready gimbal from Sony, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "support",
+    "brand": "Sony",
+    "sku": "CP-006",
+    "totalStock": 3,
+    "availableStock": 3,
+    "dailyRate": 1500,
+    "weeklyRate": 9450,
+    "monthlyRate": 31500,
+    "baseDepositAmt": 3000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      }
+    ]
+  },
+  {
+    "name": "Canon LED Light 7",
+    "slug": "canon-led-light-7",
+    "description": "Rental-ready led light from Canon, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "lighting",
+    "brand": "Canon",
+    "sku": "CP-007",
+    "totalStock": 4,
+    "availableStock": 4,
+    "dailyRate": 1750,
+    "weeklyRate": 11025,
+    "monthlyRate": 36750,
+    "baseDepositAmt": 3500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      }
+    ]
+  },
+  {
+    "name": "Nikon Camera Monitor 8",
+    "slug": "nikon-camera-monitor-8",
+    "description": "Rental-ready camera monitor from Nikon, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "monitor",
+    "brand": "Nikon",
+    "sku": "CP-008",
+    "totalStock": 5,
+    "availableStock": 5,
+    "dailyRate": 2000,
+    "weeklyRate": 12600,
+    "monthlyRate": 42000,
+    "baseDepositAmt": 4000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      }
+    ]
+  },
+  {
+    "name": "Fujifilm Mirrorless Camera 9",
+    "slug": "fujifilm-mirrorless-camera-9",
+    "description": "Rental-ready mirrorless camera from Fujifilm, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "camera",
+    "brand": "Fujifilm",
+    "sku": "CP-009",
+    "totalStock": 6,
+    "availableStock": 6,
+    "dailyRate": 2250,
+    "weeklyRate": 14175,
+    "monthlyRate": 47250,
+    "baseDepositAmt": 4500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      }
+    ]
+  },
+  {
+    "name": "Panasonic DSLR Camera 10",
+    "slug": "panasonic-dslr-camera-10",
+    "description": "Rental-ready dslr camera from Panasonic, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "camera",
+    "brand": "Panasonic",
+    "sku": "CP-010",
+    "totalStock": 2,
+    "availableStock": 2,
+    "dailyRate": 2500,
+    "weeklyRate": 15750,
+    "monthlyRate": 52500,
+    "baseDepositAmt": 5000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      }
+    ]
+  },
+  {
+    "name": "Sony Prime Lens 11",
+    "slug": "sony-prime-lens-11",
+    "description": "Rental-ready prime lens from Sony, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "lens",
+    "brand": "Sony",
+    "sku": "CP-011",
+    "totalStock": 3,
+    "availableStock": 3,
+    "dailyRate": 250,
+    "weeklyRate": 1575,
+    "monthlyRate": 5250,
+    "baseDepositAmt": 500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      }
+    ]
+  },
+  {
+    "name": "Canon Zoom Lens 12",
+    "slug": "canon-zoom-lens-12",
+    "description": "Rental-ready zoom lens from Canon, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "lens",
+    "brand": "Canon",
+    "sku": "CP-012",
+    "totalStock": 4,
+    "availableStock": 4,
+    "dailyRate": 500,
+    "weeklyRate": 3150,
+    "monthlyRate": 10500,
+    "baseDepositAmt": 1000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      }
+    ]
+  },
+  {
+    "name": "Nikon Tripod 13",
+    "slug": "nikon-tripod-13",
+    "description": "Rental-ready tripod from Nikon, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "support",
+    "brand": "Nikon",
+    "sku": "CP-013",
+    "totalStock": 5,
+    "availableStock": 5,
+    "dailyRate": 750,
+    "weeklyRate": 4725,
+    "monthlyRate": 15750,
+    "baseDepositAmt": 1500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      }
+    ]
+  },
+  {
+    "name": "Fujifilm Gimbal 14",
+    "slug": "fujifilm-gimbal-14",
+    "description": "Rental-ready gimbal from Fujifilm, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "support",
+    "brand": "Fujifilm",
+    "sku": "CP-014",
+    "totalStock": 6,
+    "availableStock": 6,
+    "dailyRate": 1000,
+    "weeklyRate": 6300,
+    "monthlyRate": 21000,
+    "baseDepositAmt": 2000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      }
+    ]
+  },
+  {
+    "name": "Panasonic LED Light 15",
+    "slug": "panasonic-led-light-15",
+    "description": "Rental-ready led light from Panasonic, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "lighting",
+    "brand": "Panasonic",
+    "sku": "CP-015",
+    "totalStock": 2,
+    "availableStock": 2,
+    "dailyRate": 1250,
+    "weeklyRate": 7875,
+    "monthlyRate": 26250,
+    "baseDepositAmt": 2500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      }
+    ]
+  },
+  {
+    "name": "Sony Camera Monitor 16",
+    "slug": "sony-camera-monitor-16",
+    "description": "Rental-ready camera monitor from Sony, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "monitor",
+    "brand": "Sony",
+    "sku": "CP-016",
+    "totalStock": 3,
+    "availableStock": 3,
+    "dailyRate": 1500,
+    "weeklyRate": 9450,
+    "monthlyRate": 31500,
+    "baseDepositAmt": 3000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      }
+    ]
+  },
+  {
+    "name": "Canon Mirrorless Camera 17",
+    "slug": "canon-mirrorless-camera-17",
+    "description": "Rental-ready mirrorless camera from Canon, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "camera",
+    "brand": "Canon",
+    "sku": "CP-017",
+    "totalStock": 4,
+    "availableStock": 4,
+    "dailyRate": 1750,
+    "weeklyRate": 11025,
+    "monthlyRate": 36750,
+    "baseDepositAmt": 3500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      }
+    ]
+  },
+  {
+    "name": "Nikon DSLR Camera 18",
+    "slug": "nikon-dslr-camera-18",
+    "description": "Rental-ready dslr camera from Nikon, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "camera",
+    "brand": "Nikon",
+    "sku": "CP-018",
+    "totalStock": 5,
+    "availableStock": 5,
+    "dailyRate": 2000,
+    "weeklyRate": 12600,
+    "monthlyRate": 42000,
+    "baseDepositAmt": 4000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Good"
+      }
+    ]
+  },
+  {
+    "name": "Fujifilm Prime Lens 19",
+    "slug": "fujifilm-prime-lens-19",
+    "description": "Rental-ready prime lens from Fujifilm, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "lens",
+    "brand": "Fujifilm",
+    "sku": "CP-019",
+    "totalStock": 6,
+    "availableStock": 6,
+    "dailyRate": 2250,
+    "weeklyRate": 14175,
+    "monthlyRate": 47250,
+    "baseDepositAmt": 4500,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Excellent"
+      }
+    ]
+  },
+  {
+    "name": "Panasonic Zoom Lens 20",
+    "slug": "panasonic-zoom-lens-20",
+    "description": "Rental-ready zoom lens from Panasonic, suitable for temporary use, events, productions and professional requirements.",
+    "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+    "category": "Cameras & Photography",
+    "productType": "lens",
+    "brand": "Panasonic",
+    "sku": "CP-020",
+    "totalStock": 2,
+    "availableStock": 2,
+    "dailyRate": 2500,
+    "weeklyRate": 15750,
+    "monthlyRate": 52500,
+    "baseDepositAmt": 5000,
+    "depositIsPercent": false,
+    "accessoryList": [
+      "User Manual",
+      "Power Adapter",
+      "Padded Case"
+    ],
+    "isPublished": true,
+    "variants": [
+      {
+        "attribute": "Condition",
+        "value": "Like New"
+      }
+    ]
+  }
+]

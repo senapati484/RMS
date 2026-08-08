@@ -34,6 +34,31 @@ const ProductSchema = new mongoose.Schema({
   isPublished: { type: Boolean, default: true },
 }, { timestamps: true })
 
+const AttributeSchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  displayType: { type: String, enum: ['Radio', 'Pills', 'Check Box', 'Image'], default: 'Radio' },
+  values: [{ value: String, defaultExtraPrice: { type: Number, default: 0 } }],
+}, { timestamps: true })
+
+const PriceListSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  type: { type: String, enum: ['FIXED_DISCOUNT', 'PERCENTAGE_DISCOUNT', 'TIERED_VOLUME'], default: 'PERCENTAGE_DISCOUNT' },
+  discountPct: { type: Number, default: 10 },
+  isDefault: { type: Boolean, default: false },
+  items: [{ productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' }, customDailyRate: Number }],
+}, { timestamps: true })
+
+const MaintenanceTicketSchema = new mongoose.Schema({
+  ticketNumber: { type: String, required: true, unique: true },
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  title: String,
+  description: String,
+  priority: { type: String, enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], default: 'MEDIUM' },
+  status: { type: String, enum: ['OPEN', 'IN_PROGRESS', 'WAITING_PARTS', 'RESOLVED', 'CLOSED'], default: 'OPEN' },
+  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  estimatedCost: Number,
+}, { timestamps: true })
+
 const ItemSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
   productName: String, productImage: String, rentalPeriodLabel: String,
@@ -56,7 +81,6 @@ const OrderSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 const QuotationSchema = new mongoose.Schema({
-  quoteNumber: String,
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: { type: String, default: 'DRAFT' },
   deliveryMode: { type: String, default: 'STORE_PICKUP' },
@@ -65,15 +89,21 @@ const QuotationSchema = new mongoose.Schema({
   rentalStart: Date, rentalEnd: Date, validUntil: Date,
 }, { timestamps: true })
 
-if (mongoose.models.Product)   delete mongoose.models.Product
-if (mongoose.models.User)      delete mongoose.models.User
-if (mongoose.models.Order)     delete mongoose.models.Order
-if (mongoose.models.Quotation) delete mongoose.models.Quotation
+if (mongoose.models.Product)           delete mongoose.models.Product
+if (mongoose.models.User)              delete mongoose.models.User
+if (mongoose.models.Order)             delete mongoose.models.Order
+if (mongoose.models.Quotation)         delete mongoose.models.Quotation
+if (mongoose.models.Attribute)         delete mongoose.models.Attribute
+if (mongoose.models.PriceList)         delete mongoose.models.PriceList
+if (mongoose.models.MaintenanceTicket) delete mongoose.models.MaintenanceTicket
 
-const User      = mongoose.model('User', UserSchema)
-const Product   = mongoose.model('Product', ProductSchema)
-const Order     = mongoose.model('Order', OrderSchema)
-const Quotation = mongoose.model('Quotation', QuotationSchema)
+const User              = mongoose.model('User', UserSchema)
+const Product           = mongoose.model('Product', ProductSchema)
+const Order             = mongoose.model('Order', OrderSchema)
+const Quotation         = mongoose.model('Quotation', QuotationSchema)
+const Attribute         = mongoose.model('Attribute', AttributeSchema)
+const PriceList         = mongoose.model('PriceList', PriceListSchema)
+const MaintenanceTicket = mongoose.model('MaintenanceTicket', MaintenanceTicketSchema)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ADMIN & USER SEED DATA
@@ -459,7 +489,51 @@ async function seed() {
     },
   })
 
-  console.log(`🛒  Created Sample Orders: ${order1.orderNumber}, ${order2.orderNumber}`)
+  // Create Attributes
+  await Attribute.deleteMany({})
+  await Attribute.create([
+    { name: 'Color', displayType: 'Pills', values: [{ value: 'Black', defaultExtraPrice: 0 }, { value: 'Silver', defaultExtraPrice: 0 }, { value: 'Space Gray', defaultExtraPrice: 100 }] },
+    { name: 'Storage / RAM', displayType: 'Radio', values: [{ value: '16GB / 512GB', defaultExtraPrice: 0 }, { value: '32GB / 1TB', defaultExtraPrice: 300 }] },
+    { name: 'Lens Mount', displayType: 'Radio', values: [{ value: 'Sony E-Mount', defaultExtraPrice: 0 }, { value: 'Canon RF', defaultExtraPrice: 0 }, { value: 'PL Mount', defaultExtraPrice: 500 }] },
+  ])
+  console.log('🏷️   Created Sample Product Attributes')
+
+  // Create PriceLists
+  await PriceList.deleteMany({})
+  await PriceList.create([
+    { name: 'Standard Rental Rates', type: 'PERCENTAGE_DISCOUNT', discountPct: 0, isDefault: true, items: [] },
+    { name: 'Corporate Partner Tier (15% Off)', type: 'PERCENTAGE_DISCOUNT', discountPct: 15, isDefault: false, items: [] },
+  ])
+  console.log('💰  Created Sample Price Lists')
+
+  // Create Sample Quotation
+  const quote1 = await Quotation.create({
+    quotationNumber: 'QT-20260808-0101',
+    userId: aryanUser._id,
+    status: 'SENT',
+    deliveryMode: 'STORE_PICKUP',
+    items: [
+      { productId: sony._id, productName: sony.name, productImage: sony.imageUrl, rentalPeriodLabel: '5 day(s)', quantity: 1, unitPrice: 1500, lineTotal: 7500 },
+    ],
+    subTotal: 7500, depositAmount: 5000, totalAmount: 12500,
+    rentalStart: new Date(Date.now() + 2 * 86400000),
+    rentalEnd: new Date(Date.now() + 7 * 86400000),
+    validUntil: new Date(Date.now() + 14 * 86400000),
+  })
+  console.log(`📋  Created Sample Quotation: ${quote1.quotationNumber}`)
+
+  // Create Sample Maintenance Ticket
+  const ticket1 = await MaintenanceTicket.create({
+    ticketNumber: 'MNT-20260808-001',
+    productId: sony._id,
+    title: 'Sensor Cleaning & Firmware Calibration',
+    description: 'Routine maintenance after production return. Sensor dust check and firmware update.',
+    priority: 'MEDIUM',
+    status: 'IN_PROGRESS',
+    assignedTo: userMap['staff@lease360.ai']?._id,
+    estimatedCost: 1200,
+  })
+  console.log(`🔧  Created Sample Maintenance Ticket: ${ticket1.ticketNumber}`)
 
   console.log('\n' + '─'.repeat(60))
   console.log('✅  Multi-Admin & Product Domain Seed Complete!')

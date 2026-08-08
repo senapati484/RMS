@@ -95,8 +95,6 @@ const ProductSchema = new Schema<IProduct>(
 
 ProductSchema.index({ category: 1, isPublished: 1 })
 ProductSchema.index({ productType: 1, isPublished: 1 })
-ProductSchema.index({ slug: 1 })
-ProductSchema.index({ sku: 1 })
 ProductSchema.index({ tags: 1 })
 ProductSchema.index({ name: 'text', description: 'text', tags: 'text' })
 

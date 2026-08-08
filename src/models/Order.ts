@@ -166,7 +166,6 @@ const OrderSchema = new Schema<IOrder>(
 OrderSchema.index({ userId: 1 })
 OrderSchema.index({ status: 1 })
 OrderSchema.index({ rentalEnd: 1 })
-OrderSchema.index({ orderNumber: 1 })
 
 export const Order: Model<IOrder> =
   mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema)

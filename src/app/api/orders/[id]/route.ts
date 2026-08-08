@@ -14,8 +14,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const order = await Order.findById(id).populate('userId', 'name email phone').lean()
   if (!order) return apiError('Order not found', 404)
 
+  // Extract user ID correctly whether populated or unpopulated
+  const orderUserId = (order.userId && typeof order.userId === 'object' && '_id' in order.userId)
+    ? String(order.userId._id)
+    : String(order.userId)
+
   // Portal users can only see their own orders
-  if (user!.role === 'PORTAL_USER' && order.userId.toString() !== user!.userId) {
+  if (user!.role === 'PORTAL_USER' && orderUserId !== user!.userId) {
     return apiError('Forbidden', 403)
   }
 
@@ -34,7 +39,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const order = await Order.findById(id)
   if (!order) return apiError('Order not found', 404)
 
-  if (user!.role === 'PORTAL_USER' && order.userId.toString() !== user!.userId) {
+  const orderUserId = (order.userId && typeof order.userId === 'object' && '_id' in order.userId)
+    ? String(order.userId._id)
+    : String(order.userId)
+
+  if (user!.role === 'PORTAL_USER' && orderUserId !== user!.userId) {
     return apiError('Forbidden', 403)
   }
 

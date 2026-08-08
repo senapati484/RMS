@@ -32,6 +32,7 @@ const STATUS_TABS = ['ALL', 'DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'EXPIRED']
 
 export default function QuotationsPage() {
   const { user } = useAuth()
+  const isOperator = user?.role === 'ADMIN' || user?.role === 'STAFF'
   const [quotes, setQuotes] = useState<Quotation[]>([])
   const [loading, setLoading] = useState(true)
   const [converting, setConverting] = useState<string | null>(null)
@@ -84,12 +85,14 @@ export default function QuotationsPage() {
           <h1 className="text-white text-2xl font-bold tracking-tight">Rental Quotations & Proposals</h1>
           <p className="text-white/40 text-sm mt-0.5">Create, estimate and convert customer quotations to orders</p>
         </div>
-        <Link
-          href="/dashboard/quotations/new"
-          className="bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer w-fit"
-        >
-          + Create New Quote
-        </Link>
+        {!isOperator && (
+          <Link
+            href="/dashboard/quotations/new"
+            className="bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer w-fit"
+          >
+            + Create New Quote
+          </Link>
+        )}
       </div>
 
       {/* Filter & Search Toolbar */}
@@ -133,9 +136,11 @@ export default function QuotationsPage() {
         <div className="liquid-glass border border-white/10 rounded-2xl p-12 text-center space-y-3">
           <FileText size={40} className="text-white/20 mx-auto" />
           <p className="text-white/40 text-sm font-medium">No quotations found</p>
-          <Link href="/dashboard/quotations/new" className="inline-flex items-center gap-1.5 text-[#F26522] text-xs font-semibold hover:underline">
-            Create quotation →
-          </Link>
+          {!isOperator && (
+            <Link href="/dashboard/quotations/new" className="inline-flex items-center gap-1.5 text-[#F26522] text-xs font-semibold hover:underline">
+              Create quotation →
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-3">
@@ -185,7 +190,7 @@ export default function QuotationsPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {(q.status === 'DRAFT' || q.status === 'SENT') && !expired && (
+                      {!isOperator && (q.status === 'DRAFT' || q.status === 'SENT') && !expired && (
                         <button
                           onClick={() => convertToOrder(q._id)}
                           disabled={converting === q._id}

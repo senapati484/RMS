@@ -3,7 +3,6 @@ import { NextRequest } from 'next/server'
 import mongoose from 'mongoose'
 import { Quotation } from '@/models/Quotation'
 import { Product } from '@/models/Product'
-import { User } from '@/models/User'
 import { Notification } from '@/models/Notification'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
@@ -40,10 +39,15 @@ export async function POST(req: NextRequest) {
   const authErr = requireAuth(user)
   if (authErr) return authErr
 
+  // Proposals are a customer-only action — operators manage them, they never create them
+  if (user!.role !== 'PORTAL_USER') {
+    return apiError('Only customer accounts can create proposals.', 403)
+  }
+
   await connectDB()
   try {
     const body = await req.json()
-    const { items, rentalStart, rentalEnd, customerEmail } = body
+    const { items, rentalStart, rentalEnd } = body
 
     if (!items?.length || !rentalStart || !rentalEnd) {
       return apiError('items, rentalStart, rentalEnd are required', 400)
@@ -88,19 +92,10 @@ export async function POST(req: NextRequest) {
 
     const validUntil = body.validUntil ? new Date(body.validUntil) : new Date(Date.now() + 7 * 86400000)
 
-    // Quotes created by staff/admin on behalf of a customer belong to the
-    // customer (resolved via customerEmail) so it appears in their portal.
+    // Proposals always belong to the customer who created them
     let ownerId: string = user!.userId
     let ownerEmail: string = user!.email || ''
     let ownerName: string = user!.name || 'Valued Customer'
-    if (customerEmail && user!.role !== 'PORTAL_USER') {
-      const customer = await User.findOne({ email: String(customerEmail).toLowerCase() }).lean()
-      if (customer) {
-        ownerId = customer._id.toString()
-        ownerEmail = customer.email
-        ownerName = customer.name || ownerName
-      }
-    }
 
     const quote = await Quotation.create({
       quoteNumber: generateQuoteNumber(),
@@ -128,7 +123,7 @@ export async function POST(req: NextRequest) {
     // Email customer
     if (ownerEmail) {
       sendQuotationEmail({
-        userEmail: customerEmail || ownerEmail,
+        userEmail: ownerEmail,
         userName: ownerName,
         quoteNumber: quote.quoteNumber,
         totalAmount: quote.totalAmount,

@@ -156,16 +156,6 @@ export default function RentalSchedulePage() {
               <ChevronRight size={16} />
             </button>
           </div>
-
-          {isAdmin && (
-            <Link
-              href="/dashboard/orders/new"
-              className="flex items-center gap-1.5 bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#F26522]/20 cursor-pointer"
-            >
-              <Plus size={15} />
-              <span>Create Order</span>
-            </Link>
-          )}
         </div>
       </div>
 

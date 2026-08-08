@@ -53,6 +53,11 @@ export async function POST(req: NextRequest) {
   const authErr = requireAuth(user)
   if (authErr) return authErr
 
+  // Order placement is a customer-only action — operators manage orders, they never place them
+  if (user!.role !== 'PORTAL_USER') {
+    return apiError('Only customer accounts can place orders. Operators manage orders from the dashboard.', 403)
+  }
+
   const planGate = await requirePlatformAccess(user!.userId, user!.role)
   if (planGate) return planGate
 

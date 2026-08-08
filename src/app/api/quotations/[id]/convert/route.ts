@@ -20,9 +20,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const quote = await Quotation.findById(id)
   if (!quote) return apiError('Quotation not found', 404)
 
-  // Only the owner, staff, or admin may convert a quotation
-  const isStaffOrAdmin = user!.role === 'ADMIN' || user!.role === 'STAFF'
-  if (!isStaffOrAdmin && String(quote.userId) !== user!.userId) {
+  // Only the owner (customer) may convert a quotation into an order
+  if (String(quote.userId) !== user!.userId) {
     return apiError('Forbidden: you can only convert your own quotations', 403)
   }
 

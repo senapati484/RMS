@@ -56,6 +56,15 @@ function NewOrderPage() {
   const [deliveryMode, setDeliveryMode] = useState<'STORE_PICKUP' | 'SHIPPING'>('STORE_PICKUP')
   const [loading, setLoading] = useState(false)
 
+  // Ordering is a customer-only action — operators manage orders, they never place them
+  const isOperator = user?.role === 'ADMIN' || user?.role === 'STAFF'
+  useEffect(() => {
+    if (isOperator) {
+      toast.error('Ordering is a customer action. Operators manage orders instead.')
+      router.replace('/dashboard/orders')
+    }
+  }, [isOperator, router])
+
   useEffect(() => {
     fetch('/api/products?limit=50')
       .then(r => r.json())

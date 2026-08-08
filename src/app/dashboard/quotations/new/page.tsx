@@ -57,6 +57,15 @@ function NewQuotationPage() {
   const [customerEmail, setCustomerEmail] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // Proposals are a customer-only action — operators manage them, they never create them
+  const isOperator = user?.role === 'ADMIN' || user?.role === 'STAFF'
+  useEffect(() => {
+    if (isOperator) {
+      toast.error('Proposals are a customer action. Operators manage them instead.')
+      router.replace('/dashboard/quotations')
+    }
+  }, [isOperator, router])
+
   useEffect(() => {
     fetch('/api/products?limit=50')
       .then(r => r.json())

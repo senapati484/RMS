@@ -281,12 +281,6 @@ export default function DashboardPage() {
             <Package size={14} /> + Add Product
           </Link>
           <Link
-            href="/dashboard/quotations/new"
-            className="bg-purple-600 hover:bg-purple-500 active:scale-[0.96] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
-          >
-            <FileText size={14} /> + New Proposal
-          </Link>
-          <Link
             href="/dashboard/ai"
             className="bg-blue-600 hover:bg-blue-500 active:scale-[0.96] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
           >

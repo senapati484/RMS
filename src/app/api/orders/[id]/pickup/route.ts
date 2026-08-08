@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     type: 'PICKUP_REMINDER',
     title: 'Equipment Picked Up',
     message: `Your order ${order.orderNumber} has been marked as picked up. Rental started!`,
-    linkHref: `/orders/${order._id}`,
+    linkHref: `/dashboard/orders/${order._id}`,
     relatedOrderId: order._id,
   })
 

@@ -7,6 +7,7 @@ export type NotificationType =
   | 'RETURN_DUE'
   | 'OVERDUE_ALERT'
   | 'DEPOSIT_SETTLED'
+  | 'TRUST_SCORE_UPDATE'
   | 'MAINTENANCE_UPDATE'
   | 'QUOTATION_READY'
   | 'QUOTATION_EXPIRING'
@@ -36,6 +37,7 @@ const NotificationSchema = new Schema<INotification>(
         'RETURN_DUE',
         'OVERDUE_ALERT',
         'DEPOSIT_SETTLED',
+        'TRUST_SCORE_UPDATE',
         'MAINTENANCE_UPDATE',
         'QUOTATION_READY',
         'QUOTATION_EXPIRING',

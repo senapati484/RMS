@@ -1,9 +1,11 @@
 // api/auth/register/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { User } from '@/models/User'
+import { Subscription } from '@/models/Subscription'
 import { signToken } from '@/lib/auth'
 import { connectDB } from '@/lib/db'
 import { encryptData } from '@/lib/encryption'
+import { TRIAL_DAYS } from '@/lib/subscription'
 
 export async function POST(req: NextRequest) {
   try {
@@ -117,6 +119,17 @@ export async function POST(req: NextRequest) {
       employeeId: role === 'STAFF' ? employeeId : undefined,
       addressLine,
       trustScore: (role === 'ADMIN' || isVendor) ? 100 : role === 'STAFF' ? 90 : 70, // High trust score on verified eKYC
+    })
+
+    // Every new account gets a 90-day FREE trial (platform + AI included)
+    const now = new Date()
+    await Subscription.create({
+      userId: user._id,
+      plan: 'FREE_TRIAL',
+      status: 'TRIAL',
+      trialStart: now,
+      trialEndsAt: new Date(now.getTime() + TRIAL_DAYS * 86400000),
+      aiEnabled: true,
     })
 
     const token = await signToken({

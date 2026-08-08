@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest } from '@/lib/api-helpers'
 import { User } from '@/models/User'
 import { connectDB } from '@/lib/db'
+import { getSubscriptionSummary } from '@/lib/subscription'
 
 export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req)
@@ -14,5 +15,7 @@ export async function GET(req: NextRequest) {
     .lean()
   if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
-  return NextResponse.json({ user: dbUser })
+  const subscription = await getSubscriptionSummary(user.userId)
+
+  return NextResponse.json({ user: dbUser, subscription })
 }

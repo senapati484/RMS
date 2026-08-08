@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server'
 import mongoose from 'mongoose'
 import { Quotation } from '@/models/Quotation'
 import { Product } from '@/models/Product'
+import { User } from '@/models/User'
 import { Notification } from '@/models/Notification'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
@@ -87,9 +88,23 @@ export async function POST(req: NextRequest) {
 
     const validUntil = body.validUntil ? new Date(body.validUntil) : new Date(Date.now() + 7 * 86400000)
 
+    // Quotes created by staff/admin on behalf of a customer belong to the
+    // customer (resolved via customerEmail) so it appears in their portal.
+    let ownerId: string = user!.userId
+    let ownerEmail: string = user!.email || ''
+    let ownerName: string = user!.name || 'Valued Customer'
+    if (customerEmail && user!.role !== 'PORTAL_USER') {
+      const customer = await User.findOne({ email: String(customerEmail).toLowerCase() }).lean()
+      if (customer) {
+        ownerId = customer._id.toString()
+        ownerEmail = customer.email
+        ownerName = customer.name || ownerName
+      }
+    }
+
     const quote = await Quotation.create({
       quoteNumber: generateQuoteNumber(),
-      userId: user!.userId,
+      userId: ownerId,
       status: 'DRAFT',
       items: resolvedItems,
       subTotal,
@@ -103,18 +118,18 @@ export async function POST(req: NextRequest) {
     })
 
     await Notification.create({
-      userId: user!.userId,
+      userId: ownerId,
       type: 'QUOTATION_READY',
       title: 'Quotation Created',
       message: `Your quotation ${quote.quoteNumber} has been created and is valid for 7 days.`,
-      linkHref: `/quotations/${quote._id}`,
+      linkHref: `/dashboard/quotations`,
     })
 
     // Email customer
-    if (user!.email) {
+    if (ownerEmail) {
       sendQuotationEmail({
-        userEmail: customerEmail || user!.email,
-        userName: user!.name || 'Valued Customer',
+        userEmail: customerEmail || ownerEmail,
+        userName: ownerName,
         quoteNumber: quote.quoteNumber,
         totalAmount: quote.totalAmount,
         depositAmount: quote.depositAmount,

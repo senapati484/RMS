@@ -15,12 +15,14 @@ import {
   Settings,
   BarChart3,
   Calendar,
+  CreditCard,
   LogOut,
   ChevronRight,
   Menu,
   X,
 } from 'lucide-react'
 import { NotificationBell } from '@/components'
+import SubscriptionBanner from '@/components/SubscriptionBanner'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['ADMIN', 'STAFF', 'PORTAL_USER'] },
@@ -33,6 +35,7 @@ const navItems = [
   { href: '/dashboard/maintenance', label: 'Maintenance', icon: Wrench, roles: ['ADMIN', 'STAFF'] },
   { href: '/dashboard/ai', label: 'AI Assistant', icon: Bot, roles: ['ADMIN', 'STAFF'] },
   { href: '/dashboard/users', label: 'Users & eKYC', icon: Users, roles: ['ADMIN', 'STAFF'] },
+  { href: '/dashboard/billing', label: 'Billing & Plans', icon: CreditCard, roles: ['ADMIN', 'STAFF', 'PORTAL_USER'] },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -215,6 +218,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page children content */}
+        <SubscriptionBanner />
         <main className="flex-1 p-4 sm:p-6">{children}</main>
 
         {/* Mobile PWA Bottom Navigation Bar */}

@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       type: 'MAINTENANCE_UPDATE',
       title: `Maintenance Ticket Opened`,
       message: `Ticket ${ticket.ticketNumber} opened for ${product.name}: ${title}`,
-      linkHref: `/maintenance/${ticket._id}`,
+      linkHref: `/dashboard/maintenance`,
       relatedTicketId: ticket._id,
     })
 

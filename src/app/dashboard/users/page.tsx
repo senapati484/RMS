@@ -22,6 +22,12 @@ interface UserItem {
   gstin?: string
   employeeId?: string
   createdAt: string
+  plan?: {
+    plan: string
+    status: string
+    aiEnabled: boolean
+    trialEndsAt?: string
+  } | null
 }
 
 export default function UsersManagementPage() {
@@ -290,9 +296,24 @@ export default function UsersManagementPage() {
                     </div>
                   </div>
 
-                  <span className="text-[10px] px-2.5 py-0.5 rounded-md font-bold uppercase shrink-0 border bg-white/5 text-white/70 border-white/15">
-                    {u.role.replace('_', ' ')}
-                  </span>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span className="text-[10px] px-2.5 py-0.5 rounded-md font-bold uppercase shrink-0 border bg-white/5 text-white/70 border-white/15">
+                      {u.role.replace('_', ' ')}
+                    </span>
+                    {u.plan && (
+                      <span
+                        className={`text-[9px] px-2 py-0.5 rounded-full font-semibold border ${
+                          u.plan.status === 'TRIAL'
+                            ? 'bg-[#F26522]/10 text-[#F26522] border-[#F26522]/30'
+                            : u.plan.status === 'ACTIVE'
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                              : 'bg-red-500/10 text-red-400 border-red-500/30'
+                        }`}
+                      >
+                        {u.plan.plan.replace('_', ' ')} {u.plan.aiEnabled && u.plan.plan !== 'FREE_TRIAL' ? '+ AI' : ''} · {u.plan.status}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* DigiLocker eKYC & Trust Score */}

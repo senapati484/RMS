@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useAuth, useCart } from '@/context'
-import { calculateRentalDays } from '@/lib/rental-pricing'
+import { calculateRentalDays, calculateItemRentalPrice } from '@/lib/rental-pricing'
 import { buildUpiUri, UPI_ID } from '@/lib/upi'
 import QRCode from 'qrcode'
 import {
@@ -57,7 +57,8 @@ export default function CheckoutPaymentPage() {
           const p = map.get(item.productId)
           if (!p) continue
           const days = Math.max(1, calculateRentalDays(item.rentalStart, item.rentalEnd))
-          const lineTotal = item.dailyRate * days * item.quantity
+          const pricing = calculateItemRentalPrice(item.dailyRate, days, item.quantity)
+          const lineTotal = pricing.lineSubtotal
           est += p.depositIsPercent
             ? (p.baseDepositAmt / 100) * lineTotal
             : p.baseDepositAmt * item.quantity

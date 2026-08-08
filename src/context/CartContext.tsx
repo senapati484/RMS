@@ -1,6 +1,6 @@
 'use client'
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { calculateRentalDays } from '@/lib/rental-pricing'
+import { calculateRentalDays, calculateItemRentalPrice } from '@/lib/rental-pricing'
 
 export interface CartItem {
   productId: string
@@ -81,10 +81,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = () => setCartItems([])
 
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
-  const cartTotal = cartItems.reduce(
-    (sum, i) => sum + i.dailyRate * Math.max(1, calculateRentalDays(i.rentalStart, i.rentalEnd)) * i.quantity,
-    0
-  )
+  // Applies the same duration-tier pricing engine the server uses, so what the
+  // cart displays is exactly what the order will be charged.
+  const cartTotal = cartItems.reduce((sum, i) => {
+    const pricing = calculateItemRentalPrice(
+      i.dailyRate,
+      calculateRentalDays(i.rentalStart, i.rentalEnd),
+      i.quantity
+    )
+    return sum + pricing.lineSubtotal
+  }, 0)
 
   return (
     <CartContext.Provider

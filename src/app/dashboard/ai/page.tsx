@@ -1,11 +1,12 @@
 'use client'
-import { useState } from 'react'
-import { Bot, Send, Loader2, Sparkles } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { Bot, Send, Loader2, Sparkles, Lock } from 'lucide-react'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
-  context?: { overdueCount: number; lowStockCount: number }
+  context?: { overdueCount: number; lowStockCount: number; returningSoonCount?: number }
 }
 
 const SUGGESTED = [
@@ -21,6 +22,23 @@ export default function AIAssistantPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [aiAccess, setAiAccess] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await fetch('/api/subscriptions')
+        if (res.ok) {
+          const data = await res.json()
+          if (mounted) setAiAccess(!!data.subscription?.aiAccess)
+        }
+      } catch {
+        if (mounted) setAiAccess(true)
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const sendMessage = async (question: string) => {
     if (!question.trim() || loading) return
@@ -69,7 +87,29 @@ export default function AIAssistantPage() {
         </div>
       </div>
 
-      {/* Chat area */}
+      {aiAccess === false && (
+        <div className="liquid-glass border border-purple-500/30 rounded-2xl p-10 text-center space-y-4">
+          <div className="w-14 h-14 mx-auto bg-purple-500/15 rounded-2xl flex items-center justify-center">
+            <Lock size={24} className="text-purple-300" />
+          </div>
+          <div>
+            <h2 className="text-white font-bold">AI Assistant Locked</h2>
+            <p className="text-white/50 text-sm mt-1 max-w-sm mx-auto">
+              AI features require the AI add-on. Your free trial includes it — subscribe to keep using
+              RentalMind, AI return-inspection and AI maintenance triage.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/billing"
+            className="inline-flex items-center gap-2 bg-[#F26522] hover:bg-[#e05510] text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
+          >
+            <Sparkles size={15} />
+            Upgrade in Billing
+          </Link>
+        </div>
+      )}
+
+      {aiAccess !== false && (
       <div className="liquid-glass border border-white/10 rounded-2xl min-h-[400px] flex flex-col">
         <div className="flex-1 p-6 space-y-4 overflow-y-auto max-h-[500px]">
           {messages.length === 0 ? (
@@ -169,6 +209,13 @@ export default function AIAssistantPage() {
           )}
         </div>
       </div>
+      )}
+
+      {aiAccess === null && (
+        <div className="flex items-center justify-center min-h-64">
+          <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
+        </div>
+      )}
     </div>
   )
 }

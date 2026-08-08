@@ -1,8 +1,10 @@
 // api/users/route.ts
 import { NextRequest } from 'next/server'
 import { User } from '@/models/User'
+import { Subscription } from '@/models/Subscription'
 import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
+import { TRIAL_DAYS } from '@/lib/subscription'
 
 export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req)
@@ -25,7 +27,20 @@ export async function GET(req: NextRequest) {
     .sort({ createdAt: -1 })
     .lean()
 
-  return apiOk(users)
+  // Attach plan status so admins can see who is on trial / paid / expired
+  const subs = await Subscription.find({
+    userId: { $in: users.map((u) => u._id) },
+  })
+    .select('userId plan status trialEndsAt aiEnabled')
+    .lean()
+  const subMap = new Map(subs.map((s) => [String(s.userId), s]))
+
+  return apiOk(
+    users.map((u) => ({
+      ...u,
+      plan: subMap.get(String(u._id)) || null,
+    }))
+  )
 }
 
 export async function POST(req: NextRequest) {
@@ -65,6 +80,17 @@ export async function POST(req: NextRequest) {
       gstin,
       employeeId,
       trustScore: role === 'ADMIN' ? 100 : role === 'STAFF' ? 90 : 75,
+    })
+
+    // New accounts always start with the 90-day free trial
+    const now = new Date()
+    await Subscription.create({
+      userId: newUser._id,
+      plan: 'FREE_TRIAL',
+      status: 'TRIAL',
+      trialStart: now,
+      trialEndsAt: new Date(now.getTime() + TRIAL_DAYS * 86400000),
+      aiEnabled: true,
     })
 
     return apiOk(newUser, 201)

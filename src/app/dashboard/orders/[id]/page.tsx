@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import {
   ArrowLeft, Package, AlertTriangle,
   Truck, RefreshCw, Loader2, Navigation, MapPin,
-  PhoneCall, ShieldCheck, CheckCircle2, Clock, QrCode
+  PhoneCall, ShieldCheck, CheckCircle2, Clock, QrCode, Sparkles
 } from 'lucide-react'
 
 interface Order {
@@ -60,6 +60,8 @@ export default function OrderDetailPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [showReturnModal, setShowReturnModal] = useState(false)
   const [returnForm, setReturnForm] = useState({ conditionScore: 'GOOD', conditionNote: '', damageDeduction: 0, gracePeriodMins: 30 })
+  const [aiSuggestion, setAiSuggestion] = useState<{ damageLevel: string; suggestedDeduction: number; reason: string } | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
 
   const fetchOrder = async () => {
     const res = await fetch(`/api/orders/${params.id}`)
@@ -92,11 +94,46 @@ export default function OrderDetailPage() {
     if (res.ok) {
       toast.success(data.message || 'Return processed & deposit reconciled!')
       setShowReturnModal(false)
+      setAiSuggestion(null)
       fetchOrder()
     } else {
       toast.error(data.error || 'Failed to process return')
     }
     setActionLoading(false)
+  }
+
+  const suggestDeduction = async () => {
+    if (!order) return
+    if (!returnForm.conditionNote.trim()) {
+      toast.error('Add condition notes first so AI can assess the damage')
+      return
+    }
+    setAiLoading(true)
+    setAiSuggestion(null)
+    try {
+      const res = await fetch('/api/ai/return-inspection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productName: order.items.map((i) => i.productName).join(', '),
+          productCategory: 'rental equipment',
+          conditionScore: returnForm.conditionScore,
+          conditionNote: returnForm.conditionNote,
+          depositAmount: order.deposit?.amount ?? order.depositAmount,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setAiSuggestion(data.suggestion)
+        setReturnForm((f) => ({ ...f, damageDeduction: data.suggestion.suggestedDeduction }))
+        toast.success('AI deduction suggested')
+      } else {
+        toast.error(data.error || 'AI inspection failed')
+      }
+    } catch {
+      toast.error('Unable to reach AI service')
+    }
+    setAiLoading(false)
   }
 
   if (loading) {
@@ -562,7 +599,7 @@ export default function OrderDetailPage() {
               )}
               {['PICKED_UP', 'RETURN_PENDING'].includes(order.status) && (
                 <button
-                  onClick={() => setShowReturnModal(true)}
+                  onClick={() => { setShowReturnModal(true); setAiSuggestion(null) }}
                   className="w-full flex items-center justify-center gap-2 bg-green-500/20 hover:bg-green-500/30 active:scale-95 text-green-400 rounded-xl py-2.5 text-sm font-semibold transition-all border border-green-500/30"
                 >
                   <RefreshCw size={14} />
@@ -608,7 +645,29 @@ export default function OrderDetailPage() {
                   placeholder="Notes on equipment return condition..."
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#F26522] resize-none"
                 />
+                <button
+                  onClick={suggestDeduction}
+                  disabled={aiLoading}
+                  className="mt-2 flex items-center gap-1.5 bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 rounded-xl px-3 py-2 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {aiLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                  {aiLoading ? 'AI assessing damage…' : 'AI Suggest Deduction'}
+                </button>
               </div>
+              {aiSuggestion && (
+                <div className="liquid-glass border border-purple-500/30 bg-purple-500/5 rounded-xl p-3 text-xs">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-purple-300 font-bold flex items-center gap-1.5">
+                      <Sparkles size={12} /> AI Inspection
+                    </span>
+                    <span className="text-white/60">Damage level: {aiSuggestion.damageLevel}</span>
+                  </div>
+                  <p className="text-white/70 leading-relaxed">{aiSuggestion.reason}</p>
+                  <p className="text-white/50 mt-1.5">
+                    Suggested deduction: <span className="text-[#F26522] font-mono font-bold">₹{aiSuggestion.suggestedDeduction}</span> (editable below)
+                  </p>
+                </div>
+              )}
               <div>
                 <label className="block text-white/50 text-xs mb-2">Damage Fee Deduction (₹)</label>
                 <input

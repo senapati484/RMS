@@ -9,13 +9,17 @@ import { User } from '@/models/User'
 import { Notification } from '@/models/Notification'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
 import { generateOrderNumber } from '@/lib/order-number'
-import { calculateRentalDays } from '@/lib/rental-pricing'
+import { calculateRentalDays, calculateItemRentalPrice } from '@/lib/rental-pricing'
+import { requirePlatformAccess } from '@/lib/subscription'
 import { sendOrderConfirmationEmail } from '@/lib/mailer'
 
 export async function POST(req: NextRequest) {
   const user = await getUserFromRequest(req)
   const authErr = requireAuth(user)
   if (authErr) return authErr
+
+  const planGate = await requirePlatformAccess(user!.userId)
+  if (planGate) return planGate
 
   try {
     await connectDB()
@@ -75,8 +79,13 @@ export async function POST(req: NextRequest) {
       }
       // ─────────────────────────────────────────────────────────────────
 
-      const unitPrice = product.dailyRate || 0
-      const lineTotal = unitPrice * days * quantity
+      // Charge the effective rate (salesPrice overrides dailyRate) through the
+      // same tiered engine used by /api/orders, so the storefront, express
+      // checkout and cart totals all match.
+      const effectiveRate = product.salesPrice || product.dailyRate || 0
+      const pricing = calculateItemRentalPrice(effectiveRate, days, quantity)
+      const unitPrice = pricing.discountedDailyRate
+      const lineTotal = pricing.lineSubtotal
       subTotal += lineTotal
 
       const dep = product.depositIsPercent

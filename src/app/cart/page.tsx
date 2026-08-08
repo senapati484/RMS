@@ -24,6 +24,7 @@ export default function CartPage() {
     email: 'aryan@domain.com',
     address: '102 Apex Towers, Bandra West',
     city: 'Mumbai',
+    state: 'Maharashtra',
     zipCode: '400050',
     country: 'India',
   })
@@ -66,7 +67,7 @@ export default function CartPage() {
           shippingAddress: {
             line1: expressForm.address,
             city: expressForm.city,
-            state: expressForm.country,
+            state: expressForm.state || expressForm.country,
             pincode: expressForm.zipCode,
           },
         }),
@@ -313,6 +314,15 @@ export default function CartPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-white/60 mb-1.5 font-medium">State</label>
+                  <input
+                    type="text"
+                    value={expressForm.state}
+                    onChange={e => setExpressForm({ ...expressForm, state: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-purple-400"
+                  />
+                </div>
                 <div>
                   <label className="block text-white/60 mb-1.5 font-medium">Zip Code</label>
                   <input

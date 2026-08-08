@@ -67,6 +67,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const refundAmount = Math.max(0, order.deposit.amount - totalDeduction)
   const isLate = feeResult.isLate
 
+  // Damage-only deductions must not be reported as a full refund — combine
+  // late-fee and damage deductions when deriving the deposit settlement state.
+  const depositStatus =
+    damageDeduction > 0
+      ? totalDeduction >= order.deposit.amount
+        ? 'FORFEITED'
+        : 'PARTIALLY_REFUNDED'
+      : feeResult.depositStatus
+
   // Build deposit transactions
   const newTransactions = []
   if (feeResult.lateFee > 0) {
@@ -113,7 +122,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   order.actualReturnAt = actualReturn
   order.lateFeeCharged = feeResult.lateFee
   order.status = isLate ? 'RETURNED_LATE' : 'RETURNED_ON_TIME'
-  order.deposit.status = feeResult.depositStatus
+  order.deposit.status = depositStatus
   order.deposit.deductedAmount = totalDeduction
   order.deposit.refundedAmount = refundAmount
   order.deposit.deductionReason = totalDeduction > 0 ? feeResult.breakdown : undefined

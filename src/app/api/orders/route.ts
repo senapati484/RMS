@@ -9,6 +9,7 @@ import { connectDB } from '@/lib/db'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
 import { generateOrderNumber } from '@/lib/order-number'
 import { calculateRentalDays, calculateItemRentalPrice } from '@/lib/rental-pricing'
+import { requirePlatformAccess } from '@/lib/subscription'
 import { sendOrderConfirmationEmail } from '@/lib/mailer'
 
 export async function GET(req: NextRequest) {
@@ -51,6 +52,9 @@ export async function POST(req: NextRequest) {
   const user = await getUserFromRequest(req)
   const authErr = requireAuth(user)
   if (authErr) return authErr
+
+  const planGate = await requirePlatformAccess(user!.userId)
+  if (planGate) return planGate
 
   await connectDB()
 
@@ -98,7 +102,11 @@ export async function POST(req: NextRequest) {
       }
       // ─────────────────────────────────────────────────────────────────
 
-      const pricing = calculateItemRentalPrice(product.dailyRate || 0, days, quantity)
+      // Charge the effective rate (salesPrice overrides dailyRate) through the
+      // same tiered engine used everywhere, so every checkout path bills the
+      // same amount the cart shows.
+      const effectiveRate = product.salesPrice || product.dailyRate || 0
+      const pricing = calculateItemRentalPrice(effectiveRate, days, quantity)
       const unitPrice = pricing.discountedDailyRate
       const lineTotal = pricing.lineSubtotal
       subTotal += lineTotal

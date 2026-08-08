@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { Loader2, ArrowLeft, Sparkles } from 'lucide-react'
 
 const CATEGORIES = ['DAMAGE', 'CLEANING', 'CALIBRATION', 'REPAIR', 'INSPECTION', 'OTHER']
 const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
@@ -10,6 +10,8 @@ const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
 export default function NewMaintenancePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiSummary, setAiSummary] = useState('')
   const [products, setProducts] = useState<Array<{ _id: string; name: string; sku: string }>>([])
   const [productsLoaded, setProductsLoaded] = useState(false)
   const [form, setForm] = useState({
@@ -26,6 +28,35 @@ export default function NewMaintenancePage() {
   }
 
   const set = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }))
+
+  const aiTriage = async () => {
+    if (!form.description.trim()) { toast.error('Describe the issue first so AI can triage it'); return }
+    setAiLoading(true)
+    setAiSummary('')
+    try {
+      const res = await fetch('/api/ai/triage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: form.title,
+          description: form.description,
+          productName: products.find(p => p._id === form.productId)?.name,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        const t = data.triage
+        setForm(f => ({ ...f, category: t.category, priority: t.priority, estimatedCost: t.estimatedCost }))
+        setAiSummary(t.summary)
+        toast.success('AI triage applied — review and submit')
+      } else {
+        toast.error(data.error || 'AI triage failed')
+      }
+    } catch {
+      toast.error('Unable to reach AI service')
+    }
+    setAiLoading(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -86,6 +117,20 @@ export default function NewMaintenancePage() {
           <textarea value={form.description} onChange={e => set('description', e.target.value)} required
             rows={4} placeholder="Describe the issue in detail..."
             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#F26522] resize-none" />
+          <button
+            type="button"
+            onClick={aiTriage}
+            disabled={aiLoading}
+            className="mt-2 flex items-center gap-1.5 bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 rounded-xl px-3 py-2 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+          >
+            {aiLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+            {aiLoading ? 'AI analyzing issue…' : 'AI Triage — suggest category, priority & cost'}
+          </button>
+          {aiSummary && (
+            <div className="mt-2 liquid-glass border border-purple-500/30 bg-purple-500/5 rounded-xl p-3 text-xs text-white/70 leading-relaxed">
+              <span className="text-purple-300 font-bold flex items-center gap-1.5"><Sparkles size={12} /> AI:</span> {aiSummary}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">

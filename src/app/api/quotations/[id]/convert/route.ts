@@ -91,7 +91,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     type: 'ORDER_CONFIRMED',
     title: 'Order Confirmed from Quotation',
     message: `Quotation ${quote.quoteNumber} converted to Order ${order.orderNumber}. Deposit ₹${quote.depositAmount} held.`,
-    linkHref: `/orders/${order._id}`,
+    linkHref: `/dashboard/orders/${order._id}`,
     relatedOrderId: order._id,
   })
 

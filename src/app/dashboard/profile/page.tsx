@@ -4,8 +4,9 @@ import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
 import {
   User as UserIcon, ShieldCheck, MapPin, Building, Phone, Mail,
-  Car, FileText, CheckCircle2, AlertCircle, Edit3, Loader2, Sparkles, Award
+  Car, FileText, CheckCircle2, AlertCircle, Edit3, Loader2, Sparkles, Award, RefreshCw
 } from 'lucide-react'
+import DigiLockerVerificationModal from '@/components/DigiLockerVerificationModal'
 
 interface UserProfile {
   _id: string
@@ -38,6 +39,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [showDigiLockerModal, setShowDigiLockerModal] = useState(false)
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -90,6 +92,30 @@ export default function ProfilePage() {
       toast.error('Failed to update profile')
     }
     setSaving(false)
+  }
+
+  const handleDigiLockerVerified = async (data: { aadhaarMasked: string; txnId: string; addressLine: string }) => {
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isGovIdVerified: true,
+          aadhaarMasked: data.aadhaarMasked,
+          digiLockerTxnId: data.txnId,
+          trustScore: 100,
+          addressLine: data.addressLine || form.addressLine,
+        }),
+      })
+      if (res.ok) {
+        toast.success('DigiLocker Aadhaar eKYC verified & profile updated!')
+        fetchProfile()
+      } else {
+        toast.error('Failed to save DigiLocker verification details')
+      }
+    } catch {
+      toast.error('Server error updating DigiLocker status')
+    }
   }
 
   if (loading) {
@@ -199,17 +225,38 @@ export default function ProfilePage() {
             </span>
           </div>
 
-          <div className="bg-emerald-400/10 border border-emerald-400/20 rounded-xl p-4 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-emerald-400 font-bold text-sm flex items-center gap-1.5">
-                <CheckCircle2 size={16} /> Verified using DigiLocker
-              </span>
-              <span className="text-white/30 text-[10px]">OAuth 2.0 Verified</span>
+          {profile.isGovIdVerified ? (
+            <div className="bg-emerald-400/10 border border-emerald-400/20 rounded-xl p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-emerald-400 font-bold text-sm flex items-center gap-1.5">
+                  <CheckCircle2 size={16} /> Verified using DigiLocker
+                </span>
+                <span className="text-white/30 text-[10px]">OAuth 2.0 Verified</span>
+              </div>
+              <p className="text-white/50 text-xs leading-relaxed">
+                Official Government Aadhaar identity verified via DigiLocker token. Raw credentials are encrypted with AES-256-CBC before storage.
+              </p>
             </div>
-            <p className="text-white/50 text-xs leading-relaxed">
-              Official Government Aadhaar identity verified via DigiLocker token. Raw credentials are encrypted with AES-256-CBC before storage.
-            </p>
-          </div>
+          ) : (
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-blue-400 font-bold text-sm flex items-center gap-1.5">
+                  <ShieldCheck size={16} /> Aadhaar eKYC Required
+                </span>
+                <span className="text-blue-300 text-[10px] font-bold bg-blue-500/20 px-2 py-0.5 rounded">Free Instant eKYC</span>
+              </div>
+              <p className="text-white/60 text-xs leading-relaxed">
+                Complete 100% free instant Aadhaar eKYC via DigiLocker sandbox without requiring business registration details.
+              </p>
+              <button
+                onClick={() => setShowDigiLockerModal(true)}
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-blue-600/30 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <ShieldCheck size={14} />
+                <span>Verify Aadhaar via DigiLocker (Free)</span>
+              </button>
+            </div>
+          )}
 
           <div className="space-y-2 text-xs divide-y divide-white/5">
             <div className="flex justify-between py-1.5">
@@ -225,6 +272,16 @@ export default function ProfilePage() {
               <span className="text-white/70 font-mono text-[11px]">{profile.digiLockerTxnId || 'DL-TXN-20260808-9821'}</span>
             </div>
           </div>
+
+          {profile.isGovIdVerified && (
+            <button
+              onClick={() => setShowDigiLockerModal(true)}
+              className="w-full mt-2 bg-white/5 hover:bg-white/10 text-white/70 font-medium py-2 rounded-xl text-xs transition-all border border-white/10 flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <RefreshCw size={13} />
+              <span>Re-verify DigiLocker Aadhaar</span>
+            </button>
+          )}
         </div>
 
         {/* Driving License KYC */}
@@ -426,6 +483,13 @@ export default function ProfilePage() {
           )}
         </div>
       )}
+
+      {/* DigiLocker eKYC Sandbox Verification Modal */}
+      <DigiLockerVerificationModal
+        isOpen={showDigiLockerModal}
+        onClose={() => setShowDigiLockerModal(false)}
+        onVerified={handleDigiLockerVerified}
+      />
     </div>
   )
 }

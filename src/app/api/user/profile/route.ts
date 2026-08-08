@@ -37,7 +37,11 @@ export async function PATCH(req: NextRequest) {
 
   await connectDB()
   const body = await req.json()
-  const allowed = ['name', 'phone', 'addressLine', 'city', 'state', 'pincode', 'companyName', 'gstin']
+  const allowed = [
+    'name', 'phone', 'addressLine', 'city', 'state', 'pincode',
+    'companyName', 'gstin', 'isGovIdVerified', 'aadhaarMasked',
+    'digiLockerTxnId', 'trustScore'
+  ]
   const updates: Record<string, unknown> = {}
 
   for (const field of allowed) {

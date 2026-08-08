@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo } from 'react'
 import {
-  Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, Sparkles, Check
+  Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, Sparkles, Check, X
 } from 'lucide-react'
 
 interface RentalCalendarPickerProps {
@@ -12,14 +12,12 @@ interface RentalCalendarPickerProps {
 }
 
 const PRESETS = [
-  { label: '1 Day', days: 1, discount: 'Standard Rate' },
-  { label: '3 Days', days: 3, discount: '10% Off' },
-  { label: '1 Week', days: 7, discount: '20% Off' },
-  { label: '2 Weeks', days: 14, discount: '30% Off' },
-  { label: '1 Month', days: 30, discount: '40% Off' },
+  { label: '1 Day', days: 1, tag: 'Std' },
+  { label: '3 Days', days: 3, tag: '-10%' },
+  { label: '1 Wk', days: 7, tag: '-20%' },
+  { label: '2 Wks', days: 14, tag: '-30%' },
+  { label: '1 Mo', days: 30, tag: '-40%' },
 ]
-
-const TIME_SLOTS = ['09:00 AM', '11:00 AM', '02:00 PM', '05:00 PM', '07:00 PM']
 
 export default function RentalCalendarPicker({
   startDate,
@@ -32,7 +30,6 @@ export default function RentalCalendarPicker({
     const d = startDate ? new Date(startDate) : new Date()
     return isNaN(d.getTime()) ? new Date() : d
   })
-  const [pickupTime, setPickupTime] = useState('10:00 AM')
 
   // Calculate Days Grid
   const daysInMonth = useMemo(() => {
@@ -43,15 +40,11 @@ export default function RentalCalendarPicker({
 
     const days: Array<{ dateStr: string; dayNum: number; isCurrentMonth: boolean; isPast: boolean }> = []
 
-    // Empty padding days from previous month
     for (let i = 0; i < firstDay; i++) {
       days.push({ dateStr: '', dayNum: 0, isCurrentMonth: false, isPast: true })
     }
 
-    // Days in current month
     for (let d = 1; d <= lastDate; d++) {
-      const dateObj = new Date(year, month, d)
-      // Format as YYYY-MM-DD
       const dateStr = [
         year,
         String(month + 1).padStart(2, '0'),
@@ -68,14 +61,11 @@ export default function RentalCalendarPicker({
     if (!dateStr || dateStr < todayStr) return
 
     if (!startDate || (startDate && endDate)) {
-      // Set start date and default 3-day end
       const startObj = new Date(dateStr)
       const endObj = new Date(startObj.getTime() + 3 * 86400000)
-      const defaultEnd = endObj.toISOString().slice(0, 10)
-      onDatesChange(dateStr, defaultEnd)
+      onDatesChange(dateStr, endObj.toISOString().slice(0, 10))
     } else if (startDate && !endDate) {
       if (dateStr < startDate) {
-        // Reset start date if clicked earlier date
         onDatesChange(dateStr, startDate)
       } else {
         onDatesChange(startDate, dateStr)
@@ -91,92 +81,89 @@ export default function RentalCalendarPicker({
     onDatesChange(startStr < todayStr ? todayStr : startStr, endStr)
   }
 
-  // Calculate rental duration in days
   const startMs = startDate ? new Date(startDate).getTime() : Date.now()
   const endMs = endDate ? new Date(endDate).getTime() : startMs + 3 * 86400000
   const durationDays = Math.max(1, Math.ceil((endMs - startMs) / (1000 * 60 * 60 * 24)))
 
   return (
-    <div className="bg-[#141414] border border-white/15 rounded-3xl p-5 shadow-2xl space-y-5 text-white max-w-md w-full">
+    <div className="bg-[#111111]/95 backdrop-blur-2xl border border-white/20 rounded-2xl p-3.5 shadow-2xl space-y-3 text-white max-w-[310px] w-full text-xs animate-in zoom-in-95">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className="flex items-center justify-between border-b border-white/10 pb-2">
+        <div className="flex items-center gap-1.5">
+          <CalendarIcon size={14} className="text-[#F26522]" />
+          <span className="text-white font-bold text-xs">Rental Dates</span>
+        </div>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] flex items-center justify-center">
-            <CalendarIcon size={18} />
-          </div>
-          <div>
-            <h4 className="text-white text-sm font-bold tracking-tight">Select Rental Period</h4>
-            <p className="text-white/40 text-[11px]">Pick up & return schedule</p>
-          </div>
-        </div>
-        <div className="text-right">
-          <span className="bg-[#F26522] text-white text-xs font-black px-2.5 py-1 rounded-full shadow-md">
-            {durationDays} Day{durationDays > 1 ? 's' : ''} Rental
+          <span className="bg-[#F26522]/20 text-[#F26522] border border-[#F26522]/40 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+            {durationDays} Day{durationDays > 1 ? 's' : ''}
           </span>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1 text-white/40 hover:text-white rounded-md transition-colors"
+            >
+              <X size={13} />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Quick Duration Presets */}
-      <div>
-        <div className="text-white/60 text-[10px] font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
-          <Sparkles size={11} className="text-[#F26522]" /> Quick Presets
-        </div>
-        <div className="grid grid-cols-5 gap-1.5">
-          {PRESETS.map((preset) => {
-            const active = durationDays === preset.days
-            return (
-              <button
-                key={preset.label}
-                type="button"
-                onClick={() => applyPreset(preset.days)}
-                className={`py-2 px-1 rounded-xl text-center transition-all cursor-pointer border ${
-                  active
-                    ? 'bg-[#F26522] text-white border-[#F26522] shadow-lg shadow-[#F26522]/30 scale-105 font-bold'
-                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                <div className="text-xs font-bold">{preset.label}</div>
-                <div className={`text-[9px] mt-0.5 ${active ? 'text-white/90' : 'text-[#F26522]'}`}>
-                  {preset.discount}
-                </div>
-              </button>
-            )
-          })}
-        </div>
+      {/* Quick Duration Presets (Compact Pills) */}
+      <div className="flex items-center justify-between gap-1">
+        {PRESETS.map((preset) => {
+          const active = durationDays === preset.days
+          return (
+            <button
+              key={preset.label}
+              type="button"
+              onClick={() => applyPreset(preset.days)}
+              className={`flex-1 py-1 rounded-lg text-center transition-all cursor-pointer border ${
+                active
+                  ? 'bg-[#F26522] text-white border-[#F26522] font-bold shadow-md'
+                  : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+              }`}
+            >
+              <div className="text-[10px] leading-tight font-bold">{preset.label}</div>
+              <div className={`text-[8px] ${active ? 'text-white/90' : 'text-[#F26522]'}`}>
+                {preset.tag}
+              </div>
+            </button>
+          )
+        })}
       </div>
 
-      {/* Month Navigator */}
+      {/* Month Navigation Bar */}
       <div className="flex items-center justify-between px-1">
         <button
           type="button"
           onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
-          className="p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer"
+          className="p-1 rounded-md hover:bg-white/10 text-white/60 hover:text-white cursor-pointer"
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft size={14} />
         </button>
 
-        <span className="text-xs font-extrabold uppercase tracking-wide">
-          {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+        <span className="text-[11px] font-bold text-white/90 uppercase tracking-wide">
+          {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
         </span>
 
         <button
           type="button"
           onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
-          className="p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer"
+          className="p-1 rounded-md hover:bg-white/10 text-white/60 hover:text-white cursor-pointer"
         >
-          <ChevronRight size={16} />
+          <ChevronRight size={14} />
         </button>
       </div>
 
-      {/* Days Grid */}
+      {/* Grid */}
       <div>
-        <div className="grid grid-cols-7 text-center text-[10px] font-bold text-white/40 mb-2">
-          <span>SU</span><span>MO</span><span>TU</span><span>WE</span><span>TH</span><span>FR</span><span>SA</span>
+        <div className="grid grid-cols-7 text-center text-[9px] font-bold text-white/30 mb-1">
+          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
         </div>
         <div className="grid grid-cols-7 gap-1">
           {daysInMonth.map((day, idx) => {
             if (!day.isCurrentMonth) {
-              return <div key={idx} className="h-8" />
+              return <div key={idx} className="h-6" />
             }
 
             const isStart = day.dateStr === startDate
@@ -187,9 +174,9 @@ export default function RentalCalendarPicker({
             if (day.isPast) {
               btnClass = 'bg-white/0 text-white/20 cursor-not-allowed pointer-events-none'
             } else if (isStart || isEnd) {
-              btnClass = 'bg-[#F26522] text-white font-extrabold shadow-lg scale-105 z-10'
+              btnClass = 'bg-[#F26522] text-white font-black shadow-md scale-105 z-10'
             } else if (isInRange) {
-              btnClass = 'bg-[#F26522]/25 text-white font-semibold border-y border-[#F26522]/40'
+              btnClass = 'bg-[#F26522]/30 text-white font-medium border-y border-[#F26522]/40'
             }
 
             return (
@@ -198,7 +185,7 @@ export default function RentalCalendarPicker({
                 type="button"
                 disabled={day.isPast}
                 onClick={() => handleDateClick(day.dateStr)}
-                className={`h-8 rounded-lg text-xs font-mono transition-all flex items-center justify-center cursor-pointer ${btnClass}`}
+                className={`h-6.5 w-full rounded-md text-[10px] font-mono transition-all flex items-center justify-center cursor-pointer ${btnClass}`}
               >
                 {day.dayNum}
               </button>
@@ -207,39 +194,23 @@ export default function RentalCalendarPicker({
         </div>
       </div>
 
-      {/* Pickup Slot Selector */}
-      <div className="pt-2 border-t border-white/10 space-y-2">
-        <label className="text-white/60 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
-          <Clock size={11} className="text-[#F26522]" /> Preferred Pickup Slot
-        </label>
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {TIME_SLOTS.map((slot) => (
-            <button
-              key={slot}
-              type="button"
-              onClick={() => setPickupTime(slot)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-all border whitespace-nowrap cursor-pointer ${
-                pickupTime === slot
-                  ? 'bg-white text-black border-white font-bold'
-                  : 'bg-white/5 border-white/10 text-white/60 hover:text-white'
-              }`}
-            >
-              {slot}
-            </button>
-          ))}
+      {/* Selected Period Badge */}
+      <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px]">
+        <div className="text-white/50 font-mono">
+          {startDate ? new Date(startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—'}
+          {' → '}
+          {endDate ? new Date(endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—'}
         </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="bg-[#F26522] hover:bg-[#e05510] text-white px-3 py-1 rounded-lg font-bold text-[10px] transition-all cursor-pointer flex items-center gap-1 shadow-md"
+          >
+            <Check size={11} /> Done
+          </button>
+        )}
       </div>
-
-      {/* Footer Action */}
-      {onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-full bg-[#F26522] hover:bg-[#e05510] text-white py-2.5 rounded-2xl text-xs font-bold transition-all shadow-lg cursor-pointer flex items-center justify-center gap-1.5"
-        >
-          <Check size={14} /> Confirm Rental Period
-        </button>
-      )}
     </div>
   )
 }

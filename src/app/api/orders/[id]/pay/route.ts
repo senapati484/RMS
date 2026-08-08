@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/db'
 import { Order } from '@/models/Order'
+import { Notification } from '@/models/Notification'
 import { getUserFromRequest, requireAuth, apiOk, apiError } from '@/lib/api-helpers'
 import { sendOrderConfirmationEmail } from '@/lib/mailer'
 
@@ -28,12 +29,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       note: 'Payment completed via Pay Now button',
     }
 
-    if (order.status === 'DRAFT' || order.status === 'QUOTATION') {
-      order.status = 'CONFIRMED'
-    }
-
+    order.status = 'CONFIRMED'
     order.invoiceRef = invoiceNumber
     await order.save()
+
+    // Create in-app notification
+    await Notification.create({
+      userId: user!.userId,
+      type: 'ORDER_CONFIRMED',
+      title: 'Payment Verified & Order Confirmed!',
+      message: `Payment of ₹${order.totalAmount.toLocaleString()} received for Order ${order.orderNumber}. Tax Invoice ${invoiceNumber} issued.`,
+      linkHref: `/dashboard/orders/${order._id}`,
+      relatedOrderId: order._id,
+    }).catch(err => console.error('[PAY_NOW_NOTIFICATION_ERROR]', err))
 
     // Send confirmation email with Amazon-style Tax Invoice attachment
     const customerEmail = (order.userId as any)?.email || user!.email

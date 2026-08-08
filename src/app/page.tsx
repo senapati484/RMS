@@ -49,11 +49,26 @@ export default function Lease360LandingPage() {
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalProducts, setTotalProducts] = useState(0)
+  const pageSize = 6
   const { addToCart } = useCart()
+
+  // Reset page to 1 when filters change
+  const handleCategoryChange = (catId: string) => {
+    setSelectedCategory(catId)
+    setPage(1)
+  }
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query)
+    setPage(1)
+  }
 
   useEffect(() => {
     setLoading(true)
-    const params = new URLSearchParams({ limit: '6' })
+    const params = new URLSearchParams({ page: String(page), limit: String(pageSize) })
     if (selectedCategory && selectedCategory !== 'all') {
       params.set('productType', selectedCategory)
     }
@@ -65,10 +80,12 @@ export default function Lease360LandingPage() {
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.products || [])
+        setTotalPages(data.pages || 1)
+        setTotalProducts(data.total || 0)
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [selectedCategory, searchQuery])
+  }, [selectedCategory, searchQuery, page])
 
   const displayProducts = products.slice(0, 6)
 
@@ -245,7 +262,7 @@ export default function Lease360LandingPage() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder="Search cameras, lenses, lighting, vehicles..."
                 className="w-full bg-gray-100 border border-gray-200 rounded-full pl-10 pr-4 py-2.5 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#F26522] focus:bg-white transition-all"
               />
@@ -253,11 +270,16 @@ export default function Lease360LandingPage() {
           </div>
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <h2 className="text-[clamp(1.75rem,4vw,3.2rem)] font-medium leading-[1.12] tracking-[-0.02em] text-gray-900">
-              Professional gear ready
-              <br className="hidden sm:block" />
-              for instant rental dispatch.
-            </h2>
+            <div>
+              <h2 className="text-[clamp(1.75rem,4vw,3.2rem)] font-medium leading-[1.12] tracking-[-0.02em] text-gray-900">
+                Professional gear ready
+                <br className="hidden sm:block" />
+                for instant rental dispatch.
+              </h2>
+              <p className="text-gray-500 text-xs mt-2 font-medium">
+                Showing {totalProducts > 0 ? (page - 1) * pageSize + 1 : 0}–{Math.min(page * pageSize, totalProducts)} of {totalProducts} items on-demand
+              </p>
+            </div>
             <Link
               href="/dashboard/products"
               className="bg-gray-900 hover:bg-black text-white text-xs font-semibold px-5 py-3 rounded-full flex items-center gap-2 w-fit transition-colors shadow-md"
@@ -271,7 +293,7 @@ export default function Lease360LandingPage() {
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
+                onClick={() => handleCategoryChange(cat.id)}
                 className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${selectedCategory === cat.id
                   ? 'bg-[#F26522] text-white shadow-md shadow-[#F26522]/20'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200/60'
@@ -282,14 +304,25 @@ export default function Lease360LandingPage() {
             ))}
           </div>
 
-          {/* Dynamic 3-Products Grid */}
+          {/* Dynamic 6-Products Grid */}
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
             </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-16 bg-gray-50 rounded-2xl border border-gray-200">
+              <Package size={48} className="mx-auto text-gray-300 mb-3" />
+              <p className="text-gray-600 font-semibold text-sm">No products found matching your search</p>
+              <button
+                onClick={() => { handleCategoryChange('all'); handleSearchChange('') }}
+                className="mt-3 text-xs text-[#F26522] font-semibold hover:underline"
+              >
+                Clear all filters
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {displayProducts.map((p) => (
+              {products.map((p) => (
                 <div key={p._id} className="bg-gray-50 border border-gray-200/80 rounded-2xl p-5 hover:border-[#F26522]/40 hover:shadow-xl transition-all duration-300 group flex flex-col justify-between">
                   <div>
                     <div className="aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-gray-200 relative">
@@ -326,6 +359,57 @@ export default function Lease360LandingPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* On-Demand Pagination Bar */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-200">
+              <span className="text-xs text-gray-500 font-medium">
+                Page <strong className="text-gray-900">{page}</strong> of <strong className="text-gray-900">{totalPages}</strong>
+              </span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-4 py-2 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors border border-gray-200"
+                >
+                  ← Previous Page
+                </button>
+
+                {/* Page Number Buttons */}
+                <div className="flex items-center gap-1.5 overflow-x-auto max-w-[200px] sm:max-w-none">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum = i + 1
+                    if (totalPages > 5 && page > 3) {
+                      pageNum = page - 2 + i
+                      if (pageNum > totalPages) pageNum = totalPages - (4 - i)
+                    }
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setPage(pageNum)}
+                        className={`w-8 h-8 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                          page === pageNum
+                            ? 'bg-[#F26522] text-white shadow-md shadow-[#F26522]/20 scale-105'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#F26522] text-white hover:bg-[#e05510] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm shadow-[#F26522]/20"
+                >
+                  Next Page →
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -80,13 +80,24 @@ export default function ProductsPage() {
   const [inStockOnly, setInStockOnly] = useState(false)
   const [brandFilter, setBrandFilter] = useState('ALL')
   const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(24)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
   const [showDrafts, setShowDrafts] = useState(false)
 
+  const handleProductTypeChange = (type: string) => {
+    setProductType(type)
+    setPage(1)
+  }
+
+  const handleSearchChange = (query: string) => {
+    setQ(query)
+    setPage(1)
+  }
+
   const fetchProducts = useCallback(async () => {
     setLoading(true)
-    const params = new URLSearchParams({ page: String(page), limit: '20' })
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) })
     if (q) params.set('q', q)
     if (productType !== 'all') params.set('productType', productType)
     if (showDrafts && isAdmin) params.set('showAll', '1')
@@ -97,7 +108,7 @@ export default function ProductsPage() {
     setTotalPages(data.pages || 1)
     setTotal(data.total || 0)
     setLoading(false)
-  }, [q, productType, page, showDrafts, isAdmin])
+  }, [q, productType, page, limit, showDrafts, isAdmin])
 
   useEffect(() => { fetchProducts() }, [fetchProducts])
 
@@ -441,36 +452,72 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-4">
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-3 py-2 rounded-lg text-sm bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-30 transition-colors"
-          >
-            ← Prev
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className={`w-8 h-8 rounded-lg text-sm transition-colors ${
-                p === page ? 'bg-[#F26522] text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-          <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="px-3 py-2 rounded-lg text-sm bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-30 transition-colors"
-          >
-            Next →
-          </button>
+      {/* On-Demand Pagination Controls */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10 text-xs">
+        <div className="flex items-center gap-3 text-white/50">
+          <span>
+            Showing <strong className="text-white">{(page - 1) * limit + 1}</strong>–<strong className="text-white">{Math.min(page * limit, total)}</strong> of <strong className="text-white">{total}</strong> products
+          </span>
+          <span className="text-white/20">|</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-white/40">Per Page:</span>
+            {[12, 24, 48].map((l) => (
+              <button
+                key={l}
+                onClick={() => { setLimit(l); setPage(1) }}
+                className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors cursor-pointer ${
+                  limit === l ? 'bg-[#F26522] text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-1.5 rounded-lg bg-white/5 text-white/70 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
+            >
+              ← Prev
+            </button>
+
+            <div className="flex items-center gap-1 overflow-x-auto max-w-[200px] sm:max-w-none">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum = i + 1
+                if (totalPages > 5 && page > 3) {
+                  pageNum = page - 2 + i
+                  if (pageNum > totalPages) pageNum = totalPages - (4 - i)
+                }
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      page === pageNum
+                        ? 'bg-[#F26522] text-white shadow-md shadow-[#F26522]/20 scale-105'
+                        : 'bg-white/5 text-white/50 hover:bg-white/10'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              })}
+            </div>
+
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-1.5 rounded-lg bg-[#F26522] text-white hover:bg-[#e05510] disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium shadow-sm shadow-[#F26522]/20 cursor-pointer"
+            >
+              Next →
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

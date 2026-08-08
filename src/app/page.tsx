@@ -105,18 +105,24 @@ export default function Lease360LandingPage() {
   }, [])
 
   // Filter products by category & search query
-  const filteredProducts = products.filter((p) => {
-    const matchesCat = selectedCategory === 'all' || p.productType === selectedCategory || p.category.toLowerCase() === selectedCategory
+  const rawList = products.length > 0 ? products : FALLBACK_GEAR
+
+  const filteredProducts = rawList.filter((p) => {
+    const pType = (p.productType || '').toLowerCase()
+    const pCat = (p.category || '').toLowerCase()
+    const sCat = selectedCategory.toLowerCase()
+
+    const matchesCat = selectedCategory === 'all' || pType === sCat || pCat.includes(sCat)
     const matchesSearch =
       !searchQuery.trim() ||
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      pCat.includes(searchQuery.toLowerCase()) ||
       (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase()))
     return matchesCat && matchesSearch
   })
 
-  // Display ONLY the first 3 elements from the database (or fallback if empty)
-  const displayProducts = (filteredProducts.length > 0 ? filteredProducts : FALLBACK_GEAR).slice(0, 3)
+  // Display ONLY the first 3 elements from the database matching the active filter
+  const displayProducts = filteredProducts.slice(0, 3)
 
   return (
     <div className="min-h-screen bg-[#EFEFEF] font-sans antialiased text-gray-900 selection:bg-[#F26522] selection:text-white">

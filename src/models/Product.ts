@@ -101,8 +101,12 @@ const ProductSchema = new Schema<IProduct>(
 
 ProductSchema.index({ category: 1, isPublished: 1 })
 ProductSchema.index({ productType: 1, isPublished: 1 })
+ProductSchema.index({ isPublished: 1, isArchived: 1, productType: 1, createdAt: -1 })
+ProductSchema.index({ isPublished: 1, isArchived: 1, category: 1 })
+ProductSchema.index({ isPublished: 1, isArchived: 1, availableStock: -1 })
 ProductSchema.index({ tags: 1 })
-ProductSchema.index({ name: 'text', description: 'text', tags: 'text' })
+ProductSchema.index({ name: 'text', description: 'text', tags: 'text', brand: 'text', sku: 'text' })
 
 export const Product: Model<IProduct> =
   mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema)
+

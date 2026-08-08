@@ -15,25 +15,21 @@ export async function GET(req: NextRequest) {
   const productType   = searchParams.get('productType')
   const q             = searchParams.get('q')
   const showAll       = searchParams.get('showAll') === '1' && isAdminOrStaff
+  const full          = searchParams.get('full') === '1'
   const page          = Math.max(1, parseInt(searchParams.get('page') || '1'))
-  const limit         = Math.min(50, parseInt(searchParams.get('limit') || '20'))
+  const limit         = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')))
 
   const filter: Record<string, unknown> = {}
 
-  // Admins/Staff see drafts when showAll=1 or by default; clients only see published
-  if (!isAdminOrStaff) {
+  // Admins/Staff see drafts when showAll=1; clients only see published
+  if (!isAdminOrStaff || !showAll) {
     filter.isPublished = { $ne: false }
-  } else if (!showAll) {
-    filter.isPublished = { $ne: false }
-  }
-
-  // Archived (soft-deleted) products are hidden everywhere unless an admin requests all
-  if (!showAll) {
     filter.isArchived = { $ne: true }
   }
 
-  if (category && category !== 'All') filter.category = category
+  if (category && category !== 'All' && category !== 'all') filter.category = category
   if (productType && productType !== 'all') filter.productType = productType
+
   if (q) {
     const sanitized = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim()
     if (sanitized) {
@@ -42,12 +38,19 @@ export async function GET(req: NextRequest) {
         { description: { $regex: sanitized, $options: 'i' } },
         { tags: { $regex: sanitized, $options: 'i' } },
         { brand: { $regex: sanitized, $options: 'i' } },
+        { sku: { $regex: sanitized, $options: 'i' } },
       ]
     }
   }
 
+  // Projection selection for lightweight payloads on list views
+  const fields = full
+    ? ''
+    : 'name slug description imageUrl productType category brand sku condition totalStock availableStock dailyRate weeklyRate monthlyRate baseDepositAmt isPublished isArchived tags'
+
   const [products, total] = await Promise.all([
     Product.find(filter)
+      .select(fields)
       .sort({ isPublished: -1, availableStock: -1, createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
@@ -55,7 +58,9 @@ export async function GET(req: NextRequest) {
     Product.countDocuments(filter),
   ])
 
-  return apiOk({ products, total, page, limit, pages: Math.ceil(total / limit) })
+  const response = apiOk({ products, total, page, limit, pages: Math.ceil(total / limit) })
+  response.headers.set('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=59')
+  return response
 }
 
 export async function POST(req: NextRequest) {

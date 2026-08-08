@@ -9,7 +9,6 @@ import {
 } from 'lucide-react'
 import LondonClock from '@/components/LondonClock'
 import { useCart } from '@/context/CartContext'
-import { toast } from 'sonner'
 
 const HeroShader = dynamic(() => import('@/components/HeroShader'), { ssr: false })
 
@@ -53,32 +52,25 @@ export default function Lease360LandingPage() {
   const { addToCart } = useCart()
 
   useEffect(() => {
-    fetch('/api/products?limit=50')
+    setLoading(true)
+    const params = new URLSearchParams({ limit: '6' })
+    if (selectedCategory && selectedCategory !== 'all') {
+      params.set('productType', selectedCategory)
+    }
+    if (searchQuery.trim()) {
+      params.set('q', searchQuery.trim())
+    }
+
+    fetch(`/api/products?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.products || [])
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [])
+  }, [selectedCategory, searchQuery])
 
-  // Filter products directly loaded from MongoDB backend
-  const filteredProducts = products.filter((p) => {
-    const pType = (p.productType || '').toLowerCase()
-    const pCat = (p.category || '').toLowerCase()
-    const sCat = selectedCategory.toLowerCase()
-
-    const matchesCat = selectedCategory === 'all' || pType === sCat || pCat.includes(sCat)
-    const matchesSearch =
-      !searchQuery.trim() ||
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pCat.includes(searchQuery.toLowerCase()) ||
-      (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase()))
-    return matchesCat && matchesSearch
-  })
-
-  // Display first 3 elements directly from MongoDB database
-  const displayProducts = filteredProducts.slice(0, 3)
+  const displayProducts = products.slice(0, 6)
 
   return (
     <div className="min-h-screen bg-[#EFEFEF] font-sans antialiased text-gray-900 selection:bg-[#F26522] selection:text-white">
@@ -281,8 +273,8 @@ export default function Lease360LandingPage() {
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${selectedCategory === cat.id
-                    ? 'bg-[#F26522] text-white shadow-md shadow-[#F26522]/20'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200/60'
+                  ? 'bg-[#F26522] text-white shadow-md shadow-[#F26522]/20'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200/60'
                   }`}
               >
                 {cat.label}
@@ -325,8 +317,8 @@ export default function Lease360LandingPage() {
                       </div>
 
                       <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-md border ${p.availableStock > 0
-                          ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                          : 'text-red-700 bg-red-50 border-red-200'
+                        ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                        : 'text-red-700 bg-red-50 border-red-200'
                         }`}>
                         {p.availableStock > 0 ? `${p.availableStock} in stock` : 'Rented out'}
                       </span>

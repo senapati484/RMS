@@ -20,14 +20,17 @@ const UserSchema = new mongoose.Schema({
 const ProductSchema = new mongoose.Schema({
   name: String, slug: String, description: String,
   imageUrl: String, category: String, brand: String, sku: String,
-  totalStock: Number, availableStock: Number,
+  totalStock: Number, availableStock: Number, dailyRate: Number,
   baseDepositAmt: Number, depositIsPercent: Boolean,
   accessoryList: [String], isPublished: { type: Boolean, default: true },
   variants: [{ attribute: String, value: String }],
 }, { timestamps: true })
 
-const User = mongoose.models.User || mongoose.model('User', UserSchema)
-const Product = mongoose.models.Product || mongoose.model('Product', ProductSchema)
+if (mongoose.models.Product) delete mongoose.models.Product
+if (mongoose.models.User) delete mongoose.models.User
+
+const User = mongoose.model('User', UserSchema)
+const Product = mongoose.model('Product', ProductSchema)
 
 const PRODUCTS = [
   {

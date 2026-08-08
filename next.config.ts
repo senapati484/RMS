@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion', 'sonner'],
     serverActions: { allowedOrigins: ['*'] },
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: process.env.EXPRESS_API_URL || 'http://localhost:5001/api/:path*',
+      },
+    ]
+  },
   async redirects() {
     return [
       {

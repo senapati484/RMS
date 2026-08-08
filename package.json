@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:backend": "cd backend && npm run dev",
     "build": "next build",
     "start": "next start",
     "seed": "npx tsx scripts/seed.ts",

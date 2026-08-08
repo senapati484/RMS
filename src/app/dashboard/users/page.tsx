@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
 import {
   Users, UserPlus, ShieldCheck, CheckCircle2,
-  Building2, Wrench, Search, Loader2, Award, Mail, Phone
+  Building2, Search, Loader2, Award, Mail, Phone, LayoutGrid, List, SlidersHorizontal, Sparkles
 } from 'lucide-react'
 import DigiLockerVerificationModal from '@/components/DigiLockerVerificationModal'
 
@@ -30,11 +30,18 @@ export default function UsersManagementPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('ALL')
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
 
-  // Create Modal
+  // Create Modal & Adjust Modal
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showDigiLockerModal, setShowDigiLockerModal] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
+
+  // Score Adjustment Modal
+  const [selectedUserForScore, setSelectedUserForScore] = useState<UserItem | null>(null)
+  const [scoreInput, setScoreInput] = useState<number>(50)
+  const [updatingScore, setUpdatingScore] = useState(false)
+
   const [newForm, setNewForm] = useState({
     name: '',
     email: '',
@@ -48,8 +55,12 @@ export default function UsersManagementPage() {
   const [modalKyc, setModalKyc] = useState({ isVerified: false, aadhaarMasked: '', txnId: '' })
 
   const fetchUsers = async () => {
-    const res = await fetch('/api/users')
-    if (res.ok) setUsers(await res.json())
+    try {
+      const res = await fetch('/api/users')
+      if (res.ok) setUsers(await res.json())
+    } catch {
+      // ignore
+    }
     setLoading(false)
   }
 
@@ -76,11 +87,29 @@ export default function UsersManagementPage() {
     const data = await res.json()
     setActionLoading(false)
     if (res.ok) {
-      toast.success(`User ${data.name} created successfully!`)
+      toast.success(`Account for ${data.name} created!`)
       setShowCreateModal(false)
       fetchUsers()
     } else {
       toast.error(data.error || 'Failed to create user')
+    }
+  }
+
+  const handleScoreUpdate = async () => {
+    if (!selectedUserForScore) return
+    setUpdatingScore(true)
+    const res = await fetch(`/api/users/${selectedUserForScore._id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trustScore: scoreInput }),
+    })
+    setUpdatingScore(false)
+    if (res.ok) {
+      toast.success(`Updated ${selectedUserForScore.name}'s Trust Score to ${scoreInput}/100!`)
+      setSelectedUserForScore(null)
+      fetchUsers()
+    } else {
+      toast.error('Failed to update trust score')
     }
   }
 
@@ -90,183 +119,390 @@ export default function UsersManagementPage() {
     return matchesSearch && matchesRole
   })
 
+  // Metrics
+  const verifiedCount = users.filter(u => u.isGovIdVerified).length
+  const highTrustCount = users.filter(u => u.trustScore >= 75).length
+  const adminStaffCount = users.filter(u => u.role === 'ADMIN' || u.role === 'STAFF').length
+
+  const getTierInfo = (score: number) => {
+    if (score >= 90) return { label: 'Platinum Tier', badge: 'bg-amber-400/10 text-amber-300 border-amber-400/30', color: 'from-amber-400 to-yellow-300' }
+    if (score >= 75) return { label: 'Gold Tier', badge: 'bg-emerald-400/10 text-emerald-300 border-emerald-400/30', color: 'from-emerald-400 to-green-300' }
+    if (score >= 50) return { label: 'Silver Tier', badge: 'bg-blue-400/10 text-blue-300 border-blue-400/30', color: 'from-blue-400 to-cyan-300' }
+    return { label: 'Risk Flagged', badge: 'bg-red-400/10 text-red-300 border-red-400/30', color: 'from-red-500 to-rose-400' }
+  }
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-10">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      {/* Executive Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-white text-2xl font-bold flex items-center gap-2">
-            <Users className="text-[#F26522]" />
-            User Identity & eKYC Management
-          </h1>
-          <p className="text-white/40 text-sm mt-1">Manage verified accounts, DigiLocker Aadhaar status & roles</p>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-white text-2xl font-bold tracking-tight">Identity & eKYC Governance</h1>
+            <span className="text-[10px] bg-[#F26522]/15 text-[#F26522] border border-[#F26522]/30 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+              DigiLocker Verified
+            </span>
+          </div>
+          <p className="text-white/40 text-xs mt-1">Audit verified member accounts, trust score tiers & access roles</p>
         </div>
 
         {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
           <button
             onClick={() => setShowCreateModal(true)}
-            className="bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center gap-2"
+            className="bg-gradient-to-r from-[#F26522] to-[#FF8C42] hover:from-[#e05510] hover:to-[#f26522] active:scale-95 text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-[#F26522]/20 flex items-center gap-2 cursor-pointer"
           >
-            <UserPlus size={16} />
-            Create Verified User
+            <UserPlus size={15} />
+            <span>Create Verified Account</span>
           </button>
         )}
       </div>
 
-      {/* Filter Controls */}
-      <div className="liquid-glass border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:w-72">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+      {/* Metric Cards Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="liquid-glass border border-white/10 rounded-2xl p-4 space-y-1">
+          <div className="flex items-center justify-between text-white/40 text-xs">
+            <span>Total Accounts</span>
+            <Users size={16} className="text-[#F26522]" />
+          </div>
+          <div className="text-white text-2xl font-bold tracking-tight">{users.length}</div>
+          <div className="text-white/30 text-[10px]">Registered & Active</div>
+        </div>
+
+        <div className="liquid-glass border border-white/10 rounded-2xl p-4 space-y-1">
+          <div className="flex items-center justify-between text-white/40 text-xs">
+            <span>Govt. eKYC Verified</span>
+            <ShieldCheck size={16} className="text-emerald-400" />
+          </div>
+          <div className="text-emerald-400 text-2xl font-bold tracking-tight">
+            {verifiedCount} <span className="text-xs text-white/40 font-normal">({users.length > 0 ? Math.round((verifiedCount / users.length) * 100) : 0}%)</span>
+          </div>
+          <div className="text-white/30 text-[10px]">DigiLocker Aadhaar eKYC</div>
+        </div>
+
+        <div className="liquid-glass border border-white/10 rounded-2xl p-4 space-y-1">
+          <div className="flex items-center justify-between text-white/40 text-xs">
+            <span>High Trust Members</span>
+            <Award size={16} className="text-amber-400" />
+          </div>
+          <div className="text-amber-300 text-2xl font-bold tracking-tight">{highTrustCount}</div>
+          <div className="text-white/30 text-[10px]">Gold & Platinum Tiers (75+ Pts)</div>
+        </div>
+
+        <div className="liquid-glass border border-white/10 rounded-2xl p-4 space-y-1">
+          <div className="flex items-center justify-between text-white/40 text-xs">
+            <span>System Admins & Staff</span>
+            <Building2 size={16} className="text-purple-400" />
+          </div>
+          <div className="text-purple-300 text-2xl font-bold tracking-tight">{adminStaffCount}</div>
+          <div className="text-white/30 text-[10px]">Governance Personnel</div>
+        </div>
+      </div>
+
+      {/* Filter & View Mode Controls */}
+      <div className="liquid-glass border border-white/10 rounded-2xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative w-full sm:w-80">
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name or email..."
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-[#F26522]"
+            placeholder="Search by name, email or company..."
+            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-white text-xs focus:outline-none focus:border-[#F26522]"
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
-          {['ALL', 'PORTAL_USER', 'STAFF', 'ADMIN'].map(r => (
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 gap-1">
+            {['ALL', 'PORTAL_USER', 'STAFF', 'ADMIN'].map(r => (
+              <button
+                key={r}
+                onClick={() => setRoleFilter(r)}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+                  roleFilter === r ? 'bg-[#F26522] text-white shadow-md' : 'text-white/40 hover:text-white'
+                }`}
+              >
+                {r === 'ALL' ? 'All Roles' : r.replace('_', ' ')}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 gap-1">
             <button
-              key={r}
-              onClick={() => setRoleFilter(r)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-                roleFilter === r ? 'bg-[#F26522] text-white' : 'bg-white/5 text-white/40 hover:text-white'
-              }`}
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${viewMode === 'grid' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white'}`}
+              title="Grid View"
             >
-              {r === 'ALL' ? 'All Roles' : r.replace('_', ' ')}
+              <LayoutGrid size={15} />
             </button>
-          ))}
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${viewMode === 'table' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white'}`}
+              title="Table View"
+            >
+              <List size={15} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Users Grid */}
+      {/* User Content Rendering */}
       {loading ? (
         <div className="flex justify-center py-20">
           <Loader2 className="w-8 h-8 text-[#F26522] animate-spin" />
         </div>
-      ) : (
+      ) : viewMode === 'grid' ? (
+        /* Sleek Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredUsers.map(u => (
-            <div key={u._id} className="liquid-glass border border-white/10 rounded-2xl p-5 space-y-4 hover:border-white/20 transition-all">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#F26522]/20 text-[#F26522] font-bold rounded-2xl flex items-center justify-center border border-[#F26522]/30 shrink-0">
-                    {u.name[0].toUpperCase()}
+          {filteredUsers.map(u => {
+            const tier = getTierInfo(u.trustScore)
+            return (
+              <div
+                key={u._id}
+                className="liquid-glass border border-white/10 hover:border-white/20 rounded-2xl p-5 space-y-4 transition-all hover:shadow-xl hover:shadow-black/40 group relative overflow-hidden"
+              >
+                {/* User Top Row */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-sm text-white shrink-0 shadow-lg border ${
+                      u.role === 'ADMIN' ? 'bg-gradient-to-br from-purple-600 to-indigo-600 border-purple-400/30' :
+                      u.role === 'STAFF' ? 'bg-gradient-to-br from-amber-600 to-orange-600 border-amber-400/30' :
+                      'bg-gradient-to-br from-[#F26522] to-[#FF8C42] border-[#F26522]/30'
+                    }`}>
+                      {u.name[0].toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-white text-sm font-bold truncate group-hover:text-[#F26522] transition-colors">{u.name}</h3>
+                      <div className="text-white/40 text-xs truncate flex items-center gap-1.5 mt-0.5">
+                        <Mail size={12} className="text-white/30 shrink-0" />
+                        <span className="truncate">{u.email}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-white text-sm font-semibold truncate">{u.name}</div>
-                    <div className="text-white/40 text-xs truncate flex items-center gap-1">
-                      <Mail size={12} />
-                      {u.email}
+
+                  <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase shrink-0 border ${
+                    u.role === 'ADMIN' ? 'bg-purple-500/10 text-purple-400 border-purple-500/30' :
+                    u.role === 'STAFF' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' :
+                    'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                  }`}>
+                    {u.role.replace('_', ' ')}
+                  </span>
+                </div>
+
+                {/* DigiLocker eKYC & Trust Score */}
+                <div className="bg-white/5 border border-white/10 rounded-xl p-3 space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck size={16} className={u.isGovIdVerified ? 'text-emerald-400' : 'text-amber-400'} />
+                      <span className="text-white/90 font-medium">
+                        {u.isGovIdVerified ? 'Aadhaar eKYC Verified' : 'Pending KYC'}
+                      </span>
+                    </div>
+
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${tier.badge}`}>
+                      {tier.label}
+                    </span>
+                  </div>
+
+                  {/* Trust Score Line */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/40">Rental Trust Score</span>
+                      <span className="text-white font-bold font-mono">{u.trustScore}/100 Pts</span>
+                    </div>
+                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${tier.color} transition-all duration-500`}
+                        style={{ width: `${u.trustScore}%` }}
+                      />
                     </div>
                   </div>
                 </div>
 
-                <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase shrink-0 border ${
-                  u.role === 'ADMIN' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                  u.role === 'STAFF' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
-                  'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                }`}>
-                  {u.role.replace('_', ' ')}
+                {/* Company & Phone Details */}
+                <div className="flex items-center justify-between text-xs text-white/40 pt-1 border-t border-white/5">
+                  <div className="truncate">
+                    {u.companyName ? (
+                      <span className="text-white/70 font-medium flex items-center gap-1">
+                        <Building2 size={12} className="text-[#F26522]" /> {u.companyName}
+                      </span>
+                    ) : u.phone ? (
+                      <span className="flex items-center gap-1"><Phone size={12} /> {u.phone}</span>
+                    ) : (
+                      <span>Registered User</span>
+                    )}
+                  </div>
+
+                  {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
+                    <button
+                      onClick={() => {
+                        setSelectedUserForScore(u)
+                        setScoreInput(u.trustScore)
+                      }}
+                      className="text-[11px] bg-white/5 hover:bg-white/10 text-white/70 hover:text-white px-2.5 py-1 rounded-lg transition-all border border-white/10 flex items-center gap-1 cursor-pointer shrink-0"
+                    >
+                      <SlidersHorizontal size={11} className="text-yellow-400" />
+                      <span>Adjust Score</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        /* Executive Data Table View */
+        <div className="liquid-glass border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-white/5 text-white/50 font-semibold uppercase tracking-wider border-b border-white/10">
+                <tr>
+                  <th className="py-3.5 px-4">Member Name & Email</th>
+                  <th className="py-3.5 px-4">Role</th>
+                  <th className="py-3.5 px-4">Govt. eKYC Status</th>
+                  <th className="py-3.5 px-4">Trust Score Tier</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5 text-white/80">
+                {filteredUsers.map(u => {
+                  const tier = getTierInfo(u.trustScore)
+                  return (
+                    <tr key={u._id} className="hover:bg-white/[0.03] transition-colors">
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-[#F26522]/20 text-[#F26522] font-bold flex items-center justify-center border border-[#F26522]/30 shrink-0">
+                            {u.name[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="text-white font-semibold">{u.name}</div>
+                            <div className="text-white/40 text-[11px]">{u.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase border ${
+                          u.role === 'ADMIN' ? 'bg-purple-500/10 text-purple-400 border-purple-500/30' :
+                          u.role === 'STAFF' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' :
+                          'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                        }`}>
+                          {u.role.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                          <ShieldCheck size={15} />
+                          <span>{u.isGovIdVerified ? 'DigiLocker Verified' : 'Pending'}</span>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${tier.badge}`}>
+                            {tier.label}
+                          </span>
+                          <span className="font-mono text-white font-bold">{u.trustScore}/100</span>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
+                          <button
+                            onClick={() => {
+                              setSelectedUserForScore(u)
+                              setScoreInput(u.trustScore)
+                            }}
+                            className="bg-white/5 hover:bg-white/10 text-white/70 hover:text-white px-2.5 py-1 rounded-lg text-xs transition-colors border border-white/10 cursor-pointer"
+                          >
+                            Adjust Score
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Score Adjustment Modal */}
+      {selectedUserForScore && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
+          <div className="liquid-glass border border-white/15 rounded-3xl p-6 sm:p-7 w-full max-w-md shadow-2xl space-y-5 relative">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal size={18} className="text-yellow-400" />
+                <h3 className="text-white font-bold text-base">Adjust Rental Trust Score</h3>
+              </div>
+              <button
+                onClick={() => setSelectedUserForScore(null)}
+                className="text-white/40 hover:text-white text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2 text-xs">
+              <div className="flex justify-between text-white/50">
+                <span>Member Name:</span>
+                <span className="text-white font-bold">{selectedUserForScore.name}</span>
+              </div>
+              <div className="flex justify-between text-white/50">
+                <span>Account Role:</span>
+                <span className="text-white font-medium">{selectedUserForScore.role}</span>
+              </div>
+              <div className="flex justify-between text-white/50">
+                <span>Current Score:</span>
+                <span className="text-yellow-400 font-mono font-bold">{selectedUserForScore.trustScore}/100 Pts</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-white/70 text-xs font-semibold">New Trust Score (0 – 100):</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={scoreInput}
+                  onChange={e => setScoreInput(Number(e.target.value))}
+                  className="flex-1 accent-[#F26522] cursor-pointer"
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={scoreInput}
+                  onChange={e => setScoreInput(Math.min(100, Math.max(0, Number(e.target.value))))}
+                  className="w-16 bg-white/5 border border-white/10 rounded-xl px-2 py-1.5 text-center text-white font-mono font-bold text-sm focus:outline-none focus:border-[#F26522]"
+                />
+              </div>
+
+              {/* Tier Preview */}
+              <div className="text-center pt-2">
+                <span className={`inline-block text-xs px-3 py-1 rounded-full font-bold border ${getTierInfo(scoreInput).badge}`}>
+                  Preview: {getTierInfo(scoreInput).label}
                 </span>
               </div>
-
-              {/* DigiLocker eKYC Status & Trust Score Tier */}
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3 space-y-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck size={16} className={u.isGovIdVerified ? 'text-green-400' : 'text-amber-400'} />
-                    <div>
-                      <div className="text-white font-medium">
-                        {u.isGovIdVerified ? 'DigiLocker Verified' : 'Pending Verification'}
-                      </div>
-                      <div className="text-white/40 text-[10px]">
-                        {u.aadhaarMasked || 'UIDAI Aadhaar eKYC'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Trust Level Tier Badge */}
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-bold text-[11px] ${
-                    u.trustScore >= 90 ? 'bg-amber-400/10 text-amber-300 border-amber-400/30' :
-                    u.trustScore >= 75 ? 'bg-emerald-400/10 text-emerald-300 border-emerald-400/30' :
-                    u.trustScore >= 50 ? 'bg-blue-400/10 text-blue-300 border-blue-400/30' :
-                    'bg-red-400/10 text-red-300 border-red-400/30'
-                  }`}>
-                    <Award size={12} />
-                    <span>{u.trustScore} Pts ({
-                      u.trustScore >= 90 ? 'Platinum 🌟' :
-                      u.trustScore >= 75 ? 'Gold 🥇' :
-                      u.trustScore >= 50 ? 'Silver 🥈' :
-                      'Risk Flagged ⚠️'
-                    })</span>
-                  </div>
-                </div>
-
-                {/* Trust Score Visual Progress Bar */}
-                <div className="space-y-1 pt-1">
-                  <div className="flex justify-between text-[10px] text-white/40">
-                    <span>Trust Progress</span>
-                    <span>{u.trustScore}/100</span>
-                  </div>
-                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        u.trustScore >= 90 ? 'bg-gradient-to-r from-amber-400 to-yellow-300' :
-                        u.trustScore >= 75 ? 'bg-gradient-to-r from-emerald-400 to-green-300' :
-                        u.trustScore >= 50 ? 'bg-gradient-to-r from-blue-400 to-cyan-300' :
-                        'bg-red-500'
-                      }`}
-                      style={{ width: `${u.trustScore}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Admin Quick Trust Adjustment */}
-                {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
-                  <div className="flex items-center justify-between border-t border-white/5 pt-2">
-                    <span className="text-[10px] text-white/40">Admin Controls</span>
-                    <button
-                      onClick={async () => {
-                        const input = prompt(`Adjust Trust Score for ${u.name} (Current: ${u.trustScore}):`, u.trustScore.toString())
-                        if (input !== null) {
-                          const val = parseInt(input, 10)
-                          if (!isNaN(val) && val >= 0 && val <= 100) {
-                            const res = await fetch(`/api/users/${u._id}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ trustScore: val }),
-                            })
-                            if (res.ok) {
-                              toast.success(`Updated ${u.name}'s Trust Score to ${val}!`)
-                              fetchUsers()
-                            } else {
-                              toast.error('Failed to update trust score')
-                            }
-                          } else {
-                            toast.error('Please enter a valid score between 0 and 100')
-                          }
-                        }
-                      }}
-                      className="text-[11px] bg-white/5 hover:bg-white/10 text-white/70 hover:text-white px-2.5 py-1 rounded-lg transition-colors border border-white/10 cursor-pointer"
-                    >
-                      ⚡ Adjust Score
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Role specific info */}
-              {(u.companyName || u.employeeId || u.phone) && (
-                <div className="space-y-1 text-xs text-white/50 border-t border-white/5 pt-3">
-                  {u.companyName && <div>Company: <span className="text-white">{u.companyName}</span></div>}
-                  {u.employeeId && <div>Emp ID: <span className="text-white">{u.employeeId}</span></div>}
-                  {u.phone && <div className="flex items-center gap-1"><Phone size={12} /> {u.phone}</div>}
-                </div>
-              )}
             </div>
-          ))}
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setSelectedUserForScore(null)}
+                className="flex-1 py-2.5 bg-white/5 text-white/60 rounded-xl text-xs font-semibold hover:bg-white/10 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleScoreUpdate}
+                disabled={updatingScore}
+                className="flex-1 py-2.5 bg-[#F26522] hover:bg-[#e05510] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#F26522]/20"
+              >
+                {updatingScore && <Loader2 size={14} className="animate-spin" />}
+                Save Trust Score
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -283,7 +519,7 @@ export default function UsersManagementPage() {
                     key={r}
                     type="button"
                     onClick={() => setNewForm({ ...newForm, role: r })}
-                    className={`py-2 text-xs font-semibold rounded-lg transition-all ${
+                    className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                       newForm.role === r ? 'bg-[#F26522] text-white' : 'text-white/40'
                     }`}
                   >
@@ -294,10 +530,10 @@ export default function UsersManagementPage() {
 
               {/* DigiLocker eKYC Check in Modal */}
               <div className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
-                modalKyc.isVerified ? 'bg-green-500/10 border-green-500/30' : 'bg-blue-500/10 border-blue-500/30'
+                modalKyc.isVerified ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-blue-500/10 border-blue-500/30'
               }`}>
                 <div className="flex items-center gap-2">
-                  <ShieldCheck size={16} className={modalKyc.isVerified ? 'text-green-400' : 'text-blue-400'} />
+                  <ShieldCheck size={16} className={modalKyc.isVerified ? 'text-emerald-400' : 'text-blue-400'} />
                   <span className="text-white font-medium">
                     {modalKyc.isVerified ? `Verified: ${modalKyc.aadhaarMasked}` : 'DigiLocker Aadhaar Verification Required'}
                   </span>
@@ -305,7 +541,7 @@ export default function UsersManagementPage() {
                 <button
                   type="button"
                   onClick={() => setShowDigiLockerModal(true)}
-                  className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg font-semibold"
+                  className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg font-semibold cursor-pointer"
                 >
                   {modalKyc.isVerified ? 'Re-verify' : 'Verify Now'}
                 </button>
@@ -360,14 +596,14 @@ export default function UsersManagementPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 py-2.5 bg-white/5 text-white/60 rounded-xl text-xs font-semibold hover:bg-white/10"
+                  className="flex-1 py-2.5 bg-white/5 text-white/60 rounded-xl text-xs font-semibold hover:bg-white/10 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-[#F26522] hover:bg-[#e05510] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 bg-[#F26522] hover:bg-[#e05510] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#F26522]/20"
                 >
                   {actionLoading && <Loader2 size={14} className="animate-spin" />}
                   Create Account

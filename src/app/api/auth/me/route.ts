@@ -13,19 +13,22 @@ const TRIAL_DEFAULT_DAYS = TRIAL_DAYS
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
+  const unauthRes = () => {
+    const res = NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    res.cookies.set('auth-token', '', { maxAge: 0, path: '/' })
+    return res
+  }
+
   const user = await getUserFromRequest(req)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!user) return unauthRes()
 
   if (!mongoose.Types.ObjectId.isValid(user.userId)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return unauthRes()
   }
 
   await connectDB()
   const userObjectId = new mongoose.Types.ObjectId(user.userId)
 
-  // Single round-trip: aggregate user + subscription in one pipeline using
-  // a $lookup. Both queries hit their own indexes (User._id, Subscription.userId)
-  // server-side, so the latency is one network call instead of two.
   const result = await User.aggregate([
     { $match: { _id: userObjectId } },
     {
@@ -48,9 +51,7 @@ export async function GET(req: NextRequest) {
   ])
 
   if (!result || result.length === 0) {
-    // Cookie references a deleted/invalid user — treat as unauthenticated
-    // so the middleware redirects cleanly to /login instead of crashing.
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return unauthRes()
   }
 
   const dbUser = result[0]

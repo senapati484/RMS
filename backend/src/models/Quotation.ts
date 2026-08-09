@@ -1,3 +1,4 @@
+// models/Quotation.ts
 import mongoose, { Schema, Document, Model } from 'mongoose'
 
 export type QuoteStatus = 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED'
@@ -25,8 +26,16 @@ export interface IQuotation extends Document {
   rentalEnd: Date
   validUntil: Date
   deliveryMode: 'STORE_PICKUP' | 'SHIPPING'
+  shippingAddress?: {
+    line1: string
+    line2?: string
+    city: string
+    state: string
+    pincode: string
+  }
   adminNotes?: string
   customerNotes?: string
+  convertedToOrderId?: mongoose.Types.ObjectId
   createdAt: Date
   updatedAt: Date
 }
@@ -51,21 +60,36 @@ const QuotationSchema = new Schema<IQuotation>(
         lineTotal: { type: Number, required: true },
       },
     ],
-    subTotal: { type: Number, required: true, min: 0 },
-    depositAmount: { type: Number, required: true, min: 0, default: 0 },
-    totalAmount: { type: Number, required: true, min: 0 },
+    subTotal: { type: Number, required: true },
+    depositAmount: { type: Number, default: 0 },
+    totalAmount: { type: Number, required: true },
     rentalStart: { type: Date, required: true },
     rentalEnd: { type: Date, required: true },
-    validUntil: { type: Date },
+    validUntil: { type: Date, required: true },
     deliveryMode: { type: String, enum: ['STORE_PICKUP', 'SHIPPING'], default: 'STORE_PICKUP' },
-    adminNotes: { type: String },
-    customerNotes: { type: String },
+    shippingAddress: {
+      line1: String,
+      line2: String,
+      city: String,
+      state: String,
+      pincode: String,
+    },
+    adminNotes: String,
+    customerNotes: String,
+    convertedToOrderId: { type: Schema.Types.ObjectId, ref: 'Order' },
   },
   { timestamps: true }
 )
 
-QuotationSchema.index({ userId: 1, createdAt: -1 })
+QuotationSchema.index({ userId: 1 })
 QuotationSchema.index({ status: 1 })
+QuotationSchema.index({ validUntil: 1 })
+// Optimized indexes for large dataset queries
+QuotationSchema.index({ userId: 1, status: 1, createdAt: -1 }, { name: 'user_status_created_idx' })
+QuotationSchema.index({ status: 1, validUntil: 1, createdAt: -1 }, { name: 'status_valid_created_idx' })
+QuotationSchema.index({ userId: 1, validUntil: 1 }, { name: 'user_valid_idx' })
+QuotationSchema.index({ createdAt: -1, status: 1 }, { name: 'created_status_idx' })
+QuotationSchema.index({ quoteNumber: 1 }, { unique: true, name: 'quote_number_unique_idx' })
 
 export const Quotation: Model<IQuotation> =
   mongoose.models.Quotation || mongoose.model<IQuotation>('Quotation', QuotationSchema)

@@ -41,9 +41,22 @@ export default function QuotationsPage() {
 
   const fetchQuotes = useCallback(async () => {
     setLoading(true)
-    const res = await fetch('/api/quotations')
-    if (res.ok) setQuotes(await res.json())
-    setLoading(false)
+    try {
+      const res = await fetch('/api/quotations')
+      if (res.ok) {
+        const data = await res.json()
+        const list = Array.isArray(data)
+          ? data
+          : data.quotations || data.quotes || data.data?.quotations || data.data?.quotes || []
+        setQuotes(list)
+      } else {
+        setQuotes([])
+      }
+    } catch {
+      setQuotes([])
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => { fetchQuotes() }, [fetchQuotes])
@@ -63,15 +76,17 @@ export default function QuotationsPage() {
 
   const isExpired = (q: Quotation) => q.validUntil && new Date(q.validUntil) < new Date()
 
-  const filteredQuotes = quotes.filter((q) => {
+  const safeQuotes = Array.isArray(quotes) ? quotes : []
+
+  const filteredQuotes = safeQuotes.filter((q) => {
     const expired = isExpired(q) && q.status !== 'ACCEPTED'
     if (statusFilter === 'EXPIRED') return expired
     if (statusFilter !== 'ALL' && q.status !== statusFilter) return false
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
-      const matchQuote = q.quoteNumber.toLowerCase().includes(query)
+      const matchQuote = q.quoteNumber?.toLowerCase().includes(query)
       const matchCustomer = q.userId?.name?.toLowerCase().includes(query)
-      const matchItems = q.items?.some((i) => i.productName.toLowerCase().includes(query))
+      const matchItems = q.items?.some((i) => i.productName?.toLowerCase().includes(query))
       return matchQuote || matchCustomer || matchItems
     }
     return true

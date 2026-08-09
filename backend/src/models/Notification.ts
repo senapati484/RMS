@@ -1,25 +1,56 @@
+// models/Notification.ts
 import mongoose, { Schema, Document, Model } from 'mongoose'
+
+export type NotificationType =
+  | 'ORDER_CONFIRMED'
+  | 'PICKUP_REMINDER'
+  | 'RETURN_DUE'
+  | 'OVERDUE_ALERT'
+  | 'DEPOSIT_SETTLED'
+  | 'TRUST_SCORE_UPDATE'
+  | 'MAINTENANCE_UPDATE'
+  | 'QUOTATION_READY'
+  | 'QUOTATION_EXPIRING'
+  | 'SYSTEM'
 
 export interface INotification extends Document {
   _id: mongoose.Types.ObjectId
   userId: mongoose.Types.ObjectId
+  type: NotificationType
   title: string
   message: string
-  type?: 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR'
   isRead: boolean
-  link?: string
+  linkHref?: string
+  relatedOrderId?: mongoose.Types.ObjectId
+  relatedTicketId?: mongoose.Types.ObjectId
   createdAt: Date
-  updatedAt: Date
 }
 
 const NotificationSchema = new Schema<INotification>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    type: {
+      type: String,
+      enum: [
+        'ORDER_CONFIRMED',
+        'PICKUP_REMINDER',
+        'RETURN_DUE',
+        'OVERDUE_ALERT',
+        'DEPOSIT_SETTLED',
+        'TRUST_SCORE_UPDATE',
+        'MAINTENANCE_UPDATE',
+        'QUOTATION_READY',
+        'QUOTATION_EXPIRING',
+        'SYSTEM',
+      ],
+      required: true,
+    },
     title: { type: String, required: true },
     message: { type: String, required: true },
-    type: { type: String, enum: ['INFO', 'SUCCESS', 'WARNING', 'ERROR'], default: 'INFO' },
     isRead: { type: Boolean, default: false },
-    link: { type: String },
+    linkHref: { type: String },
+    relatedOrderId: { type: Schema.Types.ObjectId, ref: 'Order' },
+    relatedTicketId: { type: Schema.Types.ObjectId, ref: 'MaintenanceTicket' },
   },
   { timestamps: true }
 )
@@ -27,4 +58,5 @@ const NotificationSchema = new Schema<INotification>(
 NotificationSchema.index({ userId: 1, isRead: 1, createdAt: -1 })
 
 export const Notification: Model<INotification> =
-  mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema)
+  mongoose.models.Notification ||
+  mongoose.model<INotification>('Notification', NotificationSchema)

@@ -14,7 +14,7 @@ export interface IProduct extends Document {
   imageUrl?: string
   productType: ProductType
   itemKind: 'GOODS' | 'SERVICE'
-  category: string
+  category: string       // derived from productType, kept for backwards compat
   brand?: string
   sku: string
   condition: ProductCondition
@@ -27,10 +27,17 @@ export interface IProduct extends Document {
   salesPrice?: number
   baseDepositAmt: number
   depositIsPercent: boolean
+  periodicity?: 'HOURLY' | 'DAILY' | 'NIGHTLY' | 'WEEKLY'
+  paddingTimeHours?: number
+  pickupTime?: string
+  returnTime?: string
+  lateFeePerHour?: number
   accessoryList: string[]
   tags: string[]
+  specifications: Map<string, string>  // type-specific key-value specs
   isPublished: boolean
   isArchived: boolean
+  variants: Array<{ attribute: string; value: string }>
   createdAt: Date
   updatedAt: Date
 }
@@ -38,7 +45,7 @@ export interface IProduct extends Document {
 const ProductSchema = new Schema<IProduct>(
   {
     name: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, lowercase: true },
+    slug: { type: String, required: true, unique: true, lowercase: true },
     description: { type: String },
     imageUrl: { type: String, default: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400' },
     productType: {
@@ -51,9 +58,9 @@ const ProductSchema = new Schema<IProduct>(
       enum: ['GOODS', 'SERVICE'],
       default: 'GOODS',
     },
-    category: { type: String, required: true, default: 'Electronics' },
-    brand: { type: String, trim: true },
-    sku: { type: String, required: true, trim: true },
+    category: { type: String, required: true },
+    brand: { type: String },
+    sku: { type: String, required: true, unique: true },
     condition: {
       type: String,
       enum: ['NEW', 'EXCELLENT', 'GOOD', 'FAIR'],
@@ -61,25 +68,53 @@ const ProductSchema = new Schema<IProduct>(
     },
     totalStock: { type: Number, default: 1, min: 0 },
     availableStock: { type: Number, default: 1, min: 0 },
-    dailyRate: { type: Number, default: 50, min: 0 },
-    weeklyRate: { type: Number },
-    monthlyRate: { type: Number },
-    costPrice: { type: Number },
-    salesPrice: { type: Number },
-    baseDepositAmt: { type: Number, default: 200, min: 0 },
+    dailyRate: { type: Number, default: 500, min: 0 },
+    weeklyRate: { type: Number, default: 0 },
+    monthlyRate: { type: Number, default: 0 },
+    costPrice: { type: Number, default: 0 },
+    salesPrice: { type: Number, default: 500 },
+    baseDepositAmt: { type: Number, default: 0 },
     depositIsPercent: { type: Boolean, default: false },
+    periodicity: { type: String, enum: ['HOURLY', 'DAILY', 'NIGHTLY', 'WEEKLY'], default: 'DAILY' },
+    paddingTimeHours: { type: Number, default: 2 },
+    pickupTime: { type: String, default: '10:00' },
+    returnTime: { type: String, default: '19:00' },
+    lateFeePerHour: { type: Number, default: 100 },
     accessoryList: [{ type: String }],
     tags: [{ type: String }],
+    specifications: {
+      type: Map,
+      of: String,
+      default: {},
+    },
     isPublished: { type: Boolean, default: true },
     isArchived: { type: Boolean, default: false },
+    variants: [
+      {
+        attribute: { type: String },
+        value: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 )
 
-ProductSchema.index({ isPublished: 1, isArchived: 1, productType: 1 })
-ProductSchema.index({ brand: 1 })
-ProductSchema.index({ dailyRate: 1 })
-ProductSchema.index({ availableStock: 1 })
+ProductSchema.index({ category: 1, isPublished: 1 })
+ProductSchema.index({ productType: 1, isPublished: 1 })
+ProductSchema.index({ isPublished: 1, isArchived: 1, productType: 1, createdAt: -1 })
+ProductSchema.index({ isPublished: 1, isArchived: 1, category: 1 })
+ProductSchema.index({ isPublished: 1, isArchived: 1, availableStock: -1 })
+ProductSchema.index({ tags: 1 })
+ProductSchema.index({ createdAt: -1 })
+ProductSchema.index({ name: 'text', description: 'text', tags: 'text', brand: 'text', sku: 'text' })
+// Optimized indexes for large dataset queries
+ProductSchema.index({ isPublished: 1, isArchived: 1, createdAt: -1 }, { name: 'published_created_idx' })
+ProductSchema.index({ isPublished: 1, isArchived: 1, availableStock: -1, createdAt: -1 }, { name: 'stock_created_idx' })
+ProductSchema.index({ productType: 1, isPublished: 1, isArchived: 1, createdAt: -1 }, { name: 'type_published_idx' })
+ProductSchema.index({ category: 1, isPublished: 1, isArchived: 1, createdAt: -1 }, { name: 'category_published_idx' })
+ProductSchema.index({ sku: 1 }, { unique: true, name: 'sku_unique_idx' })
+ProductSchema.index({ slug: 1 }, { unique: true, name: 'slug_unique_idx' })
 
 export const Product: Model<IProduct> =
   mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema)
+

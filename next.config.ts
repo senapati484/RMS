@@ -16,8 +16,12 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/:path*',
-        destination: process.env.EXPRESS_API_URL || 'http://localhost:5001/api/:path*',
+        // Keep /api/auth/me in Next.js (rich subscription aggregation)
+        // Proxy all other /api/* calls to the Express backend
+        source: '/api/:path((?!auth/me$).*)',
+        destination: process.env.EXPRESS_API_URL
+          ? `${process.env.EXPRESS_API_URL}/:path*`
+          : 'http://localhost:5001/api/:path*',
       },
     ]
   },

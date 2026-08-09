@@ -51,7 +51,7 @@ export interface GetProductsResult {
  */
 export async function getProductsAction(params: GetProductsParams = {}): Promise<GetProductsResult> {
   const page = Math.max(1, params.page || 1)
-  const limit = Math.min(100, Math.max(1, params.limit || 10))
+  const limit = Math.min(100, Math.max(1, params.limit || 12))
 
   const expressBase = process.env.EXPRESS_API_URL || 'http://localhost:5001/api'
   const queryParams = new URLSearchParams()

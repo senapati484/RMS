@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import path from 'path'
 import { connectDB } from './db'
@@ -13,6 +14,9 @@ import userRoutes from './routes/user.routes'
 import attributeRoutes from './routes/attribute.routes'
 import notificationRoutes from './routes/notification.routes'
 import maintenanceRoutes from './routes/maintenance.routes'
+import profileRoutes from './routes/profile.routes'
+import pricelistRoutes from './routes/pricelist.routes'
+import checkoutRoutes from './routes/checkout.routes'
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env.local') })
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
@@ -26,6 +30,7 @@ app.use(cors({
   credentials: true,
 }))
 app.use(express.json())
+app.use(cookieParser())   // Parse auth-token cookie forwarded by Next.js proxy
 app.use(authMiddleware)
 
 // Routes
@@ -38,6 +43,11 @@ app.use('/api/users', userRoutes)
 app.use('/api/attributes', attributeRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/maintenance', maintenanceRoutes)
+// User profile, subscriptions
+app.use('/api/user', profileRoutes)
+app.use('/api/subscriptions', profileRoutes)
+app.use('/api/pricelists', pricelistRoutes)
+app.use('/api/checkout', checkoutRoutes)
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

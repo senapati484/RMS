@@ -4,8 +4,15 @@ import { Product } from '../models/Product'
 import { MaintenanceTicket } from '../models/MaintenanceTicket'
 import { Quotation } from '../models/Quotation'
 import { AuthRequest, requireAuth, requireAdmin } from '../middleware/auth'
+import { cache } from '../lib/cache'
 
 const router = Router()
+
+// POST /api/admin/clear-cache — Clear all in-memory cache
+router.post('/clear-cache', (req: AuthRequest, res: Response) => {
+  cache.clear()
+  return res.json({ success: true, message: 'Cache cleared successfully' })
+})
 
 // GET /api/admin/dashboard — Aggregated operations dashboard analytics
 router.get('/dashboard', requireAuth, requireAdmin, async (req: AuthRequest, res: Response) => {

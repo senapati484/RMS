@@ -82,7 +82,7 @@ export default function ProductsPage() {
   const [brandFilter, setBrandFilter] = useState('ALL')
   const [serverBrands, setServerBrands] = useState<string[]>([])
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(12)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
   const [showDrafts, setShowDrafts] = useState(false)
@@ -274,8 +274,19 @@ export default function ProductsPage() {
 
       {/* Grid */}
       {loading ? (
-        <div className="flex items-center justify-center min-h-48">
-          <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: limit }).map((_, i) => (
+            <div key={i} className="liquid-glass border border-white/5 rounded-2xl p-4 space-y-3 animate-pulse">
+              <div className="aspect-video bg-white/5 rounded-xl" />
+              <div className="h-4 bg-white/10 rounded w-3/4" />
+              <div className="h-3 bg-white/5 rounded w-1/2" />
+              <div className="h-2 bg-white/5 rounded w-full" />
+              <div className="flex justify-between items-center pt-2">
+                <div className="h-5 bg-white/10 rounded w-1/3" />
+                <div className="h-8 bg-white/10 rounded-xl w-24" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : displayedProducts.length === 0 ? (
         <div className="text-center py-24 space-y-3">
@@ -309,6 +320,9 @@ export default function ProductsPage() {
                       <img
                         src={product.imageUrl}
                         alt={product.name}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80'
+                        }}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
@@ -458,7 +472,7 @@ export default function ProductsPage() {
           <span className="text-white/20">|</span>
           <div className="flex items-center gap-1.5">
             <span className="text-white/40">Per Page:</span>
-            {[10, 20, 50].map((l) => (
+            {[12, 24, 48, 96].map((l) => (
               <button
                 key={l}
                 onClick={() => { setLimit(l); setPage(1) }}
@@ -470,9 +484,7 @@ export default function ProductsPage() {
               </button>
             ))}
           </div>
-        </div>
-
-        {totalPages > 1 && (
+           {totalPages > 1 && (
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -483,13 +495,18 @@ export default function ProductsPage() {
             </button>
 
             <div className="flex items-center gap-1 overflow-x-auto max-w-[200px] sm:max-w-none">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum = i + 1
-                if (totalPages > 5 && page > 3) {
-                  pageNum = page - 2 + i
-                  if (pageNum > totalPages) pageNum = totalPages - (4 - i)
+              {(() => {
+                const maxVisible = 5
+                let startPage = 1
+                if (totalPages > maxVisible) {
+                  startPage = Math.max(1, Math.min(page - 2, totalPages - maxVisible + 1))
                 }
-                return (
+                const visiblePages = Array.from(
+                  { length: Math.min(maxVisible, totalPages) },
+                  (_, i) => startPage + i
+                )
+
+                return visiblePages.map((pageNum) => (
                   <button
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
@@ -501,19 +518,19 @@ export default function ProductsPage() {
                   >
                     {pageNum}
                   </button>
-                )
-              })}
+                ))
+              })()}
             </div>
 
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-3 py-1.5 rounded-lg bg-[#F26522] text-white hover:bg-[#e05510] disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium shadow-sm shadow-[#F26522]/20 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-white/5 text-white/70 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
             >
               Next →
             </button>
           </div>
-        )}
+        )}</div>
       </div>
     </div>
   )

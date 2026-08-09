@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs'
 
 export type UserRole = 'ADMIN' | 'STAFF' | 'PORTAL_USER'
 
+export type DLStatus = 'NOT_SUBMITTED' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED'
+
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId
   email: string
@@ -13,6 +15,34 @@ export interface IUser extends Document {
   profileImage?: string
   trustScore: number
   isGovIdVerified: boolean
+  aadhaarMasked?: string
+  digiLockerTxnId?: string
+  digiLockerEncryptedPayload?: string
+  govIdType?: string
+  companyName?: string
+  productCategory?: string
+  couponCode?: string
+  gstin?: string
+  employeeId?: string
+  addressLine?: string
+  city?: string
+  state?: string
+  pincode?: string
+  // Vendor Warehouse Pickup Address
+  warehouseLine?: string
+  warehouseCity?: string
+  warehouseState?: string
+  warehousePincode?: string
+  // Driving License KYC (required for vehicle rentals)
+  drivingLicense: {
+    number?: string
+    expiry?: string
+    status: DLStatus
+    docUrl?: string
+    rejectionReason?: string
+    submittedAt?: Date
+    verifiedAt?: Date
+  }
   createdAt: Date
   updatedAt: Date
   comparePassword(candidate: string): Promise<boolean>
@@ -28,6 +58,36 @@ const UserSchema = new Schema<IUser>(
     profileImage: { type: String },
     trustScore: { type: Number, default: 50, min: 0, max: 100 },
     isGovIdVerified: { type: Boolean, default: false },
+    aadhaarMasked: { type: String },
+    digiLockerTxnId: { type: String },
+    digiLockerEncryptedPayload: { type: String },
+    govIdType: { type: String, default: 'AADHAAR' },
+    companyName: { type: String },
+    productCategory: { type: String },
+    couponCode: { type: String },
+    gstin: { type: String },
+    employeeId: { type: String },
+    addressLine: { type: String },
+    city: { type: String },
+    state: { type: String },
+    pincode: { type: String },
+    warehouseLine: { type: String, default: 'Gate 4, Lease360 Central Tech Warehouse, MIDC Industrial Area' },
+    warehouseCity: { type: String, default: 'Mumbai' },
+    warehouseState: { type: String, default: 'Maharashtra' },
+    warehousePincode: { type: String, default: '400050' },
+    drivingLicense: {
+      number: { type: String },
+      expiry: { type: String },
+      status: {
+        type: String,
+        enum: ['NOT_SUBMITTED', 'PENDING_REVIEW', 'VERIFIED', 'REJECTED'],
+        default: 'NOT_SUBMITTED',
+      },
+      docUrl: { type: String },
+      rejectionReason: { type: String },
+      submittedAt: { type: Date },
+      verifiedAt: { type: Date },
+    },
   },
   { timestamps: true }
 )
@@ -42,7 +102,14 @@ UserSchema.methods.comparePassword = async function (candidate: string): Promise
   return bcrypt.compare(candidate, this.passwordHash)
 }
 
-UserSchema.index({ email: 1 }, { unique: true })
+UserSchema.index({ role: 1 })
+UserSchema.index({ createdAt: -1 })
+// Optimized indexes for large dataset queries
+UserSchema.index({ email: 1 }, { unique: true, name: 'email_unique_idx' })
+UserSchema.index({ role: 1, createdAt: -1 }, { name: 'role_created_idx' })
+UserSchema.index({ role: 1, isGovIdVerified: 1 }, { name: 'role_verification_idx' })
+UserSchema.index({ 'drivingLicense.status': 1 }, { name: 'dl_status_idx' })
+UserSchema.index({ city: 1, state: 1 }, { name: 'location_idx' })
 
 export const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>('User', UserSchema)

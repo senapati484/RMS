@@ -1,0 +1,41 @@
+name: Lease360 CI Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-typecheck:
+    name: Typecheck & Build (Frontend & Express Backend)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Root Dependencies
+        run: npm ci --legacy-peer-deps || npm install
+
+      - name: Install Express Backend Dependencies
+        run: cd backend && (npm ci || npm install)
+
+      - name: Typecheck Next.js Frontend
+        run: npx tsc --noEmit
+
+      - name: Build Express Backend
+        run: cd backend && npm run build
+
+      - name: Build Next.js Production Bundle
+        env:
+          MONGODB_URI: "mongodb://localhost:27017/test_dummy"
+          JWT_SECRET: "ci_test_secret_key_2026_lease360"
+          DIGILOCKER_ENCRYPTION_KEY: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+        run: npm run build

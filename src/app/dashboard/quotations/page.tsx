@@ -15,6 +15,7 @@ interface Quotation {
   rentalStart: string
   rentalEnd: string
   validUntil: string
+  convertedToOrderId?: string
   userId: { name: string; email: string }
   items: Array<{ productName: string; quantity: number }>
   createdAt: string
@@ -212,7 +213,7 @@ export default function QuotationsPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {!isOperator && (q.status === 'DRAFT' || q.status === 'SENT') && !expired && (
+                      {(q.status === 'DRAFT' || q.status === 'SENT') && !expired && (
                         <button
                           onClick={() => convertToOrder(q._id)}
                           disabled={converting === q._id}
@@ -231,9 +232,13 @@ export default function QuotationsPage() {
                         </button>
                       )}
                       {q.status === 'ACCEPTED' && (
-                        <span className="flex items-center gap-1.5 text-green-400 text-xs font-semibold bg-green-400/10 border border-green-400/20 px-3 py-1.5 rounded-xl">
-                          <CheckCircle2 size={14} /> Converted Order
-                        </span>
+                        <Link
+                          href={q.convertedToOrderId ? `/dashboard/orders/${q.convertedToOrderId}` : '/dashboard/orders'}
+                          className="flex items-center gap-1.5 text-green-400 hover:text-green-300 text-xs font-semibold bg-green-500/15 border border-green-500/30 hover:bg-green-500/25 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-sm whitespace-nowrap"
+                        >
+                          <CheckCircle2 size={14} />
+                          <span>View Converted Order →</span>
+                        </Link>
                       )}
                     </div>
                   </div>

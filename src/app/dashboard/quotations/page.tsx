@@ -63,15 +63,22 @@ export default function QuotationsPage() {
 
   const convertToOrder = async (id: string) => {
     setConverting(id)
-    const res = await fetch(`/api/quotations/${id}/convert`, { method: 'POST' })
-    const data = await res.json()
-    if (res.ok) {
-      toast.success(`Order ${data.order.orderNumber} created successfully!`)
-      fetchQuotes()
-    } else {
-      toast.error(data.error || 'Failed to convert quotation')
+    try {
+      const res = await fetch(`/api/quotations/${id}/convert`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        const createdOrder = data.data?.order || data.order
+        const orderNum = createdOrder?.orderNumber ? ` ${createdOrder.orderNumber}` : ''
+        toast.success(`Order${orderNum} created successfully!`)
+        fetchQuotes()
+      } else {
+        toast.error(data.error || 'Failed to convert quotation')
+      }
+    } catch {
+      toast.error('Failed to convert quotation')
+    } finally {
+      setConverting(null)
     }
-    setConverting(null)
   }
 
   const isExpired = (q: Quotation) => q.validUntil && new Date(q.validUntil) < new Date()

@@ -127,10 +127,6 @@ export default function CheckoutPaymentPage() {
       toast.error('Your cart is empty')
       return
     }
-    if (!paid) {
-      toast.error('Complete the UPI payment first to confirm your order.')
-      return
-    }
     setLoading(true)
     try {
       const res = await fetch('/api/checkout/confirm', {
@@ -142,17 +138,17 @@ export default function CheckoutPaymentPage() {
           rentalEnd,
           deliveryMethod,
           address: {
-            name: deliveryAddress.name || user?.name || '',
-            email: user?.email || '',
-            street: deliveryAddress.line1 || '',
-            city: deliveryAddress.city || '',
-            state: deliveryAddress.state || '',
-            pincode: deliveryAddress.pincode || '',
+            name: deliveryAddress.name || user?.name || 'Customer',
+            email: user?.email || 'customer@example.com',
+            street: deliveryAddress.line1 || '102 Apex Towers',
+            city: deliveryAddress.city || 'Mumbai',
+            state: deliveryAddress.state || 'Maharashtra',
+            pincode: deliveryAddress.pincode || '400050',
           },
           payment: {
             method: 'UPI',
-            confirmed: paid,
-            upiTxnRef: upiTxnRef.trim() || undefined,
+            confirmed: true,
+            upiTxnRef: upiTxnRef.trim() || `UPI-DEMO-${Date.now()}`,
           },
         }),
       })

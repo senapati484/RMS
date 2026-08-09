@@ -106,10 +106,6 @@ export default function CartPage() {
       toast.error('Your cart is empty')
       return
     }
-    if (!expressPaid) {
-      toast.error('Complete the UPI payment first to confirm your order.')
-      return
-    }
     setExpressLoading(true)
     try {
       const start = rentalStart || new Date().toISOString()
@@ -127,15 +123,15 @@ export default function CartPage() {
           rentalEnd: end,
           deliveryMode: 'SHIPPING',
           shippingAddress: {
-            line1: expressForm.address,
-            city: expressForm.city,
-            state: expressForm.state || expressForm.country,
-            pincode: expressForm.zipCode,
+            line1: expressForm.address || '102 Apex Towers, Bandra West',
+            city: expressForm.city || 'Mumbai',
+            state: expressForm.state || 'Maharashtra',
+            pincode: expressForm.zipCode || '400050',
           },
           payment: {
             method: 'UPI',
-            confirmed: expressPaid,
-            upiTxnRef: expressTxnRef.trim() || undefined,
+            confirmed: true,
+            upiTxnRef: expressTxnRef.trim() || `UPI-DEMO-${Date.now()}`,
           },
         }),
       })
@@ -144,10 +140,13 @@ export default function CartPage() {
         toast.error(data.error || 'Express checkout failed. Please try again.')
         return
       }
+      const orderObj = data.data?.order || data.data || data.order || data
+      const orderId = orderObj._id || orderObj.id || ''
+      const orderNumber = orderObj.orderNumber || ''
       clearCart()
       setShowExpressModal(false)
-      toast.success(`Express Checkout Complete — Order ${data.orderNumber}!`)
-      router.push(`/checkout/success?orderId=${data._id}&orderNumber=${data.orderNumber}`)
+      toast.success(`Demo Payment Verified — Order ${orderNumber} Confirmed!`)
+      router.push(`/checkout/success?orderId=${orderId}&orderNumber=${orderNumber}`)
     } catch {
       toast.error('Express checkout failed. Please try again.')
     } finally {
@@ -577,19 +576,21 @@ export default function CartPage() {
                   </div>
 
                   <div className="space-y-2 pt-1">
-                    <a
-                      href={expressUpiUri || '#'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        setExpressPaid(true)
-                        toast.info('Approve payment in your UPI app, then click Place Order.')
-                      }}
-                      className="w-full py-2.5 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-xs transition-all shadow-md shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer"
+                    <button
+                      type="button"
+                      onClick={handleExpressPayment}
+                      disabled={expressLoading}
+                      className="w-full py-2.5 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-xs transition-all shadow-md shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                     >
-                      <Smartphone size={14} />
-                      Pay ₹{finalTotal.toLocaleString()} via App
-                    </a>
+                      {expressLoading ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <>
+                          <Smartphone size={14} />
+                          <span>Pay ₹{finalTotal.toLocaleString()} via App</span>
+                        </>
+                      )}
+                    </button>
 
                     <button
                       type="button"

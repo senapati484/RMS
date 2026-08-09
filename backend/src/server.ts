@@ -22,9 +22,16 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env.local') })
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 const app = express()
+app.disable('x-powered-by')
 const PORT = process.env.EXPRESS_PORT || 5001
 
-// Middleware
+// Security & Utility Middleware
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('X-XSS-Protection', '1; mode=block')
+  next()
+})
 app.use(cors({
   origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   credentials: true,

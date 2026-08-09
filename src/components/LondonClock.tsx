@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from 'react'
 
-export default function LondonClock() {
+export default function IndiaClock() {
   const [timeStr, setTimeStr] = useState<string>('')
 
   useEffect(() => {
     const updateTime = () => {
-      const formatted = new Date().toLocaleTimeString('en-GB', {
-        timeZone: 'Europe/London',
+      const formatted = new Date().toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
         hour: '2-digit',
         minute: '2-digit',
+        hour12: true,
       })
       setTimeStr(formatted)
     }
@@ -20,5 +21,5 @@ export default function LondonClock() {
     return () => clearInterval(timer)
   }, [])
 
-  return <span>{timeStr || '12:00'} in London</span>
+  return <span>{timeStr || '12:00 PM'} in India (IST)</span>
 }

@@ -201,6 +201,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Top Right Header Profile Dropdown */}
           <div className="relative">
             <button
+              aria-label="User profile menu"
+              aria-expanded={showProfileMenu}
+              aria-haspopup="true"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="flex items-center gap-2 p-1.5 rounded-full hover:bg-white/5 transition-all cursor-pointer"
             >

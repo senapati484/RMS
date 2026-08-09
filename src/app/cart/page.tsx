@@ -237,20 +237,20 @@ export default function CartPage() {
 
                     <div className="flex flex-col items-end gap-2">
                       <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-1 text-xs font-mono font-bold">
-                        <button onClick={() => updateQuantity(targetId, Math.max(1, item.quantity - 1))} className="w-6 h-6 hover:bg-white/10 rounded">
+                        <button aria-label="Decrease quantity" onClick={() => updateQuantity(targetId, Math.max(1, item.quantity - 1))} className="w-6 h-6 hover:bg-white/10 rounded flex items-center justify-center">
                           -
                         </button>
                         <span className="w-8 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(targetId, item.quantity + 1)} className="w-6 h-6 hover:bg-white/10 rounded">
+                        <button aria-label="Increase quantity" onClick={() => updateQuantity(targetId, item.quantity + 1)} className="w-6 h-6 hover:bg-white/10 rounded flex items-center justify-center">
                           +
                         </button>
                       </div>
 
                       <div className="flex items-center gap-3 text-[11px]">
-                        <button onClick={() => removeFromCart(targetId)} className="text-white/40 hover:text-red-400 flex items-center gap-1 cursor-pointer">
+                        <button aria-label="Remove item from cart" onClick={() => removeFromCart(targetId)} className="text-white/40 hover:text-red-400 flex items-center gap-1 cursor-pointer">
                           <Trash2 size={12} /> Remove
                         </button>
-                        <button onClick={() => toast.info('Saved for Later')} className="text-white/40 hover:text-white flex items-center gap-1 cursor-pointer">
+                        <button aria-label="Save item for later" onClick={() => toast.info('Saved for Later')} className="text-white/40 hover:text-white flex items-center gap-1 cursor-pointer">
                           <Bookmark size={12} /> Save for Later
                         </button>
                       </div>

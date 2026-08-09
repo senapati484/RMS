@@ -410,8 +410,12 @@ router.post('/:id/request-return', async (req: AuthRequest, res: Response) => {
       return fail(res, 'Forbidden', 403)
     }
 
+    if (!order.payment || order.payment.status !== 'PAID') {
+      return fail(res, `Payment required: Complete payment of ₹${order.totalAmount.toLocaleString()} before returning equipment.`, 400)
+    }
+
     if (!['CONFIRMED', 'PICKED_UP'].includes(order.status)) {
-      return fail(res, 'Only active or picked-up rentals can be returned', 400)
+      return fail(res, 'Equipment must be picked up at counter or dispatched before returning.', 400)
     }
 
     const { returnMode = 'STORE_DROP', returnNotes = '' } = req.body || {}

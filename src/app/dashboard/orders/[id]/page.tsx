@@ -80,6 +80,12 @@ export default function OrderDetailPage() {
 
   const handleCustomerReturnSubmit = async () => {
     if (!order) return
+    if (order.payment?.status !== 'PAID') {
+      setShowCustomerReturnModal(false)
+      setShowPayModal(true)
+      toast.error(`Payment of ₹${order.totalAmount.toLocaleString()} is required before returning equipment. Please complete payment first.`)
+      return
+    }
     setRequestReturnLoading(true)
     try {
       const res = await fetch(`/api/orders/${order._id}/request-return`, {

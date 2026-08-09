@@ -23,8 +23,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return apiError('Forbidden', 403)
   }
 
+  if (!order.payment || order.payment.status !== 'PAID') {
+    return apiError(`Payment required: Complete payment of ₹${order.totalAmount.toLocaleString()} before returning equipment.`, 400)
+  }
+
   if (!['CONFIRMED', 'PICKED_UP'].includes(order.status)) {
-    return apiError('Only active or picked-up rentals can be returned', 400)
+    return apiError('Equipment must be picked up at counter or dispatched before returning.', 400)
   }
 
   const body = await req.json().catch(() => ({}))

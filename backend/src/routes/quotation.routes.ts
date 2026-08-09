@@ -5,6 +5,7 @@ import { Product } from '../models/Product'
 import { Notification } from '../models/Notification'
 import { AuthRequest, requireAuth } from '../middleware/auth'
 import { sendQuotationEmail } from '../lib/mailer'
+import { cache } from '../lib/cache'
 
 const router = Router()
 
@@ -210,6 +211,7 @@ router.post('/:id/convert', requireAuth, async (req: AuthRequest, res: Response)
     })
 
     await Quotation.findByIdAndUpdate(req.params.id, { status: 'ACCEPTED', convertedToOrderId: order._id })
+    cache.invalidatePattern('products:list:.*')
 
     await Notification.create({
       userId: quote.userId,

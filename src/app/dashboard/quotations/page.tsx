@@ -43,7 +43,7 @@ export default function QuotationsPage() {
   const fetchQuotes = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/quotations')
+      const res = await fetch(`/api/quotations?t=${Date.now()}`, { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         const list = Array.isArray(data)
@@ -71,6 +71,15 @@ export default function QuotationsPage() {
         const createdOrder = data.data?.order || data.order
         const orderNum = createdOrder?.orderNumber ? ` ${createdOrder.orderNumber}` : ''
         toast.success(`Order${orderNum} created successfully!`)
+        
+        // Optimistically update quotation status in UI state immediately
+        setQuotes((prev) =>
+          prev.map((q) =>
+            q._id === id
+              ? { ...q, status: 'ACCEPTED', convertedToOrderId: createdOrder?._id || createdOrder?.id }
+              : q
+          )
+        )
         fetchQuotes()
       } else {
         toast.error(data.error || 'Failed to convert quotation')

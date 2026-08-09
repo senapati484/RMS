@@ -9,7 +9,7 @@ import { RentalCalendarPicker } from '@/components'
 import QRCode from 'qrcode'
 import {
   ShoppingBag, Trash2, Bookmark, QrCode, Smartphone, Copy, CheckCircle2, ShieldCheck,
-  Calendar as CalendarIcon, CreditCard, X, Loader2, Car, Edit3, Clock, UserCheck, AlertTriangle
+  Calendar as CalendarIcon, CreditCard, X, Loader2, Car, Edit3, Clock, UserCheck, AlertTriangle, AlertCircle, MapPin
 } from 'lucide-react'
 
 export default function CartPage() {
@@ -512,160 +512,198 @@ export default function CartPage() {
         </div>
       </div>
 
-      {/* Express Checkout Modal Popup matching Excalidraw */}
+      {/* Express Checkout Modal Popup */}
       {showExpressModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="liquid-glass border border-white/10 rounded-3xl p-6 sm:p-8 w-full max-w-lg space-y-6 relative shadow-2xl">
-            <button onClick={() => setShowExpressModal(false)} className="absolute right-4 top-4 text-white/40 hover:text-white cursor-pointer">
-              <X size={18} />
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+          <div className="bg-[#0D0D11]/95 border border-white/15 rounded-3xl p-6 sm:p-8 w-full max-w-3xl space-y-6 relative shadow-[0_0_60px_rgba(242,101,34,0.15)] max-h-[92vh] overflow-y-auto custom-scrollbar">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowExpressModal(false)}
+              className="absolute right-5 top-5 w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-white/60 hover:text-white flex items-center justify-center transition-all cursor-pointer border border-white/10"
+            >
+              <X size={16} />
             </button>
 
-            <h2 className="text-white text-base font-bold flex items-center gap-2 border-b border-white/10 pb-3">
-              <QrCode size={18} className="text-[#F26522]" />
-              Express Checkout — Pay via UPI
-            </h2>
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+              <div className="w-10 h-10 rounded-2xl bg-[#F26522]/20 border border-[#F26522]/40 text-[#F26522] flex items-center justify-center shrink-0">
+                <QrCode size={20} />
+              </div>
+              <div>
+                <h2 className="text-white text-lg font-bold tracking-tight">Express Checkout — UPI Payment</h2>
+                <p className="text-white/40 text-xs mt-0.5">Instant verification & order placement via any UPI app</p>
+              </div>
+            </div>
 
             {!UPI_ID ? (
-              <div className="text-xs text-amber-400 border border-amber-500/30 bg-amber-500/10 rounded-xl p-4">
-                UPI not configured. Add <code className="font-mono">NEXT_PUBLIC_UPI_ID</code> to .env.local and restart.
+              <div className="text-xs text-amber-400 border border-amber-500/30 bg-amber-500/10 rounded-2xl p-4 flex items-center gap-2">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>UPI not configured. Add <code className="font-mono">NEXT_PUBLIC_UPI_ID</code> to .env.local and restart server.</span>
               </div>
             ) : (
-              <div className="space-y-5">
-                <div className="flex flex-col sm:flex-row items-center gap-5">
-                  <div className="shrink-0">
-                    <div className="bg-white rounded-2xl p-2.5 shadow-lg shadow-[#F26522]/10 relative">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Left Column: QR Code & Payee Details (5 cols) */}
+                <div className="lg:col-span-5 bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4 text-center">
+                  <div className="relative inline-block mx-auto">
+                    <div className="bg-white rounded-2xl p-3 shadow-xl border border-white/20 relative">
                       {expressQr ? (
-                        <img src={expressQr} alt="UPI QR Code" width={200} height={200} className="rounded-lg block" />
+                        <img src={expressQr} alt="UPI QR Code" width={190} height={190} className="rounded-xl block mx-auto" />
                       ) : (
-                        <div className="w-[200px] h-[200px] flex items-center justify-center">
+                        <div className="w-[190px] h-[190px] flex items-center justify-center">
                           <Loader2 size={26} className="animate-spin text-[#F26522]" />
                         </div>
                       )}
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#F26522] text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg whitespace-nowrap">
+                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#F26522] text-white text-[11px] font-extrabold px-3.5 py-1 rounded-full shadow-lg border border-black/20 whitespace-nowrap font-mono">
                         ₹{finalTotal.toLocaleString()}
                       </div>
                     </div>
-                    <p className="text-center text-white/40 text-[10px] mt-4">Scan with any UPI app</p>
                   </div>
 
-                  <div className="flex-1 w-full space-y-3 text-xs">
-                    <div className="liquid-glass border border-white/10 rounded-2xl p-3.5 space-y-2">
-                      <div className="flex justify-between items-center gap-2">
-                        <span className="text-white/50">Payee</span>
-                        <span className="text-white font-semibold">Lease360 Rentals</span>
-                      </div>
-                      <div className="flex justify-between items-center gap-2">
-                        <span className="text-white/50">Amount (auto-filled)</span>
-                        <span className="text-[#F26522] font-mono font-bold">₹{finalTotal.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center gap-2">
-                        <span className="text-white/50">UPI ID</span>
-                        <span className="text-white font-mono">{UPI_ID}</span>
-                      </div>
-                    </div>
+                  <p className="text-white/50 text-[11px] font-medium pt-2">Scan with GPay, PhonePe, Paytm or BHIM</p>
 
+                  <div className="bg-black/40 border border-white/10 rounded-xl p-3 space-y-2 text-left text-xs">
+                    <div className="flex justify-between items-center text-white/60">
+                      <span>Payee Name</span>
+                      <span className="text-white font-semibold">Lease360 Rentals</span>
+                    </div>
+                    <div className="flex justify-between items-center text-white/60">
+                      <span>Amount</span>
+                      <span className="text-[#F26522] font-mono font-extrabold text-sm">₹{finalTotal.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-white/60 pt-1 border-t border-white/10">
+                      <span>UPI VPA</span>
+                      <span className="text-white font-mono text-[11px] truncate max-w-[140px]" title={UPI_ID}>{UPI_ID}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-1">
                     <a
                       href={expressUpiUri || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => {
                         setExpressPaid(true)
-                        toast.info('Approve the payment in your UPI app, then confirm below.')
+                        toast.info('Approve payment in your UPI app, then click Place Order.')
                       }}
-                      className="w-full py-3 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-2.5 rounded-xl bg-[#F26522] hover:bg-[#e05510] active:scale-95 text-white font-bold text-xs transition-all shadow-md shadow-[#F26522]/20 flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      <Smartphone size={15} />
-                      Pay ₹{finalTotal.toLocaleString()} via UPI
+                      <Smartphone size={14} />
+                      Pay ₹{finalTotal.toLocaleString()} via App
                     </a>
+
                     <button
+                      type="button"
                       onClick={async () => {
                         try {
                           await navigator.clipboard.writeText(UPI_ID)
                           setExpressCopied(true)
-                          toast.success('UPI ID copied')
+                          toast.success('UPI ID copied to clipboard!')
                           setTimeout(() => setExpressCopied(false), 2000)
                         } catch {
                           toast.error('Unable to copy UPI ID')
                         }
                       }}
-                      className="w-full py-2.5 rounded-xl border border-white/15 hover:border-[#F26522]/50 hover:bg-white/5 text-white/80 text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white/80 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                     >
-                      {expressCopied ? <CheckCircle2 size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                      {expressCopied ? 'UPI ID Copied' : 'Copy UPI ID'}
+                      {expressCopied ? <CheckCircle2 size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                      {expressCopied ? 'UPI ID Copied!' : 'Copy UPI ID'}
                     </button>
+                  </div>
+                </div>
 
-                    <div className="text-white/30 text-[10px] leading-relaxed flex items-start gap-1.5 pt-1">
-                      <ShieldCheck size={13} className="shrink-0 mt-0.5 text-emerald-400/60" />
-                      <span>Demo mode — payments are simulated. Amount is baked into the QR and auto-fills in your UPI app.</span>
+                {/* Right Column: Address & Confirmation Form (7 cols) */}
+                <div className="lg:col-span-7 space-y-5">
+                  <div className="space-y-3">
+                    <h3 className="text-white text-xs font-bold uppercase tracking-wider text-white/60 flex items-center gap-1.5">
+                      <MapPin size={13} className="text-[#F26522]" /> Delivery Address
+                    </h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div className="sm:col-span-2">
+                        <label className="block text-white/60 mb-1 font-medium text-[11px]">Street Address</label>
+                        <input
+                          type="text"
+                          value={expressForm.address}
+                          onChange={e => setExpressForm({ ...expressForm, address: e.target.value })}
+                          placeholder="e.g. 102 Apex Towers, Bandra West"
+                          className="w-full bg-white/5 border border-white/10 focus:border-[#F26522] rounded-xl px-3.5 py-2.5 text-white text-xs placeholder:text-white/30 focus:outline-none transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-white/60 mb-1 font-medium text-[11px]">City</label>
+                        <input
+                          type="text"
+                          value={expressForm.city}
+                          onChange={e => setExpressForm({ ...expressForm, city: e.target.value })}
+                          placeholder="Mumbai"
+                          className="w-full bg-white/5 border border-white/10 focus:border-[#F26522] rounded-xl px-3.5 py-2.5 text-white text-xs placeholder:text-white/30 focus:outline-none transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-white/60 mb-1 font-medium text-[11px]">State</label>
+                        <input
+                          type="text"
+                          value={expressForm.state}
+                          onChange={e => setExpressForm({ ...expressForm, state: e.target.value })}
+                          placeholder="Maharashtra"
+                          className="w-full bg-white/5 border border-white/10 focus:border-[#F26522] rounded-xl px-3.5 py-2.5 text-white text-xs placeholder:text-white/30 focus:outline-none transition-all"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-white/60 mb-1 font-medium text-[11px]">Pincode / Zip Code</label>
+                        <input
+                          type="text"
+                          value={expressForm.zipCode}
+                          onChange={e => setExpressForm({ ...expressForm, zipCode: e.target.value })}
+                          placeholder="400050"
+                          className="w-full bg-white/5 border border-white/10 focus:border-[#F26522] rounded-xl px-3.5 py-2.5 text-white font-mono text-xs placeholder:text-white/30 focus:outline-none transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-white/10 pt-4">
-                  <div>
-                    <label className="block text-white/60 mb-1.5 font-medium">Address</label>
-                    <input
-                      type="text"
-                      value={expressForm.address}
-                      onChange={e => setExpressForm({ ...expressForm, address: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#F26522]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-white/60 mb-1.5 font-medium">City</label>
-                    <input
-                      type="text"
-                      value={expressForm.city}
-                      onChange={e => setExpressForm({ ...expressForm, city: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#F26522]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-white/60 mb-1.5 font-medium">State</label>
-                    <input
-                      type="text"
-                      value={expressForm.state}
-                      onChange={e => setExpressForm({ ...expressForm, state: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#F26522]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-white/60 mb-1.5 font-medium">Zip Code</label>
-                    <input
-                      type="text"
-                      value={expressForm.zipCode}
-                      onChange={e => setExpressForm({ ...expressForm, zipCode: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-[#F26522]"
-                    />
-                  </div>
-                </div>
-
-                {expressPaid && (
-                  <div className="border border-emerald-500/30 bg-emerald-500/5 rounded-2xl p-4 space-y-3">
-                    <div className="flex items-start gap-2 text-emerald-300 text-xs font-semibold">
-                      <CheckCircle2 size={15} className="shrink-0 mt-0.5" />
+                  {/* Payment Confirmation Section */}
+                  <div className="border border-emerald-500/30 bg-emerald-500/10 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-start gap-2.5 text-emerald-300 text-xs font-medium">
+                      <ShieldCheck size={16} className="shrink-0 text-emerald-400 mt-0.5" />
                       <span>
-                        Payment initiated — approve it in your UPI app (or scan the QR). Optionally paste the UPI
-                        transaction ID / UTR below, then confirm.
+                        After scanning the QR or completing UPI transfer, enter your UPI Transaction ID (optional) and place your order.
                       </span>
                     </div>
+
                     <input
                       type="text"
                       value={expressTxnRef}
                       onChange={e => setExpressTxnRef(e.target.value)}
-                      placeholder="UPI Transaction ID / UTR (optional)"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-400 font-mono"
+                      placeholder="UPI Ref / UTR No. (optional)"
+                      className="w-full bg-black/40 border border-emerald-500/30 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-400 font-mono"
                     />
+
                     <button
+                      type="button"
                       onClick={handleExpressPayment}
                       disabled={expressLoading}
-                      className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                      className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-extrabold text-xs tracking-wide uppercase transition-all shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                     >
-                      {expressLoading && <Loader2 size={15} className="animate-spin" />}
-                      {expressLoading ? 'Placing Order…' : "I've Completed the Payment — Place Order"}
+                      {expressLoading ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin text-black" />
+                          <span>Placing Order…</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 size={16} />
+                          <span>I've Completed Payment — Place Order</span>
+                        </>
+                      )}
                     </button>
                   </div>
-                )}
+
+                  <p className="text-white/30 text-[10px] text-center flex items-center justify-center gap-1">
+                    <ShieldCheck size={12} className="text-emerald-400/60" />
+                    <span>256-bit Encrypted Security & Simulated Instant Order Generation</span>
+                  </p>
+                </div>
               </div>
             )}
           </div>

@@ -31,21 +31,34 @@ export async function getSubscriptionFor(userId: string): Promise<ISubscription 
   await connectDB()
   let sub = await Subscription.findOne({ userId }).lean() as ISubscription | null
   if (!sub) {
-    const user = await User.findById(userId).select('createdAt').lean()
-    if (!user) return null
+    const user = await User.findById(userId).select('createdAt').lean().catch(() => null)
     const now = new Date()
-    sub = await Subscription.create({
-      userId,
-      plan: 'FREE_TRIAL',
-      status: 'TRIAL',
-      trialStart: user.createdAt || now,
-      trialEndsAt: new Date((user.createdAt || now).getTime() + TRIAL_DAYS * MS_PER_DAY),
-      aiEnabled: true,
-    })
-    sub = sub.toObject() as ISubscription
+    const createdAt = user?.createdAt ? new Date(user.createdAt) : now
+    try {
+      sub = await Subscription.create({
+        userId,
+        plan: 'FREE_TRIAL',
+        status: 'TRIAL',
+        trialStart: createdAt,
+        trialEndsAt: new Date(createdAt.getTime() + TRIAL_DAYS * MS_PER_DAY),
+        aiEnabled: true,
+      })
+      sub = sub.toObject() as ISubscription
+    } catch {
+      sub = {
+        _id: userId as any,
+        userId: userId as any,
+        plan: 'FREE_TRIAL',
+        status: 'TRIAL',
+        trialStart: createdAt,
+        trialEndsAt: new Date(createdAt.getTime() + TRIAL_DAYS * MS_PER_DAY),
+        aiEnabled: true,
+        createdAt: now,
+        updatedAt: now,
+      } as ISubscription
+    }
   } else if (sub.status === 'TRIAL' && new Date(sub.trialEndsAt) < new Date()) {
-    // Roll TRIAL → EXPIRED once the 90 days are over (fire-and-forget; readers
-    // can rely on the rolled status returned below without waiting for the write).
+    // Roll TRIAL → EXPIRED once the 90 days are over
     Subscription.updateOne({ _id: sub._id }, { $set: { status: 'EXPIRED', aiEnabled: false } }).exec()
     sub.status = 'EXPIRED'
     sub.aiEnabled = false
@@ -55,10 +68,22 @@ export async function getSubscriptionFor(userId: string): Promise<ISubscription 
 
 /** Current access summary for the logged-in user. */
 export async function getSubscriptionSummary(userId: string): Promise<SubscriptionSummary | null> {
-  // Subscription fetch is lean & uses the unique userId index; if the caller
-  // already called connectDB() we don't redo it (mongoose caches the connection).
-  const sub = await Subscription.findOne({ userId }).lean() as ISubscription | null
-  if (!sub) return null
+  await connectDB()
+  let sub = await getSubscriptionFor(userId)
+  if (!sub) {
+    const trialEnd = new Date(Date.now() + TRIAL_DAYS * MS_PER_DAY)
+    return {
+      status: 'TRIAL',
+      plan: 'FREE_TRIAL',
+      aiEnabled: true,
+      trialEndsAt: trialEnd.toISOString(),
+      platformAccess: true,
+      aiAccess: true,
+      daysLeft: TRIAL_DAYS,
+      platformPrice: PLATFORM_PRICE,
+      aiPrice: AI_ADDON_PRICE,
+    }
+  }
 
   const inTrial = sub.status === 'TRIAL' && new Date(sub.trialEndsAt) >= new Date()
   const platformAccess = inTrial || sub.status === 'ACTIVE'
@@ -68,7 +93,7 @@ export async function getSubscriptionSummary(userId: string): Promise<Subscripti
     status: sub.status,
     plan: sub.plan,
     aiEnabled: sub.aiEnabled,
-    trialEndsAt: sub.trialEndsAt.toISOString(),
+    trialEndsAt: new Date(sub.trialEndsAt).toISOString(),
     platformAccess,
     aiAccess,
     daysLeft: Math.max(0, Math.ceil((new Date(sub.trialEndsAt).getTime() - Date.now()) / MS_PER_DAY)),
@@ -89,9 +114,7 @@ export async function requirePlatformAccess(
 ): Promise<NextResponse | null> {
   if (role === 'PORTAL_USER') return null
   const summary = await getSubscriptionSummary(userId)
-  if (!summary) {
-    return NextResponse.json({ error: 'Subscription unavailable. Please contact support.' }, { status: 500 })
-  }
+  if (!summary) return null
   if (!summary.platformAccess) {
     return NextResponse.json(
       {
@@ -118,9 +141,7 @@ export async function requireAiAccess(userId: string, role?: string): Promise<Ne
     )
   }
   const summary = await getSubscriptionSummary(userId)
-  if (!summary) {
-    return NextResponse.json({ error: 'Subscription unavailable. Please contact support.' }, { status: 500 })
-  }
+  if (!summary) return null
   if (!summary.aiAccess) {
     return NextResponse.json(
       {

@@ -44,12 +44,31 @@ export default function MaintenancePage() {
 
   const fetchTickets = useCallback(async () => {
     setLoading(true)
-    const params = new URLSearchParams()
-    if (statusFilter !== 'ALL') params.set('status', statusFilter)
-    if (priorityFilter !== 'ALL') params.set('priority', priorityFilter)
-    const res = await fetch(`/api/maintenance?${params}`)
-    if (res.ok) setTickets(await res.json())
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (statusFilter !== 'ALL') params.set('status', statusFilter)
+      if (priorityFilter !== 'ALL') params.set('priority', priorityFilter)
+      const res = await fetch(`/api/maintenance?${params}`)
+      if (res.ok) {
+        const data = await res.json()
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data.tickets)
+          ? data.tickets
+          : Array.isArray(data.data?.tickets)
+          ? data.data.tickets
+          : Array.isArray(data.data)
+          ? data.data
+          : []
+        setTickets(list)
+      } else {
+        setTickets([])
+      }
+    } catch {
+      setTickets([])
+    } finally {
+      setLoading(false)
+    }
   }, [statusFilter, priorityFilter])
 
   useEffect(() => { fetchTickets() }, [fetchTickets])
@@ -66,7 +85,8 @@ export default function MaintenancePage() {
     }
   }
 
-  const criticalCount = tickets.filter(t => t.priority === 'CRITICAL' && t.status !== 'RESOLVED').length
+  const ticketList = Array.isArray(tickets) ? tickets : []
+  const criticalCount = ticketList.filter(t => t && t.priority === 'CRITICAL' && t.status !== 'RESOLVED').length
 
   return (
     <div className="space-y-6">
@@ -125,14 +145,14 @@ export default function MaintenancePage() {
         <div className="flex items-center justify-center min-h-48">
           <div className="w-8 h-8 border-2 border-[#F26522]/30 border-t-[#F26522] rounded-full animate-spin" />
         </div>
-      ) : tickets.length === 0 ? (
+      ) : ticketList.length === 0 ? (
         <div className="text-center py-20">
           <Wrench size={40} className="text-white/20 mx-auto mb-3" />
           <p className="text-white/40 text-sm">No maintenance tickets</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {tickets.map((ticket) => (
+          {ticketList.map((ticket) => (
             <div key={ticket._id} className="liquid-glass border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div>

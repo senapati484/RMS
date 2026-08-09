@@ -69,7 +69,7 @@ router.post('/register', async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists' })
     }
-    const user = await User.create({ name, email: email.toLowerCase(), password })
+    const user = await User.create({ name, email: email.toLowerCase(), passwordHash: password })
     
     const token = await new SignJWT({
       userId: user._id.toString(),

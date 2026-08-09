@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
@@ -44,14 +44,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const profileMenuRef = useRef<HTMLDivElement>(null)
+
+  // Automatically close menus on navigation
+  useEffect(() => {
+    setShowProfileMenu(false)
+    setSidebarOpen(false)
+  }, [pathname])
+
+  // Click outside to close profile dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false)
+      }
+    }
+    if (showProfileMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showProfileMenu])
 
   useEffect(() => {
     if (!loading && !user) {
       router.replace('/login')
       return
     }
-    // Role-based route guard: redirect to the dashboard home when the user
-    // tries to open a section outside their role.
     if (user) {
       const blocked = navItems.find(
         (item) => pathname.startsWith(item.href) && !item.roles.includes(user.role)
@@ -199,7 +219,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <NotificationBell />
 
           {/* Top Right Header Profile Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={profileMenuRef}>
             <button
               aria-label="User profile menu"
               aria-expanded={showProfileMenu}
@@ -221,16 +241,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {user.role === 'ADMIN' ? 'Admin / Vendor' : user.role === 'STAFF' ? 'Staff' : 'Customer Account'}
                   </span>
                 </div>
-                <Link href="/dashboard/profile" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                <Link
+                  href="/dashboard/profile"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5"
+                >
                   My Profile
                 </Link>
-                <Link href="/dashboard/orders" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                <Link
+                  href="/dashboard/orders"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5"
+                >
                   My Orders
                 </Link>
-                <Link href="/dashboard/settings" className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5">
+                <Link
+                  href="/dashboard/settings"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="block px-3 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/5"
+                >
                   Warehouse & Settings
                 </Link>
-                <button onClick={handleLogout} className="w-full text-left px-3 py-2 rounded-xl text-red-400 hover:bg-red-500/10 flex items-center gap-2 cursor-pointer">
+                <button
+                  onClick={() => {
+                    setShowProfileMenu(false)
+                    handleLogout()
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-xl text-red-400 hover:bg-red-500/10 flex items-center gap-2 cursor-pointer"
+                >
                   <LogOut size={14} />
                   Sign out
                 </button>

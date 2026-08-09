@@ -9,7 +9,7 @@ import { cache } from '../lib/cache'
 const router = Router()
 
 // POST /api/admin/clear-cache — Clear all in-memory cache
-router.post('/clear-cache', (req: AuthRequest, res: Response) => {
+router.post('/clear-cache', requireAuth, requireAdmin, (req: AuthRequest, res: Response) => {
   cache.clear()
   return res.json({ success: true, message: 'Cache cleared successfully' })
 })
